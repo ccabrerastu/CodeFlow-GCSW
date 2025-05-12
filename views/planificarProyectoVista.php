@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SGC - Planificar Proyecto: <?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body { font-family: sans-serif; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .section-title { font-size: 1.5em; font-weight: bold; color: #333; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #4A90E2; }
+        .detail-item { margin-bottom: 0.75rem; }
+        .detail-label { font-weight: bold; color: #555; }
+        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; display: inline-block; margin-right: 5px; font-size: 0.875rem; }
+        .btn-primary { background-color: #4A90E2; color: white; border:none; }
+        .btn-primary:hover { background-color: #357ABD; }
+        .btn-secondary { background-color: #6c757d; color: white; border:none; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .tab-button { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-button.active { border-bottom-color: #4A90E2; color: #4A90E2; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <?php include __DIR__ . '/partials/header.php'; ?>
+
+    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-700">
+                Planificación del Proyecto: <span class="text-blue-600"><?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?></span>
+            </h1>
+            <a href="index.php?c=Proyecto&a=index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Volver a Proyectos
+            </a>
+        </div>
+
+        <?php if (isset($statusMessage) && $statusMessage): ?>
+            <div class="p-3 mb-4 text-sm <?= $statusMessage['type'] === 'success' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100' ?> rounded-lg" role="alert">
+                <?= htmlspecialchars($statusMessage['text']) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="mb-4 border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button onclick="openTab(event, 'general')" class="tab-button active">General</button>
+                <button onclick="openTab(event, 'equipo')" class="tab-button">Equipo</button>
+                <button onclick="openTab(event, 'cronograma')" class="tab-button">Cronograma</button>
+                <button onclick="openTab(event, 'ecs')" class="tab-button">ECS</button>
+            </nav>
+        </div>
+
+        <div id="general" class="tab-content active">
+            <h2 class="section-title">Información General del Proyecto</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <p class="detail-item"><span class="detail-label">ID Proyecto:</span> <?= htmlspecialchars($proyecto['id_proyecto']) ?></p>
+                    <p class="detail-item"><span class="detail-label">Nombre:</span> <?= htmlspecialchars($proyecto['nombre_proyecto']) ?></p>
+                    <p class="detail-item"><span class="detail-label">Descripción:</span> <?= nl2br(htmlspecialchars($proyecto['descripcion'] ?? 'N/A')) ?></p>
+                </div>
+                <div>
+                    <p class="detail-item"><span class="detail-label">Metodología:</span> <?= htmlspecialchars($proyecto['nombre_metodologia'] ?? 'No asignada') ?></p>
+                    <p class="detail-item"><span class="detail-label">Product Owner:</span> <?= htmlspecialchars($proyecto['nombre_product_owner'] ?? 'No asignado') ?></p>
+                    <p class="detail-item"><span class="detail-label">Fecha Inicio Planificada:</span> <?= htmlspecialchars($proyecto['fecha_inicio_planificada'] ? date('d/m/Y', strtotime($proyecto['fecha_inicio_planificada'])) : 'N/A') ?></p>
+                    <p class="detail-item"><span class="detail-label">Fecha Fin Planificada:</span> <?= htmlspecialchars($proyecto['fecha_fin_planificada'] ? date('d/m/Y', strtotime($proyecto['fecha_fin_planificada'])) : 'N/A') ?></p>
+                    <p class="detail-item"><span class="detail-label">Estado:</span> <?= htmlspecialchars($proyecto['estado_proyecto']) ?></p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <a href="index.php?c=Proyecto&a=mostrarFormularioProyecto&id_proyecto=<?= $proyecto['id_proyecto'] ?>" class="btn btn-primary">
+                    <i class="fas fa-edit mr-1"></i> Editar Datos Generales
+                </a>
+            </div>
+        </div>
+
+        <div id="equipo" class="tab-content mt-6">
+            <h2 class="section-title">Equipo del Proyecto</h2>
+            <p class="text-gray-600">Funcionalidad de gestión de equipo y roles del proyecto se implementará aquí.</p>
+            </div>
+
+        <div id="cronograma" class="tab-content mt-6">
+            <h2 class="section-title">Cronograma del Proyecto</h2>
+            <p class="text-gray-600">Funcionalidad de gestión de cronograma (fases, actividades, asignaciones, entregas) se implementará aquí.</p>
+            </div>
+
+        <div id="ecs" class="tab-content mt-6">
+            <h2 class="section-title">Elementos de Configuración (ECS)</h2>
+            <p class="text-gray-600">Funcionalidad de gestión de Elementos de Configuración del proyecto se implementará aquí.</p>
+            </div>
+
+    </div>
+
+    <script>
+        function openTab(event, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+        // Abrir la primera pestaña por defecto
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstTab = document.querySelector('.tab-button');
+            if (firstTab) {
+                firstTab.click();
+            }
+        });
+    </script>
+
+    <?php include __DIR__ . '/partials/footer.php';  ?>
+</body>
+</html>
