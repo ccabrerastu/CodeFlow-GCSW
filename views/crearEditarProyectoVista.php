@@ -61,7 +61,7 @@ $esEditar = isset($accion) && $accion === 'editar';
                 <div>
                     <label for="id_metodologia" class="form-label">Metodología:</label>
                     <select name="id_metodologia" id="id_metodologia" class="form-select" required>
-                        <option value="">Seleccione una metodología</option>
+                        <option value="">Seleccione una metodología</option>cle
                         <?php foreach ($metodologias as $metodologia): ?>
                             <option value="<?= htmlspecialchars($metodologia['id_metodologia']) ?>" 
                                 <?= (isset($formData['id_metodologia']) && $formData['id_metodologia'] == $metodologia['id_metodologia']) ? 'selected' : '' ?>>
