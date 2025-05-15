@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../model/ProyectoModel.php';
 require_once __DIR__ . '/../model/MetodologiaModel.php';
 require_once __DIR__ . '/../model/UsuarioModel.php';
+require_once __DIR__ . '/../model/EquipoModel.php';
 
 
 class ProyectoControlador {
@@ -9,11 +10,12 @@ class ProyectoControlador {
     private $proyectoModel;
     private $metodologiaModel;
     private $usuarioModel;
-
+    private $equipoModel; 
     public function __construct() {
         $this->proyectoModel = new ProyectoModel();
         $this->metodologiaModel = new MetodologiaModel();
         $this->usuarioModel = new UsuarioModel();
+         $this->equipoModel = new EquipoModel();
     }
 
 
@@ -129,37 +131,37 @@ class ProyectoControlador {
         exit;
     }
 
-
-    public function planificar() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
-        if (!$id_proyecto) {
-            $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de proyecto no válido.'];
-            header("Location: index.php?c=Proyecto&a=index");
-            exit;
-        }
-
-        $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
-        if (!$proyecto) {
-            $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Proyecto no encontrado.'];
-            header("Location: index.php?c=Proyecto&a=index");
-            exit;
-        }
-
-
-
-        $baseUrl = "/";
-        $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
-        $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
-        $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
-        $formData = $proyecto; 
-        $formErrors = [];
-
-        require __DIR__ . '/../views/planificarProyectoVista.php'; 
+public function planificar() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+
+    $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
+    if (!$id_proyecto) {
+        $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de proyecto no válido.'];
+        header("Location: index.php?c=Proyecto&a=index");
+        exit;
+    }
+
+    $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
+    if (!$proyecto) {
+        $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Proyecto no encontrado.'];
+        header("Location: index.php?c=Proyecto&a=index");
+        exit;
+    }
+
+    $resultadoRoles = $this->equipoModel->obtenerRolesProyecto(); 
+   $roles = $resultadoRoles;
+
+    $baseUrl = "/";
+    $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
+    $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
+    $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
+    $formData = $proyecto; 
+    $formErrors = [];
+
+    require __DIR__ . '/../views/planificarProyectoVista.php'; 
+}
 
 }
 ?>

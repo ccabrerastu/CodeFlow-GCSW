@@ -1,34 +1,46 @@
 <?php
 require_once __DIR__ . '/../model/EquipoModel.php';
 
-class EquipoControlador{
+class EquipoControlador {
     private $equipoModel;
 
     public function __construct() {
         $this->equipoModel = new EquipoModel();
     }
 
-    public function guardarNombreEquipo($id_proyecto, $nombre_equipo) {
+    public function guardarEquipo() {
+        $id_proyecto = $_POST['id_proyecto'] ?? null;
+        $nombre_equipo = $_POST['nombre_equipo'] ?? null;
+
         if (!empty($id_proyecto) && !empty($nombre_equipo)) {
             $this->equipoModel->guardarNombreEquipo($id_proyecto, $nombre_equipo);
-            return ['status' => 'success', 'message' => 'Nombre del equipo guardado correctamente'];
+            // Redirigir o retornar JSON según necesidad
+            header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=$id_proyecto");
+            exit;
         } else {
-            return ['status' => 'error', 'message' => 'Datos incompletos'];
+            echo "Datos incompletos";
         }
     }
 
-    public function asignarMiembro($id_equipo, $id_usuario, $id_rol_proyecto) {
+    public function asignarMiembro() {
+        $id_equipo = $_POST['id_equipo'] ?? null;
+        $id_usuario = $_POST['id_usuario'] ?? null;
+        $id_rol_proyecto = $_POST['id_rol_proyecto'] ?? null;
+        $id_proyecto = $_POST['id_proyecto'] ?? null; // Por si necesitas redirigir
+
         if (!empty($id_equipo) && !empty($id_usuario) && !empty($id_rol_proyecto)) {
             $this->equipoModel->asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto);
-            return ['status' => 'success', 'message' => 'Miembro asignado con éxito'];
+            header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=$id_proyecto");
+            exit;
         } else {
-            return ['status' => 'error', 'message' => 'Datos incompletos'];
+            echo "Datos incompletos";
         }
     }
 
     public function obtenerRoles() {
         $roles = $this->equipoModel->obtenerRolesProyecto();
         return ['status' => 'success', 'data' => $roles];
+        require 'views/planificarProyectosVista.php';
     }
 
     public function obtenerEquipoPorProyecto($id_proyecto) {

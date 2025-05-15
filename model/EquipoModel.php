@@ -38,7 +38,7 @@ class EquipoModel {
     }
 
     public function obtenerRolesProyecto() {
-        $sql = "SELECT * FROM Roles";
+        $sql = "SELECT id_rol, nombre_rol FROM Roles";
         $resultado = $this->conexion->query($sql);
         $roles = [];
         while ($fila = $resultado->fetch_assoc()) {
