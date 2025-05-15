@@ -151,10 +151,12 @@
                         <td class="px-4 py-2 space-x-2">
                         <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
                             <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
-                            <button type="submit" 
-                                class="bg-gray-600 bg-opacity-70 hover:bg-opacity-100 text-white px-3 py-1 rounded text-sm">
-                                ✏️ Modificar Rol
+                            <button type="button" 
+                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario']) ?>', '<?= htmlspecialchars($miembro['id_rol']) ?>')"
+                            class="bg-gray-600 bg-opacity-70 hover:bg-opacity-100 text-white px-3 py-1 rounded text-sm">
+                            ✏️ Modificar Rol
                             </button>
+
                         </form>
                         <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
                         <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
@@ -212,3 +214,26 @@
     <?php include __DIR__ . '/partials/footer.php';  ?>
 </body>
 </html>
+<!-- Modal de Modificación de Rol -->
+<div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+        <h2 class="text-lg font-semibold mb-4">Editar Rol del Miembro</h2>
+        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=actualizarRolMiembro">
+            <input type="hidden" name="id_usuario" id="modal_id_usuario">
+            <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo']) ?>">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
+                <select name="id_rol_proyecto" id="modal_id_rol" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                    <option value="">-- Seleccionar rol --</option>
+                    <?php foreach ($roles as $rol): ?>
+                        <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="cerrarModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
