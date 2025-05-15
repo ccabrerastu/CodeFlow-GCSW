@@ -152,7 +152,8 @@
                         <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
                             <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                             <button type="button" 
-                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario']) ?>', '<?= htmlspecialchars($miembro['id_rol']) ?>')"
+                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
+
                             class="bg-gray-600 bg-opacity-70 hover:bg-opacity-100 text-white px-3 py-1 rounded text-sm">
                             ✏️ Modificar Rol
                             </button>
@@ -202,23 +203,37 @@
             document.getElementById(tabName).classList.add("active");
             event.currentTarget.classList.add("active");
         }
-        // Abrir la primera pestaña por defecto
+        
         document.addEventListener('DOMContentLoaded', () => {
             const firstTab = document.querySelector('.tab-button');
             if (firstTab) {
                 firstTab.click();
             }
         });
+        function abrirModal(id_usuario, id_rol) {
+    const modal = document.getElementById('modalEditarRol');
+    modal.classList.remove('hidden');  
+
+    
+    document.getElementById('modal_id_usuario').value = id_usuario;
+    document.getElementById('modal_id_rol').value = id_rol;
+}
+
+function cerrarModal() {
+    const modal = document.getElementById('modalEditarRol');
+    modal.classList.add('hidden');  
+}
+
     </script>
 
     <?php include __DIR__ . '/partials/footer.php';  ?>
 </body>
 </html>
-<!-- Modal de Modificación de Rol -->
+
 <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
         <h2 class="text-lg font-semibold mb-4">Editar Rol del Miembro</h2>
-        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=actualizarRolMiembro">
+        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRol">
             <input type="hidden" name="id_usuario" id="modal_id_usuario">
             <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo']) ?>">
             <div class="mb-4">
@@ -237,3 +252,4 @@
         </form>
     </div>
 </div>
+

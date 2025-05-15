@@ -77,23 +77,41 @@ public function asignarMiembro() {
         }
         return ['status' => 'error', 'message' => 'ID de equipo requerido'];
     }
+    public function mostrar() {
+    $idEquipo = $_GET['id_equipo'] ?? null;
+    if ($idEquipo) {
+        $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
+        $miembros = $this->equipoModel->obtenerMiembrosEquipo($idEquipo);
+
+        require_once __DIR__ . '/../views/planificarProyectoVista.php';
+    } else {
+        echo "ID de equipo no proporcionado.";
+    }
+}
 public function modificarRol() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $idMiembro = $_POST['id_miembro'] ?? null;
+        $idMiembro = $_POST['id_usuario'] ?? null;
         $idEquipo = $_POST['id_equipo'] ?? null;
+        $idRolProyecto = $_POST['id_rol_proyecto'] ?? null; // Nuevo rol seleccionado
 
-        if ($idMiembro && $idEquipo) {
-            // Obtener datos del miembro con equipo
-            $miembro = $this->equipoModel->obtenerMiembroPorIdYEquipo($idMiembro, $idEquipo); // Este método lo crearás
-            $proyecto = $this->equipoModel->obtenerProyectoPorEquipo($idEquipo); // Para pasar el proyecto a la vista
+        if ($idMiembro && $idEquipo && $idRolProyecto) {
+            // Aquí haces la actualización en la base de datos
+            $actualizado = $this->equipoModel->actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto);
 
-            if ($miembro) {
-                require_once __DIR__ . '/../view/planificarProyectoVista.php';
+            if ($actualizado) {
+                // Obtener el id del proyecto asociado al equipo para la redirección
+                $proyecto = $this->equipoModel->obtenerProyectoPorEquipo($idEquipo);
+                if ($proyecto && isset($proyecto['id_proyecto'])) {
+                    header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $proyecto['id_proyecto']);
+                    exit();
+                } else {
+                    echo "No se pudo obtener el proyecto asociado al equipo.";
+                }
             } else {
-                echo "Miembro no encontrado en el equipo.";
+                echo "No se pudo actualizar el rol del miembro.";
             }
         } else {
-            echo "ID de miembro o equipo no proporcionado.";
+            echo "Faltan datos requeridos (miembro, equipo o rol).";
         }
     }
 }

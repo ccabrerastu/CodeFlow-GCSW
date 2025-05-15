@@ -87,7 +87,7 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
     }
 
     public function obtenerMiembrosEquipo($id_equipo) {
-        $stmt = $this->conexion->prepare("SELECT u.nombre_completo, rp.nombre_rol
+        $stmt = $this->conexion->prepare("SELECT u.nombre_completo, rp.nombre_rol, me.id_rol_proyecto,  me.id_usuario
                                           FROM MiembrosEquipo me
                                           INNER JOIN Usuarios u ON me.id_usuario = u.id_usuario
                                           INNER JOIN Roles rp ON me.id_rol_proyecto = rp.id_rol
@@ -105,15 +105,15 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
         return $miembros;
     }
 
-    public function obtenerProyectoPorEquipo($id_equipo) {
-        $stmt = $this->conexion->prepare("SELECT id_proyecto FROM Equipos WHERE id_equipo = ?");
-        $stmt->bind_param("i", $id_equipo);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-        $row = $resultado->fetch_assoc();
-        $stmt->close();
-        return $row ? $row['id_proyecto'] : null;
-    }
+public function obtenerProyectoPorEquipo($id_equipo) {
+    $stmt = $this->conexion->prepare("SELECT * FROM Proyectos WHERE id_proyecto = (SELECT id_proyecto FROM Equipos WHERE id_equipo = ?)");
+    $stmt->bind_param("i", $id_equipo);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    $proyecto = $resultado->fetch_assoc();
+    $stmt->close();
+    return $proyecto ?: null;
+}
     public function obtenerEquipoPorProyecto2($id_proyecto) {
     $sql = "SELECT * FROM Equipos WHERE id_proyecto = ? LIMIT 1";
     $stmt = $this->conexion->prepare($sql);
@@ -156,6 +156,18 @@ public function eliminarMiembroDeEquipo($id_usuario, $id_equipo) {
     $stmt->bind_param("ii", $id_usuario, $id_equipo);
     return $stmt->execute();
 }
-
+public function actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto) {
+    $sql = "UPDATE MiembrosEquipo 
+            SET id_rol_proyecto = ? 
+            WHERE id_usuario = ? AND id_equipo = ?";
+    $stmt = $this->conexion->prepare($sql);
+    if (!$stmt) {
+        return false;
+    }
+    $stmt->bind_param("iii", $idRolProyecto, $idMiembro, $idEquipo);
+    $resultado = $stmt->execute();
+    $stmt->close();
+    return $resultado;  // true si actualizó, false si no
+}
    
 }
