@@ -151,6 +151,7 @@ public function planificar() {
     }
 
     $resultadoRoles = $this->equipoModel->obtenerRolesProyecto(); 
+    $equipo = $this->equipoModel->obtenerEquipoPorProyecto2($id_proyecto);
    $roles = $resultadoRoles;
 
     $baseUrl = "/";

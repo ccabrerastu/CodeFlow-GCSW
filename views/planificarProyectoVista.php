@@ -77,16 +77,23 @@
     <h2 class="section-title">Equipo del Proyecto</h2>
 
     <!-- Mostrar/Editar nombre del equipo -->
+<?php if (!empty($equipo['nombre_equipo'])): ?>
+    <div class="mb-4">
+        <p class="text-sm font-medium text-gray-700">Nombre del Equipo:</p>
+        <p class="mt-1 text-lg font-semibold text-blue-600"><?= htmlspecialchars($equipo['nombre_equipo']) ?></p>
+    </div>
+<?php else: ?>
     <form action="index.php?c=Equipo&a=guardarEquipo" method="POST" class="mb-6">
         <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Nombre del Equipo:</label>
-            <input type="text" name="nombre_equipo" class="mt-1 block w-full border border-gray-300 rounded-md p-2" value="<?= htmlspecialchars($equipo['nombre_equipo'] ?? '') ?>" required>
+            <input type="text" name="nombre_equipo" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
         </div>
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save mr-1"></i> Guardar Nombre del Equipo
         </button>
     </form>
+<?php endif; ?>
 
     <!-- Asignar miembros al equipo -->
     <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>

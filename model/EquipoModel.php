@@ -92,4 +92,25 @@ class EquipoModel {
         $stmt->close();
         return $row ? $row['id_proyecto'] : null;
     }
+    public function obtenerEquipoPorProyecto2($id_proyecto) {
+    $sql = "SELECT * FROM Equipos WHERE id_proyecto = ? LIMIT 1";
+    $stmt = $this->conexion->prepare($sql);
+
+    if (!$stmt) {
+        die("Error al preparar la consulta: " . $this->db->error);
+    }
+
+    $stmt->bind_param("i", $id_proyecto); // "i" = integer
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+    $equipo = $resultado->fetch_assoc();
+
+    $stmt->close();
+
+    return $equipo;
+}
+
+
+   
 }
