@@ -125,17 +125,30 @@
         </button>
     </form>
 
-    <!-- Lista de miembros asignados -->
-    <?php if (!empty($miembros_equipo)): ?>
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros Asignados</h3>
-        <ul class="list-disc list-inside text-gray-700">
-            <?php foreach ($miembros_equipo as $miembro): ?>
-                <li><?= htmlspecialchars($miembro['nombre_completo']) ?> - <strong><?= htmlspecialchars($miembro['nombre_rol']) ?></strong></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php else: ?>
-        <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
-    <?php endif; ?>
+ <!-- Lista de miembros asignados en tabla estilizada -->
+<?php if (!empty($miembros_equipo)): ?>
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Miembros Asignados</h3>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
+            <thead class="bg-gray-100 border-b border-gray-300">
+                <tr>
+                    <th class="text-left px-4 py-2 font-medium text-gray-700">Nombre Completo</th>
+                    <th class="text-left px-4 py-2 font-medium text-gray-700">Rol</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($miembros_equipo as $miembro): ?>
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
+                        <td class="px-4 py-2 font-semibold text-blue-600"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php else: ?>
+    <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
+<?php endif; ?>
 </div>
         <div id="cronograma" class="tab-content mt-6">
             <h2 class="section-title">Cronograma del Proyecto</h2>

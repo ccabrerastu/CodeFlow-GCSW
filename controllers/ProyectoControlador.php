@@ -153,7 +153,10 @@ public function planificar() {
     $resultadoRoles = $this->equipoModel->obtenerRolesProyecto(); 
     $equipo = $this->equipoModel->obtenerEquipoPorProyecto2($id_proyecto);
    $roles = $resultadoRoles;
-
+    $miembros_equipo = [];
+    if (!empty($equipo) && isset($equipo['id_equipo'])) {
+        $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
+    }
     $baseUrl = "/";
     $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
     $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
