@@ -1,11 +1,12 @@
 <?php
 require_once __DIR__ . '/../model/EquipoModel.php';
-
+require_once __DIR__ .  '/../model/ProyectoModel.php';
 class EquipoControlador {
     private $equipoModel;
-
+    private $proyectoModel;
     public function __construct() {
         $this->equipoModel = new EquipoModel();
+        $this->proyectoModel = new ProyectoModel();
     }
 
     public function guardarEquipo() {
@@ -21,21 +22,31 @@ class EquipoControlador {
             echo "Datos incompletos";
         }
     }
+public function asignarMiembro() {
+    $id_equipo = $_POST['id_equipo'] ?? null;
+    $id_usuario = $_POST['id_usuario'] ?? null;
+    $id_rol_proyecto = $_POST['id_rol_proyecto'] ?? null;
+    $id_proyecto = $_POST['id_proyecto'] ?? null;
 
-    public function asignarMiembro() {
-        $id_equipo = $_POST['id_equipo'] ?? null;
-        $id_usuario = $_POST['id_usuario'] ?? null;
-        $id_rol_proyecto = $_POST['id_rol_proyecto'] ?? null;
-        $id_proyecto = $_POST['id_proyecto'] ?? null; // Por si necesitas redirigir
+    if (!empty($id_equipo) && !empty($id_usuario) && !empty($id_rol_proyecto)) {
+        $resultado = $this->equipoModel->asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto);
 
-        if (!empty($id_equipo) && !empty($id_usuario) && !empty($id_rol_proyecto)) {
-            $this->equipoModel->asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto);
-            header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=$id_proyecto");
-            exit;
-        } else {
-            echo "Datos incompletos";
-        }
+        // Prepara los datos necesarios para volver a cargar la vista
+        $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
+        $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
+        $usuarios = $this->equipoModel->obtenerUsuariosDisponibles();
+        $roles = $this->equipoModel->obtenerRolesProyecto();
+        $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
+
+        $mensaje = $resultado
+            ? ['tipo' => 'success', 'texto' => 'Miembro asignado exitosamente.']
+            : ['tipo' => 'error', 'texto' => 'Este miembro ya tiene roles o ese rol ya fue asignado.'];
+
+        require_once 'views/planificarProyectoVista.php'; // o la vista correspondiente
+    } else {
+        echo "Datos incompletos";
     }
+}
 
     public function obtenerRoles() {
         $roles = $this->equipoModel->obtenerRolesProyecto();

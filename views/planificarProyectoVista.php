@@ -97,6 +97,12 @@
 
     <!-- Asignar miembros al equipo -->
     <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>
+    <?php if (isset($mensaje)): ?>
+    <div class="<?= $mensaje['tipo'] === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' ?> border px-4 py-3 rounded mb-4">
+        <strong><?= ucfirst($mensaje['tipo']) ?>:</strong> <?= $mensaje['texto'] ?>
+    </div>
+<?php endif; ?>
+
     <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="mb-6">
         <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
     <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">

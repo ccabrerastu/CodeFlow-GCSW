@@ -47,12 +47,34 @@ class EquipoModel {
         return $roles;
     }
 
-    public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) {
-        $stmt = $this->conexion->prepare("INSERT INTO MiembrosEquipo (id_equipo, id_usuario, id_rol_proyecto) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
-        $stmt->execute();
-        $stmt->close();
+public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) {
+    // Verificar cuántos roles tiene ya el usuario en el equipo
+    $stmt = $this->conexion->prepare("SELECT COUNT(*) as total FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ?");
+    $stmt->bind_param("ii", $id_equipo, $id_usuario);
+    $stmt->execute();
+    $resultado = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    // Verificar si ya tiene ese mismo rol
+    $stmt = $this->conexion->prepare("SELECT COUNT(*) as existe FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ? AND id_rol_proyecto = ?");
+    $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
+    $stmt->execute();
+    $verificaRol = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if ($resultado['total'] >= 1 || $verificaRol['existe'] > 0) {
+        // Ya tiene 2 roles o el mismo rol ya fue asignado
+        return false;
     }
+
+    // Si pasa las verificaciones, insertar
+    $stmt = $this->conexion->prepare("INSERT INTO MiembrosEquipo (id_equipo, id_usuario, id_rol_proyecto) VALUES (?, ?, ?)");
+    $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
+    $stmt->execute();
+    $stmt->close();
+
+    return true;
+}
 
     public function obtenerEquipoPorProyecto($id_proyecto) {
         $stmt = $this->conexion->prepare("SELECT * FROM Equipos WHERE id_proyecto = ?");
@@ -110,6 +132,18 @@ class EquipoModel {
 
     return $equipo;
 }
+public function obtenerUsuariosDisponibles() {
+    $query = "SELECT id_usuario, nombre_completo AS nombre_completo FROM Usuarios";
+    $result = $this->conexion->query($query);
+
+    $usuarios = [];
+    while ($row = $result->fetch_assoc()) {
+        $usuarios[] = $row;
+    }
+
+    return $usuarios;
+}
+
 
 
    
