@@ -99,6 +99,7 @@
     <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>
     <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="mb-6">
         <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
+    <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
