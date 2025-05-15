@@ -144,7 +144,18 @@ public function obtenerUsuariosDisponibles() {
     return $usuarios;
 }
 
+public function obtenerMiembroPorIdYEquipo($id_usuario, $id_equipo) {
+    $stmt = $this->conexion->prepare("SELECT * FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
+    $stmt->bind_param("ii", $id_usuario, $id_equipo);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
 
+public function eliminarMiembroDeEquipo($id_usuario, $id_equipo) {
+    $stmt = $this->conexion->prepare("DELETE FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
+    $stmt->bind_param("ii", $id_usuario, $id_equipo);
+    return $stmt->execute();
+}
 
    
 }

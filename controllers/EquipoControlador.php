@@ -77,4 +77,44 @@ public function asignarMiembro() {
         }
         return ['status' => 'error', 'message' => 'ID de equipo requerido'];
     }
+public function modificarRol() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $idMiembro = $_POST['id_miembro'] ?? null;
+        $idEquipo = $_POST['id_equipo'] ?? null;
+
+        if ($idMiembro && $idEquipo) {
+            // Obtener datos del miembro con equipo
+            $miembro = $this->equipoModel->obtenerMiembroPorIdYEquipo($idMiembro, $idEquipo); // Este método lo crearás
+            $proyecto = $this->equipoModel->obtenerProyectoPorEquipo($idEquipo); // Para pasar el proyecto a la vista
+
+            if ($miembro) {
+                require_once __DIR__ . '/../view/planificarProyectoVista.php';
+            } else {
+                echo "Miembro no encontrado en el equipo.";
+            }
+        } else {
+            echo "ID de miembro o equipo no proporcionado.";
+        }
+    }
+}
+public function eliminarMiembro() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $idMiembro = $_POST['id_miembro'] ?? null;
+        $idEquipo = $_POST['id_equipo'] ?? null;
+
+        if ($idMiembro && $idEquipo) {
+            $resultado = $this->equipoModel->eliminarMiembroDeEquipo($idMiembro, $idEquipo); // Método nuevo
+
+            if ($resultado) {
+                // Redirige o muestra mensaje
+                require_once __DIR__ . '/../view/planificarProyectoVista.php';
+            } else {
+                echo "No se pudo eliminar al miembro del equipo.";
+            }
+        } else {
+            echo "ID de miembro o equipo no proporcionado.";
+        }
+    }
+}
+
 }

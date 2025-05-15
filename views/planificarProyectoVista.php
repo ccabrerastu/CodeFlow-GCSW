@@ -149,14 +149,14 @@
                         <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
                         <td class="px-4 py-2 font-semibold text-blue-600"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
                         <td class="px-4 py-2 space-x-2">
-                        <form method="post" action="index.php?controlador=equipo&accion=modificarRol" class="inline">
+                        <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
                             <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                             <button type="submit" 
                                 class="bg-gray-600 bg-opacity-70 hover:bg-opacity-100 text-white px-3 py-1 rounded text-sm">
                                 ✏️ Modificar Rol
                             </button>
                         </form>
-                        <form method="post" action="index.php?controlador=equipo&accion=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
+                        <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
                         <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                         <button type="submit" 
                         class="bg-gray-700 bg-opacity-70 hover:bg-opacity-100 text-white px-3 py-1 rounded text-sm">
