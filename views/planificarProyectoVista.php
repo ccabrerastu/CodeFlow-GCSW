@@ -73,11 +73,63 @@
             </div>
         </div>
 
-        <div id="equipo" class="tab-content mt-6">
-            <h2 class="section-title">Equipo del Proyecto</h2>
-            <p class="text-gray-600">Funcionalidad de gestión de equipo y roles del proyecto se implementará aquí.</p>
-            </div>
+<div id="equipo" class="tab-content mt-6">
+    <h2 class="section-title">Equipo del Proyecto</h2>
 
+    <!-- Mostrar/Editar nombre del equipo -->
+    <form action="index.php?c=Equipo&a=guardarEquipo" method="POST" class="mb-6">
+        <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Nombre del Equipo:</label>
+            <input type="text" name="nombre_equipo" class="mt-1 block w-full border border-gray-300 rounded-md p-2" value="<?= htmlspecialchars($equipo['nombre_equipo'] ?? '') ?>" required>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save mr-1"></i> Guardar Nombre del Equipo
+        </button>
+    </form>
+
+    <!-- Asignar miembros al equipo -->
+    <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>
+    <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="mb-6">
+        <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Seleccionar Miembro:</label>
+                <select name="id_usuario" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                    <option value="">-- Seleccionar usuario --</option>
+                    <?php foreach ($usuarios as $usuario): ?>
+                        <option value="<?= $usuario['id_usuario'] ?>"><?= htmlspecialchars($usuario['nombre_completo']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Rol en el Proyecto:</label>
+                <select name="id_rol_proyecto" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                    <option value="">-- Seleccionar rol --</option>
+                    <?php foreach ($roles as $rol): ?>
+                        <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">
+            <i class="fas fa-user-plus mr-1"></i> Asignar Miembro
+        </button>
+    </form>
+
+    <!-- Lista de miembros asignados -->
+    <?php if (!empty($miembros_equipo)): ?>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros Asignados</h3>
+        <ul class="list-disc list-inside text-gray-700">
+            <?php foreach ($miembros_equipo as $miembro): ?>
+                <li><?= htmlspecialchars($miembro['nombre_completo']) ?> - <strong><?= htmlspecialchars($miembro['nombre_rol']) ?></strong></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
+    <?php endif; ?>
+</div>
         <div id="cronograma" class="tab-content mt-6">
             <h2 class="section-title">Cronograma del Proyecto</h2>
             <p class="text-gray-600">Funcionalidad de gestión de cronograma (fases, actividades, asignaciones, entregas) se implementará aquí.</p>
