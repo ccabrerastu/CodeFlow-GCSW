@@ -131,8 +131,7 @@
             <i class="fas fa-user-plus mr-1"></i> Asignar Miembro
         </button>
     </form>
-
- <!-- Lista de miembros asignados en tabla estilizada -->
+<!-- Lista de miembros asignados en tabla estilizada -->
 <?php if (!empty($miembros_equipo)): ?>
     <h3 class="text-lg font-semibold text-gray-700 mb-4">Miembros Asignados</h3>
     <div class="overflow-x-auto">
@@ -141,6 +140,7 @@
                 <tr>
                     <th class="text-left px-4 py-2 font-medium text-gray-700">Nombre Completo</th>
                     <th class="text-left px-4 py-2 font-medium text-gray-700">Rol</th>
+                    <th class="text-left px-4 py-2 font-medium text-gray-700">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -148,6 +148,20 @@
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
                         <td class="px-4 py-2 font-semibold text-blue-600"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
+                        <td class="px-4 py-2 space-x-2">
+                            <form method="post" action="index.php?controlador=equipo&accion=modificarRol" class="inline">
+                            <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
+                                <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm">
+                                    Modificar Rol
+                                </button>
+                            </form>
+                            <form method="post" action="index.php?controlador=equipo&accion=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
+                            <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -156,7 +170,6 @@
 <?php else: ?>
     <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
 <?php endif; ?>
-</div>
         <div id="cronograma" class="tab-content mt-6">
             <h2 class="section-title">Cronograma del Proyecto</h2>
             <p class="text-gray-600">Funcionalidad de gestión de cronograma (fases, actividades, asignaciones, entregas) se implementará aquí.</p>
