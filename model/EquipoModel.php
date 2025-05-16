@@ -169,5 +169,42 @@ public function actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto) {
     $stmt->close();
     return $resultado;  // true si actualizó, false si no
 }
+
+/**
+     * Obtiene los miembros de un equipo de un proyecto específico, formateado para un select.
+     * Útil para asignar responsables a tareas/actividades.
+     * @param int $id_proyecto
+     * @return array Lista de miembros del equipo del proyecto (id_usuario, nombre_completo).
+     */
+    public function obtenerMiembrosParaSelect($id_proyecto) {
+        if ($this->conexion === null) return [];
+
+        $equipo = $this->obtenerEquipoPorProyecto($id_proyecto);
+        if (!$equipo || !isset($equipo['id_equipo'])) {
+            return []; // No hay equipo para este proyecto
+        }
+        $id_equipo = $equipo['id_equipo'];
+
+        $sql = "SELECT u.id_usuario, u.nombre_completo 
+                FROM MiembrosEquipo me
+                INNER JOIN Usuarios u ON me.id_usuario = u.id_usuario
+                WHERE me.id_equipo = ? AND u.activo = TRUE
+                ORDER BY u.nombre_completo ASC";
+        
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("Error en prepare obtenerMiembrosParaSelect: " . $this->conexion->error);
+            return [];
+        }
+        $stmt->bind_param("i", $id_equipo);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $miembros_select = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $miembros_select[] = $fila;
+        }
+        $stmt->close();
+        return $miembros_select;
+    }
    
 }
