@@ -177,29 +177,41 @@
         <div id="cronograma" class="tab-content mt-6">
         
         </div>
-       <div id="ecs" class="tab-content mt-6" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+      <div id="ecs" class="tab-content mt-6 max-w-3xl pl-4" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
     <?php if (!empty($fases)): ?>
-        <ul>
-            <?php foreach ($fases as $fase): ?>
-                <li>
-                    <strong><?= htmlspecialchars($fase['nombre_fase']) ?></strong>
-                    <?php if (!empty($fase['elementos'])): ?>
-                        <ul>
-                            <?php foreach ($fase['elementos'] as $elemento): ?>
-                                <li><?= htmlspecialchars($elemento['nombre']) ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php else: ?>
-                        <p>No hay elementos de configuración para esta fase.</p>
-                    <?php endif; ?>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+       <ul class="space-y-6 ">
+    <?php foreach ($fases as $fase): ?>
+        <li class="bg-white shadow-md rounded-lg p-6">
+            <strong class="block text-xl font-semibold text-blue-700 mb-4">
+                <?= htmlspecialchars($fase['nombre_fase']) ?>
+            </strong>
+            <?php if (!empty($fase['elementos'])): ?>
+                <ul class="space-y-3">
+                    <?php foreach ($fase['elementos'] as $elemento): ?>
+                        <li>
+                            <label class="flex items-center cursor-pointer space-x-3 text-gray-800 hover:text-blue-600">
+                                <input 
+                                    type="checkbox" 
+                                    name="elementos_seleccionados[]" 
+                                    value="<?= htmlspecialchars($elemento['id']) ?>"
+                                    class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                >
+                                <span><?= htmlspecialchars($elemento['nombre']) ?></span>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="italic text-gray-500">No hay elementos de configuración para esta fase.</p>
+            <?php endif; ?>
+        </li>
+    <?php endforeach; ?>
+</ul>
+
     <?php else: ?>
-        <p>No hay fases para este proyecto.</p>
+        <p class="text-center text-gray-600 italic">No hay fases para este proyecto.</p>
     <?php endif; ?>
 </div>
-
 
 
     </div> <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
