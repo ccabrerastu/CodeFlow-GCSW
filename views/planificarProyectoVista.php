@@ -177,17 +177,29 @@
         <div id="cronograma" class="tab-content mt-6">
         
         </div>
-        <div id="ecs" class="tab-content mt-6" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-                <?php if (!empty($fases)): ?>
+       <div id="ecs" class="tab-content mt-6" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+    <?php if (!empty($fases)): ?>
         <ul>
             <?php foreach ($fases as $fase): ?>
-                <li><?= htmlspecialchars($fase['nombre_fase']) ?></li>
+                <li>
+                    <strong><?= htmlspecialchars($fase['nombre_fase']) ?></strong>
+                    <?php if (!empty($fase['elementos'])): ?>
+                        <ul>
+                            <?php foreach ($fase['elementos'] as $elemento): ?>
+                                <li><?= htmlspecialchars($elemento['nombre']) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>No hay elementos de configuración para esta fase.</p>
+                    <?php endif; ?>
+                </li>
             <?php endforeach; ?>
         </ul>
     <?php else: ?>
         <p>No hay fases para este proyecto.</p>
     <?php endif; ?>
-        </div>
+</div>
+
 
 
     </div> <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">

@@ -164,30 +164,52 @@ class FasesMetodologiaModel {
     public function obtenerFasesPorProyecto($id_proyecto) {
     if ($this->conexion === null) return [];
 
-    $sql = "SELECT f.id_fase_metodologia, f.nombre_fase
+    $sql = "SELECT 
+                f.id_fase_metodologia, 
+                f.nombre_fase,
+                e.id_ecs,
+                e.nombre_ecs
             FROM Proyectos p
             JOIN FasesMetodologia f ON p.id_metodologia = f.id_metodologia
-            WHERE p.id_proyecto = ?";
+            LEFT JOIN ECS_FaseMetodologia efm ON f.id_fase_metodologia = efm.id_fase_metodologia
+            LEFT JOIN ElementosConfiguracion e ON efm.id_ecs = e.id_ecs
+            WHERE p.id_proyecto = ?
+            ORDER BY f.id_fase_metodologia";
 
     $stmt = $this->conexion->prepare($sql);
     if (!$stmt) {
-        error_log("Error en prepare obtenerFasesPorProyecto: " . $this->conexion->error);
+        error_log("Error en prepare obtenerFasesConElementosPorProyecto: " . $this->conexion->error);
         return [];
     }
 
     $stmt->bind_param("i", $id_proyecto);
     $stmt->execute();
     $resultado = $stmt->get_result();
-    
+
+    // Agrupar fases con sus elementos
     $fases = [];
     while ($fila = $resultado->fetch_assoc()) {
-        $fases[] = $fila;
+        $id_fase = $fila['id_fase_metodologia'];
+
+        if (!isset($fases[$id_fase])) {
+            $fases[$id_fase] = [
+                'id_fase_metodologia' => $id_fase,
+                'nombre_fase' => $fila['nombre_fase'],
+                'elementos' => []
+            ];
+        }
+
+        if (!empty($fila['id_ecs'])) {
+            $fases[$id_fase]['elementos'][] = [
+                'id' => $fila['id_ecs'],
+                'nombre' => $fila['nombre_ecs']
+            ];
+        }
     }
 
     $stmt->close();
-    return $fases;
+    return array_values($fases);
 }
-
     public function __destruct() {
         if ($this->conexion) {
             $this->conexion->close();

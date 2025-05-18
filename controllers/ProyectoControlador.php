@@ -3,7 +3,7 @@ require_once __DIR__ . '/../model/ProyectoModel.php';
 require_once __DIR__ . '/../model/MetodologiaModel.php';
 require_once __DIR__ . '/../model/UsuarioModel.php';
 require_once __DIR__ . '/../model/EquipoModel.php';
-
+require_once __DIR__ . '/../model/FasesMetodologiaModel.php';
 
 class ProyectoControlador {
 
@@ -11,11 +11,13 @@ class ProyectoControlador {
     private $metodologiaModel;
     private $usuarioModel;
     private $equipoModel; 
+    private $fasesModel;
     public function __construct() {
         $this->proyectoModel = new ProyectoModel();
         $this->metodologiaModel = new MetodologiaModel();
         $this->usuarioModel = new UsuarioModel();
          $this->equipoModel = new EquipoModel();
+         $this->fasesModel = new FasesMetodologiaModel();
     }
 
 
@@ -161,7 +163,7 @@ public function planificar() {
     $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
     $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
     $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
-    $fases = $this->proyectoModel->obtenerFasesPorProyecto($id_proyecto);
+    $fases = $this->fasesModel->obtenerFasesPorProyecto($id_proyecto);
 
     $formData = $proyecto; 
     $formErrors = [];
