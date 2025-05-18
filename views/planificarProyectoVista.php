@@ -177,24 +177,32 @@
         <div id="cronograma" class="tab-content mt-6">
         
         </div>
-      <div id="ecs" class="tab-content mt-6 max-w-3xl pl-4 bg-gray-50 p-4 rounded-lg" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+     <div id="ecs" class="tab-content mt-8 max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-blue-100" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
     <?php if (!empty($fases)): ?>
-        <ul class="space-y-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-blue-700 mb-10 border-b pb-4 border-blue-200">
+            Metodología: <span class="text-gray-800"><?= htmlspecialchars($proyecto['nombre_metodologia']) ?></span>
+        </h2>
+
+        <div class="space-y-8">
             <?php foreach ($fases as $fase): ?>
-                <li class="bg-white shadow-lg rounded-xl p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
-                    <strong class="block text-2xl font-bold text-blue-700 mb-4">
+                <section class="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+                    <h3 class="text-2xl font-semibold text-blue-600 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a8 8 0 11-16 0 8 8 0 0116 0z" />
+                        </svg>
                         <?= htmlspecialchars($fase['nombre_fase']) ?>
-                    </strong>
+                    </h3>
+
                     <?php if (!empty($fase['elementos'])): ?>
-                        <ul class="space-y-3">
+                        <ul class="space-y-3 ml-2">
                             <?php foreach ($fase['elementos'] as $elemento): ?>
                                 <li>
-                                    <label class="flex items-center cursor-pointer space-x-3 text-gray-800 hover:text-blue-600 transition-colors duration-200">
+                                    <label class="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-all">
                                         <input 
                                             type="checkbox" 
                                             name="elementos_seleccionados[]" 
                                             value="<?= htmlspecialchars($elemento['id']) ?>"
-                                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition-shadow"
+                                            class="accent-blue-500 w-5 h-5 transition"
                                         >
                                         <span class="text-base"><?= htmlspecialchars($elemento['nombre']) ?></span>
                                     </label>
@@ -202,111 +210,122 @@
                             <?php endforeach; ?>
                         </ul>
                     <?php else: ?>
-                        <p class="italic text-gray-500">No hay elementos de configuración para esta fase.</p>
+                        <p class="italic text-gray-500 mt-2">No hay elementos de configuración para esta fase.</p>
                     <?php endif; ?>
-                </li>
+                </section>
             <?php endforeach; ?>
-        </ul>
+        </div>
     <?php else: ?>
-        <p class="text-left text-gray-600 italic">No hay fases para este proyecto.</p>
+        <p class="text-center text-gray-500 italic">No hay fases para este proyecto.</p>
     <?php endif; ?>
 </div>
 
-
-    </div> <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold">Editar Rol del Miembro: <span id="nombreMiembroModal"></span></h2>
-                <button onclick="cerrarModalEditarRol()" class="text-gray-500 hover:text-gray-700">&times;</button>
-            </div>
-            <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRolMiembro">
-                <input type="hidden" name="id_miembro_equipo" id="modal_id_miembro_equipo_rol">
-                <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-                <div class="mb-4">
-                    <label for="modal_id_rol_proyecto" class="block text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
-                    <select name="id_rol_proyecto" id="modal_id_rol_proyecto" class="form-input mt-1 block w-full" required>
-                        <option value="">-- Seleccionar rol --</option>
-                        <?php if (!empty($roles_proyecto)): ?>
-                            <?php foreach ($roles_proyecto as $rol): ?>
-                                <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="cerrarModalEditarRol()" class="btn btn-secondary">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                </div>
-            </form>
+<!-- Modal Editar Rol -->
+<!-- Modal Editar Rol -->
+<div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-center justify-center px-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+        <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+            <h2 class="text-xl font-semibold text-gray-800">
+                Editar Rol del Miembro: <span id="nombreMiembroModal" class="text-indigo-600"></span>
+            </h2>
+            <button onclick="cerrarModal()" class="text-gray-400 hover:text-gray-600 transition text-3xl font-bold leading-none">&times;</button>
         </div>
-    </div>
-       
-
-    <script>
-        function openTab(event, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove("active");
-            }
-            tablinks = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).style.display = "block";
-            document.getElementById(tabName).classList.add("active");
-            event.currentTarget.classList.add("active");
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const firstTab = document.querySelector('.tab-button');
-            if (firstTab) {
-                firstTab.click();
-            }
-        });
-        function abrirModal(id_usuario, id_rol) {
-    const modal = document.getElementById('modalEditarRol');
-    modal.classList.remove('hidden');  
-
-    
-    document.getElementById('modal_id_usuario').value = id_usuario;
-    document.getElementById('modal_id_rol').value = id_rol;
-}
-
-function cerrarModal() {
-    const modal = document.getElementById('modalEditarRol');
-    modal.classList.add('hidden');  
-}
-
-    </script>
-<br>
-</br>
-</br>
-    <?php include __DIR__ . '/partials/footer.php';  ?>
-</body>
-</html>
-
-<div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
-        <h2 class="text-lg font-semibold mb-4">Editar Rol del Miembro</h2>
-        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRol">
-            <input type="hidden" name="id_usuario" id="modal_id_usuario">
-            <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo']) ?>">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
-                <select name="id_rol_proyecto" id="modal_id_rol" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRol" class="px-6 py-6">
+            <input type="hidden" name="id_miembro_equipo" id="modal_id_miembro_equipo_rol">
+            <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+            <div class="mb-5">
+                <label for="modal_id_rol_proyecto" class="block mb-2 text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
+                <select name="id_rol_proyecto" id="modal_id_rol_proyecto" required
+                    class="w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
                     <option value="">-- Seleccionar rol --</option>
-                    <?php foreach ($roles as $rol): ?>
-                        <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
-                    <?php endforeach; ?>
+                    <?php if (!empty($roles)): ?>
+                        <?php foreach ($roles as $rol): ?>
+                            <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
             </div>
-            <div class="flex justify-end space-x-2">
-                <button type="button" onclick="cerrarModal()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancelar</button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Guardar</button>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="cerrarModal()" 
+                    class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                    class="px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
+                    Guardar Cambios
+                </button>
             </div>
         </form>
     </div>
 </div>
+<style>
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
+</style>
+
+
+<script>
+    // Función para abrir el modal y rellenar datos
+    function abrirModal(id_miembro_equipo, id_rol, nombre_miembro) {
+        const modal = document.getElementById('modalEditarRol');
+        modal.classList.remove('hidden');
+
+        document.getElementById('modal_id_miembro_equipo_rol').value = id_miembro_equipo;
+        document.getElementById('modal_id_rol_proyecto').value = id_rol;
+        document.getElementById('nombreMiembroModal').textContent = nombre_miembro;
+    }
+
+    // Función para cerrar el modal
+    function cerrarModal() {
+        const modal = document.getElementById('modalEditarRol');
+        modal.classList.add('hidden');
+    }
+
+    // Cerrar modal haciendo click fuera del contenido
+    document.getElementById('modalEditarRol').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+
+    // Funciones de pestañas (tab)
+    function openTab(event, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const firstTab = document.querySelector('.tab-button');
+        if (firstTab) {
+            firstTab.click();
+        }
+    });
+</script>
+
+<br>
+</br>
+</br>
+    <?php include __DIR__ . '/partials/footer.php';  ?>
+    
+</div>
+</body>
+</html>
+
+
 

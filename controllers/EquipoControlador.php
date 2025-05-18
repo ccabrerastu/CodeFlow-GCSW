@@ -90,28 +90,29 @@ public function asignarMiembro() {
 }
 public function modificarRol() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $idMiembro = $_POST['id_usuario'] ?? null;
-        $idEquipo = $_POST['id_equipo'] ?? null;
-        $idRolProyecto = $_POST['id_rol_proyecto'] ?? null; // Nuevo rol seleccionado
+        
+        $idMiembro = $_POST['id_miembro_equipo'] ?? null; 
+        $idRolProyecto = $_POST['id_rol_proyecto'] ?? null;
+        $idProyecto = $_POST['id_proyecto_redirect'] ?? null;
 
-        if ($idMiembro && $idEquipo && $idRolProyecto) {
-            // Aquí haces la actualización en la base de datos
+        if ($idMiembro && $idRolProyecto && $idProyecto) {
+            $equipo = $this->equipoModel->obtenerEquipoPorProyecto($idProyecto);
+            if (!$equipo) {
+                echo "No se encontró el equipo para el proyecto.";
+                return;
+            }
+            $idEquipo = $equipo['id_equipo']; 
+
             $actualizado = $this->equipoModel->actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto);
 
             if ($actualizado) {
-                // Obtener el id del proyecto asociado al equipo para la redirección
-                $proyecto = $this->equipoModel->obtenerProyectoPorEquipo($idEquipo);
-                if ($proyecto && isset($proyecto['id_proyecto'])) {
-                    header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $proyecto['id_proyecto']);
-                    exit();
-                } else {
-                    echo "No se pudo obtener el proyecto asociado al equipo.";
-                }
+                header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $idProyecto);
+                exit();
             } else {
                 echo "No se pudo actualizar el rol del miembro.";
             }
         } else {
-            echo "Faltan datos requeridos (miembro, equipo o rol).";
+            echo "Faltan datos requeridos (miembro, rol o proyecto).";
         }
     }
 }
@@ -124,7 +125,7 @@ public function eliminarMiembro() {
             $resultado = $this->equipoModel->eliminarMiembroDeEquipo($idMiembro, $idEquipo); // Método nuevo
 
             if ($resultado) {
-                // Redirige o muestra mensaje
+             
                 require_once __DIR__ . '/../view/planificarProyectoVista.php';
             } else {
                 echo "No se pudo eliminar al miembro del equipo.";
