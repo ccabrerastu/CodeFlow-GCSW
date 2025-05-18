@@ -161,11 +161,85 @@ public function planificar() {
     $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
     $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
     $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
+    $fases = $this->proyectoModel->obtenerFasesPorProyecto($id_proyecto);
+
     $formData = $proyecto; 
     $formErrors = [];
 
     require __DIR__ . '/../views/planificarProyectoVista.php'; 
 }
+public function agregarECSProyecto() {
+        if (session_status() === PHP_SESSION_NONE) { session_start(); }
+        // Verificar permisos
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_proyecto = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
+            $nombre_ecs = trim($_POST['nombre_ecs'] ?? '');
+            $descripcion_ecs = trim($_POST['descripcion_ecs'] ?? '');
+            $tipo_ecs = trim($_POST['tipo_ecs'] ?? '');
+            $id_actividad_asociada = filter_input(INPUT_POST, 'id_actividad_asociada', FILTER_VALIDATE_INT);
+
+            $formErrors = [];
+            if (!$id_proyecto) {
+                $formErrors['general_ecs'] = "ID de proyecto no válido.";
+            }
+            if (empty($nombre_ecs)) {
+                $formErrors['nombre_ecs'] = "El nombre del ECS es obligatorio.";
+            }
+
+            if (!empty($formErrors)) {
+                $_SESSION['form_data_ecs'] = $_POST;
+                $_SESSION['form_errors_ecs'] = $formErrors;
+                header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto . "&tab=ecs");
+                exit;
+            }
+
+            $this->ecsModel->setIdProyecto($id_proyecto);
+            $this->ecsModel->setNombreEcs($nombre_ecs);
+            $this->ecsModel->setDescripcion($descripcion_ecs);
+            $this->ecsModel->setTipoEcs($tipo_ecs);
+            $this->ecsModel->setVersionActual('1.0'); 
+            $this->ecsModel->setEstadoEcs('Definido'); 
+            $this->ecsModel->setIdCreador($_SESSION['id_usuario'] ?? null);
+
+            $nuevo_id_ecs = $this->ecsModel->crearECS();
+
+            if ($nuevo_id_ecs) {
+                if ($id_actividad_asociada && $id_actividad_asociada > 0) {
+                    $this->entregableActividadModel->asociarECSAActividad($id_actividad_asociada, $nuevo_id_ecs);
+                }
+                $_SESSION['status_message'] = ['type' => 'success', 'text' => 'Elemento de Configuración agregado exitosamente.'];
+            } else {
+                $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Error al agregar el Elemento de Configuración. Verifique si ya existe un ECS con el mismo nombre en este proyecto.'];
+            }
+            header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto . "&tab=ecs");
+            exit;
+        }
+        header("Location: index.php?c=Proyecto&a=index");
+        exit;
+    }
+    
+    public function eliminarECSProyecto() {
+        if (session_status() === PHP_SESSION_NONE) { session_start(); }
+        // Verificar permisos
+
+        $id_ecs = filter_input(INPUT_GET, 'id_ecs', FILTER_VALIDATE_INT);
+        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT); 
+
+        if (!$id_ecs || !$id_proyecto) {
+            $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de ECS o proyecto no válido para eliminar.'];
+        } else {
+            $resultado = $this->ecsModel->eliminarECS($id_ecs);
+            if ($resultado) {
+                $_SESSION['status_message'] = ['type' => 'success', 'text' => 'Elemento de Configuración eliminado exitosamente.'];
+            } else {
+                $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Error al eliminar el Elemento de Configuración. Puede estar en uso o no pertenecer a este proyecto.'];
+            }
+        }
+        header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto . "&tab=ecs");
+        exit;
+    }
+
 
 }
 ?>

@@ -6,10 +6,13 @@ class FasesMetodologiaControlador {
 
     private $fasesMetodologiaModel;
     private $metodologiaModel;
+    private $proyectoModel;
+
 
     public function __construct() {
         $this->fasesMetodologiaModel = new FasesMetodologiaModel();
-        $this->metodologiaModel = new MetodologiaModel(); 
+        $this->metodologiaModel = new MetodologiaModel();
+        $this->proyectoModel = new ProyectoModel();
     }
 
 
@@ -225,5 +228,15 @@ class FasesMetodologiaControlador {
         header("Location: index.php?c=FasesMetodologia&a=listarPorMetodologia&id_metodologia=" . $id_metodologia);
         exit;
     }
+public function mostrarFasesPorProyecto($id_proyecto) {
+    $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
+    if (!$proyecto) {
+        echo "Proyecto no encontrado.";
+        return;
+    }
+    $fases = $this->proyectoModel->obtenerFasesPorProyecto($id_proyecto);
+
+    require 'views/planificarProyectoVista.php';
+}
 }
 ?>

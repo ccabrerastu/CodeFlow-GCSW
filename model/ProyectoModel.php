@@ -189,6 +189,33 @@ class ProyectoModel {
         $stmt->close();
         return $success;
     }
+        public function obtenerFasesPorProyecto($id_proyecto) {
+    if ($this->conexion === null) return [];
+
+    $sql = "SELECT f.id_fase_metodologia, f.nombre_fase
+            FROM Proyectos p
+            JOIN FasesMetodologia f ON p.id_metodologia = f.id_metodologia
+            WHERE p.id_proyecto = ?";
+
+    $stmt = $this->conexion->prepare($sql);
+    if (!$stmt) {
+        error_log("Error en prepare obtenerFasesPorProyecto: " . $this->conexion->error);
+        return [];
+    }
+
+    $stmt->bind_param("i", $id_proyecto);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    
+    $fases = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $fases[] = $fila;
+    }
+
+    $stmt->close();
+    return $fases;
+}
+
 
     public function __destruct() {
         if ($this->conexion) {

@@ -71,12 +71,11 @@
                     <i class="fas fa-edit mr-1"></i> Editar Datos Generales
                 </a>
             </div>
+        </br>
         </div>
 
 <div id="equipo" class="tab-content mt-6">
     <h2 class="section-title">Equipo del Proyecto</h2>
-
-    <!-- Mostrar/Editar nombre del equipo -->
 <?php if (!empty($equipo['nombre_equipo'])): ?>
     <div class="mb-4">
         <p class="text-sm font-medium text-gray-700">Nombre del Equipo:</p>
@@ -131,7 +130,6 @@
             <i class="fas fa-user-plus mr-1"></i> Asignar Miembro
         </button>
     </form>
-<!-- Lista de miembros asignados en tabla estilizada -->
 <?php if (!empty($miembros_equipo)): ?>
     <h3 class="text-lg font-semibold text-gray-700 mb-4">Miembros Asignados</h3>
     <div class="overflow-x-auto">
@@ -152,18 +150,18 @@
                         <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
                             <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                             <button type="button" 
-    onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
-    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-    ✏️ Modificar Rol
-</button>
+                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
+                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️ Modificar Rol
+                            </button>
 
                         </form>
                         <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
                         <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                         <button type="submit" 
-    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-    🗑️ Eliminar
-</button>
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                        🗑️ Eliminar
+                        </button>
                         </form>
                         </td>
                     </tr>
@@ -174,17 +172,52 @@
 <?php else: ?>
     <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
 <?php endif; ?>
+
+</div>
         <div id="cronograma" class="tab-content mt-6">
-            <h2 class="section-title">Cronograma del Proyecto</h2>
-            <p class="text-gray-600">Funcionalidad de gestión de cronograma (fases, actividades, asignaciones, entregas) se implementará aquí.</p>
-            </div>
+        
+        </div>
+        <div id="ecs" class="tab-content mt-6" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+                <?php if (!empty($fases)): ?>
+        <ul>
+            <?php foreach ($fases as $fase): ?>
+                <li><?= htmlspecialchars($fase['nombre_fase']) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p>No hay fases para este proyecto.</p>
+    <?php endif; ?>
+        </div>
 
-        <div id="ecs" class="tab-content mt-6">
-            <h2 class="section-title">Elementos de Configuración (ECS)</h2>
-            <p class="text-gray-600">Funcionalidad de gestión de Elementos de Configuración del proyecto se implementará aquí.</p>
-            </div>
 
+    </div> <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Editar Rol del Miembro: <span id="nombreMiembroModal"></span></h2>
+                <button onclick="cerrarModalEditarRol()" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+            <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRolMiembro">
+                <input type="hidden" name="id_miembro_equipo" id="modal_id_miembro_equipo_rol">
+                <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+                <div class="mb-4">
+                    <label for="modal_id_rol_proyecto" class="block text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
+                    <select name="id_rol_proyecto" id="modal_id_rol_proyecto" class="form-input mt-1 block w-full" required>
+                        <option value="">-- Seleccionar rol --</option>
+                        <?php if (!empty($roles_proyecto)): ?>
+                            <?php foreach ($roles_proyecto as $rol): ?>
+                                <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="cerrarModalEditarRol()" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
     </div>
+       
 
     <script>
         function openTab(event, tabName) {
@@ -224,7 +257,9 @@ function cerrarModal() {
 }
 
     </script>
-
+<br>
+</br>
+</br>
     <?php include __DIR__ . '/partials/footer.php';  ?>
 </body>
 </html>
