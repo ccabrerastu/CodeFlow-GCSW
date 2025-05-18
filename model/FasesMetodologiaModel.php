@@ -161,7 +161,7 @@ class FasesMetodologiaModel {
         $stmt->close();
         return $success;
     }
-    public function obtenerFasesPorProyecto($id_proyecto) {
+   public function obtenerFasesPorProyecto($id_proyecto) {
     if ($this->conexion === null) return [];
 
     $sql = "SELECT 
@@ -183,10 +183,13 @@ class FasesMetodologiaModel {
     }
 
     $stmt->bind_param("i", $id_proyecto);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        error_log("Error en execute obtenerFasesConElementosPorProyecto: " . $stmt->error);
+        return [];
+    }
+
     $resultado = $stmt->get_result();
 
-    // Agrupar fases con sus elementos
     $fases = [];
     while ($fila = $resultado->fetch_assoc()) {
         $id_fase = $fila['id_fase_metodologia'];

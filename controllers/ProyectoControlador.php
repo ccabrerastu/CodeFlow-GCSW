@@ -133,6 +133,8 @@ class ProyectoControlador {
         exit;
     }
 
+
+
 public function planificar() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -144,7 +146,8 @@ public function planificar() {
         header("Location: index.php?c=Proyecto&a=index");
         exit;
     }
-
+     $fases = $this->fasesModel->obtenerFasesPorProyecto($id_proyecto);
+     
     $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
     if (!$proyecto) {
         $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Proyecto no encontrado.'];
@@ -154,7 +157,7 @@ public function planificar() {
 
     $resultadoRoles = $this->equipoModel->obtenerRolesProyecto(); 
     $equipo = $this->equipoModel->obtenerEquipoPorProyecto2($id_proyecto);
-   $roles = $resultadoRoles;
+    $roles = $resultadoRoles;
     $miembros_equipo = [];
     if (!empty($equipo) && isset($equipo['id_equipo'])) {
         $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
@@ -163,13 +166,15 @@ public function planificar() {
     $tituloPagina = "Planificar Proyecto: " . htmlspecialchars($proyecto['nombre_proyecto']);
     $metodologias = $this->metodologiaModel->obtenerTodasLasMetodologias();
     $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
-    $fases = $this->fasesModel->obtenerFasesPorProyecto($id_proyecto);
+
+   
 
     $formData = $proyecto; 
     $formErrors = [];
-
+   
     require __DIR__ . '/../views/planificarProyectoVista.php'; 
 }
+
 public function agregarECSProyecto() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
         // Verificar permisos

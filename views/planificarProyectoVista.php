@@ -192,6 +192,7 @@
                         </svg>
                         <?= htmlspecialchars($fase['nombre_fase']) ?>
                     </h3>
+                 
 
                     <?php if (!empty($fase['elementos'])): ?>
                         <ul class="space-y-3 ml-2">
