@@ -76,9 +76,9 @@ class ProyectoModel {
             $this->fecha_fin_planificada,
             $estado
         );
-
+        
         if ($stmt->execute()) {
-            $new_id = $stmt->insert_id;
+            $new_id = $this->conexion->insert_id;
             $stmt->close();
             return $new_id;
         } else {

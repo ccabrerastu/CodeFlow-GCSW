@@ -72,7 +72,7 @@ class ProyectoControlador {
         $formErrors = $_SESSION['form_errors_proyecto'] ?? [];
         unset($_SESSION['form_data_proyecto'], $_SESSION['form_errors_proyecto']);
         $baseUrl = "/";
-        require __DIR__ . '/../views/proyectos/crearEditarProyectoVista.php';
+        require __DIR__ . '/../views/crearEditarProyectoVista.php';
     }
 
     public function guardarProyecto() {
@@ -80,7 +80,7 @@ class ProyectoControlador {
             session_start();
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_proyecto_form = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT); // Renombrado para evitar conflicto
+            $id_proyecto_form = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT); 
             $nombre_proyecto = trim($_POST['nombre_proyecto'] ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $id_metodologia = filter_input(INPUT_POST, 'id_metodologia', FILTER_VALIDATE_INT);
@@ -122,13 +122,13 @@ class ProyectoControlador {
                 $mensajeExito = "Proyecto actualizado exitosamente.";
                 $mensajeError = "Error al actualizar el proyecto.";
             } else { // Crear
-                $id_proyecto_nuevo = $this->proyectoModel->crearProyecto();
-                if ($id_proyecto_nuevo) {
-                    $id_proyecto_actualizado_o_creado = $id_proyecto_nuevo;
+                $id_nuevo  = $this->proyectoModel->crearProyecto();
+                if ($id_nuevo ) {
+                    $id_proyecto_actualizado_o_creado = $id_nuevo;
                     // Crear cronograma por defecto para el nuevo proyecto
-                    $this->cronogramaModel->setIdProyecto($id_proyecto_nuevo);
-                    $this->cronogramaModel->setDescripcion("Cronograma para el proyecto: " . $nombre_proyecto);
-                    $this->cronogramaModel->crearCronograma(); // Asumiendo que este método existe y funciona
+                    //$this->cronogramaModel->setIdProyecto($id_proyecto_nuevo);
+                    //$this->cronogramaModel->setDescripcion("Cronograma para el proyecto: " . $nombre_proyecto);
+                    //$this->cronogramaModel->crearCronograma(); // Asumiendo que este método existe y funciona
                     $resultado = true; // Asumimos que crearProyecto devuelve el ID o false
                 } else {
                     $resultado = false;
@@ -137,7 +137,7 @@ class ProyectoControlador {
                 $mensajeError = "Error al crear el proyecto.";
             }
 
-            if ($resultado && $id_proyecto_actualizado_o_creado) {
+            if ($resultado ) {
                 $_SESSION['status_message'] = ['type' => 'success', 'text' => $mensajeExito];
                 header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto_actualizado_o_creado);
             } else {

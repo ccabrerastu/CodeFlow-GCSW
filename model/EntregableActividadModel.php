@@ -46,7 +46,9 @@ class EntregableActividadModel {
     }
 
     public function obtenerECSAsociadosAActividad($id_actividad) {
-        $sql = "SELECT e.* FROM ElementosConfiguracion e
+        if ($this->conexion === null) return [];
+        $sql = "SELECT e.*, ea.fecha_entrega_planificada, ea.fecha_entrega_real 
+                FROM ElementosConfiguracion e
                 JOIN EntregablesActividad ea ON e.id_ecs = ea.id_ecs
                 WHERE ea.id_actividad = ?";
         $stmt = $this->conexion->prepare($sql);

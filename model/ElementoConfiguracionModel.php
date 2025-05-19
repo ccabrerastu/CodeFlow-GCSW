@@ -99,11 +99,12 @@ class ElementoConfiguracionModel {
      */
     public function obtenerECS_PorProyecto($id_proyecto) {
         if ($this->conexion === null) return [];
-        $sql = "SELECT ec.*, u_creador.nombre_completo as nombre_creador, u_modificador.nombre_completo as nombre_modificador
-                FROM ElementosConfiguracion ec
-                LEFT JOIN Usuarios u_creador ON ec.id_creador = u_creador.id_usuario
-                LEFT JOIN Usuarios u_modificador ON ec.id_ultimo_modificador = u_modificador.id_usuario
-                WHERE ec.id_proyecto = ? ORDER BY ec.nombre_ecs ASC";
+        $sql = "SELECT e_pr.*, ec.nombre_ecs as nombre_ecs, fm.nombre_fase as nombre_fase, pr.nombre_proyecto as nombre_proyecto
+                FROM ECS_Proyecto  e_pr
+                LEFT JOIN ElementosConfiguracion ec ON e_pr.id_ecs_proyecto = ec.id_ecs
+                LEFT JOIN FasesMetodologia fm ON e_pr.id_ec_fase_met = fm.id_fase_metodologia
+                LEFT JOIN Proyectos pr ON e_pr.id_proyecto = pr.id_proyecto
+                WHERE e_pr.id_proyecto = ? ORDER BY ec.nombre_ecs ASC";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
             error_log("Error en prepare obtenerECS_PorProyecto: " . $this->conexion->error);
