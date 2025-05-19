@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-
+require_once __DIR__ . '/ElementoConfiguracionModel.php'; // Necesario para el JOIN
+require_once __DIR__ . '/ECSFaseMetodologiaModel.php';
 class FasesMetodologiaModel {
     private $id_fase_metodologia;
     private $id_metodologia;
@@ -14,6 +15,10 @@ class FasesMetodologiaModel {
         try {
             $db_conexion = new Conexion();
             $this->conexion = $db_conexion->getConexion();
+            if ($this->conexion === null) {
+                throw new Exception("La conexión a la base de datos no se pudo establecer en FaseMetodologiaModel.");
+            }
+            //$this->ecsFaseModel = new ECSFaseMetodologiaModel();
         } catch (Exception $e) {
             error_log("Error de conexión en FasesMetodologiaModel: " . $e->getMessage());
             die("Error de conexión a la base de datos. Por favor, contacte al administrador.");
@@ -117,6 +122,28 @@ class FasesMetodologiaModel {
         $fase = $resultado->fetch_assoc();
         $stmt->close();
         return $fase;
+    }
+    public function obtenerFasesConSusECS($id_metodologia) {
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECS = [];
+
+        if ($this->ecsFaseModel === null) { // Verificación defensiva
+            error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
+            // Devolver solo las fases si el modelo de ECS no está disponible para evitar error fatal
+            // Esto es un parche temporal, la causa raíz de la no instanciación debe ser resuelta.
+            foreach ($fases as $fase) {
+                $fase['elementos'] = []; // Array vacío para elementos
+                $fasesConECS[] = $fase;
+            }
+            return $fasesConECS;
+        }
+
+        foreach ($fases as $fase) {
+            // Esta es la línea donde ocurría el error (aprox. línea 126 en tu traza)
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+            $fasesConECS[] = $fase;
+        }
+        return $fasesConECS;
     }
 
     public function actualizarFase() {

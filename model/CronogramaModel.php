@@ -27,11 +27,6 @@ class CronogramaModel {
     public function getIdProyecto() { return $this->id_proyecto; }
     public function setDescripcion($descripcion) { $this->descripcion = $descripcion; }
     public function getDescripcion() { return $this->descripcion; }
-
-    /**
-     * Crea un nuevo cronograma para un proyecto.
-     * @return int|false El ID del cronograma insertado o false en caso de error.
-     */
     public function crearCronograma() {
         if ($this->conexion === null) {
             error_log("CronogramaModel: No hay conexión a la base de datos.");

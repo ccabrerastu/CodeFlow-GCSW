@@ -3,17 +3,12 @@ require_once __DIR__ . '/../config/database.php';
 
 class ElementoConfiguracionModel {
     private $id_ecs;
-    private $id_proyecto;
     private $nombre_ecs;
     private $descripcion;
     private $tipo_ecs;
     private $version_actual;
     private $estado_ecs; // Corregido de stado_ec
     private $ruta_repositorio;
-    private $fecha_creacion;
-    private $id_creador;
-    private $fecha_ultima_modificacion;
-    private $id_ultimo_modificador;
 
     private $conexion;
 
@@ -30,22 +25,24 @@ class ElementoConfiguracionModel {
     // --- Getters y Setters (Añade según necesidad) ---
     public function setIdEcs($id_ecs) { $this->id_ecs = $id_ecs; }
     public function getIdEcs() { return $this->id_ecs; }
-    public function setIdProyecto($id_proyecto) { $this->id_proyecto = $id_proyecto; }
-    public function getIdProyecto() { return $this->id_proyecto; }
+
     public function setNombreEcs($nombre_ecs) { $this->nombre_ecs = $nombre_ecs; }
     public function getNombreEcs() { return $this->nombre_ecs; }
+
     public function setDescripcion($descripcion) { $this->descripcion = $descripcion; }
     public function getDescripcion() { return $this->descripcion; }
+
     public function setTipoEcs($tipo_ecs) { $this->tipo_ecs = $tipo_ecs; }
     public function getTipoEcs() { return $this->tipo_ecs; }
+
     public function setVersionActual($version_actual) { $this->version_actual = $version_actual; }
     public function getVersionActual() { return $this->version_actual; }
-    public function setEstadoEcs($estado_ecs) { $this->estado_ecs = $estado_ecs; } // Corregido aquí también
+
+    public function setEstadoEcs($estado_ecs) { $this->estado_ecs = $estado_ecs; }
     public function getEstadoEcs() { return $this->estado_ecs; }
-    public function setIdCreador($id_creador) { $this->id_creador = $id_creador; }
-    public function getIdCreador() { return $this->id_creador; } // Getter añadido para id_creador
-    public function setIdUltimoModificador($id_ultimo_modificador) { $this->id_ultimo_modificador = $id_ultimo_modificador; } // Setter añadido
-    public function getIdUltimoModificador() { return $this->id_ultimo_modificador; } // Getter añadido
+
+    public function setRutaRepositorio($ruta_repositorio) { $this->ruta_repositorio = $ruta_repositorio; }
+    public function getRutaRepositorio() { return $this->ruta_repositorio; }
 
 
     /**
@@ -57,9 +54,16 @@ class ElementoConfiguracionModel {
             error_log("ElementoConfiguracionModel: No hay conexión a la base de datos.");
             return false;
         }
+
+        if ($this->nombre_ecs === null) {
+            error_log("ElementoConfiguracionModel::crearECS - Falta nombre_ecs.");
+            return false;
+        }
+
         $sql = "INSERT INTO ElementosConfiguracion 
-                    (id_proyecto, nombre_ecs, descripcion, tipo_ecs, version_actual, estado_ecs, id_creador) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    (nombre_ecs, descripcion, tipo_ecs, version_actual, estado_ecs, ruta_repositorio) 
+                VALUES (?, ?, ?, ?, ?, ?)"; // 6 columnas, 6 placeholders
+        
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
@@ -67,18 +71,21 @@ class ElementoConfiguracionModel {
             return false;
         }
 
-        // Valores por defecto si no se establecen
-        $version = $this->version_actual ?? '1.0';
-        $estado = $this->estado_ecs ?? 'Definido';
+        // Usar las propiedades del objeto que fueron seteadas por el controlador
+        $descripcion_val = $this->descripcion ?? null;
+        $tipo_ecs_val = $this->tipo_ecs ?? null;
+        $version_val = $this->version_actual ?? '1.0';
+        $estado_val = $this->estado_ecs ?? 'Definido'; // O 'En Desarrollo' según tu default de BD
+        $ruta_repositorio_val = $this->ruta_repositorio ?? null;
 
-        $stmt->bind_param("isssssi",
-            $this->id_proyecto,
+        // Tipos: s(nombre_ecs), s(descripcion), s(tipo_ecs), s(version_actual), s(estado_ecs), s(ruta_repositorio)
+        $stmt->bind_param("ssssss",
             $this->nombre_ecs,
-            $this->descripcion,
-            $this->tipo_ecs,
-            $version,
-            $estado,
-            $this->id_creador
+            $descripcion_val,
+            $tipo_ecs_val,
+            $version_val,
+            $estado_val,
+            $ruta_repositorio_val
         );
 
         if ($stmt->execute()) {
@@ -86,7 +93,7 @@ class ElementoConfiguracionModel {
             $stmt->close();
             return $new_id;
         } else {
-            error_log("Error al ejecutar la consulta (crearECS): " . $stmt->error);
+            error_log("Error al ejecutar la consulta (crearECS): " . $stmt->error . " SQL: " . $sql);
             $stmt->close();
             return false;
         }
@@ -97,20 +104,14 @@ class ElementoConfiguracionModel {
      * @param int $id_proyecto
      * @return array Lista de ECS o un array vacío.
      */
-    public function obtenerECS_PorProyecto($id_proyecto) {
+    public function obtenerTodosLosECS() {
         if ($this->conexion === null) return [];
-        $sql = "SELECT e_pr.*, ec.nombre_ecs as nombre_ecs, fm.nombre_fase as nombre_fase, pr.nombre_proyecto as nombre_proyecto
-                FROM ECS_Proyecto  e_pr
-                LEFT JOIN ElementosConfiguracion ec ON e_pr.id_ecs_proyecto = ec.id_ecs
-                LEFT JOIN FasesMetodologia fm ON e_pr.id_ec_fase_met = fm.id_fase_metodologia
-                LEFT JOIN Proyectos pr ON e_pr.id_proyecto = pr.id_proyecto
-                WHERE e_pr.id_proyecto = ? ORDER BY ec.nombre_ecs ASC";
+        $sql = "SELECT * FROM ElementosConfiguracion ORDER BY nombre_ecs ASC";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
-            error_log("Error en prepare obtenerECS_PorProyecto: " . $this->conexion->error);
+            error_log("Error en prepare obtenerTodosLosECS: " . $this->conexion->error);
             return [];
         }
-        $stmt->bind_param("i", $id_proyecto);
         $stmt->execute();
         $resultado = $stmt->get_result();
         $ecs_lista = [];
@@ -151,13 +152,14 @@ class ElementoConfiguracionModel {
             error_log("ElementoConfiguracionModel: No hay conexión o ID de ECS no especificado.");
             return false;
         }
+        
         $sql = "UPDATE ElementosConfiguracion SET 
                     nombre_ecs = ?, 
                     descripcion = ?, 
                     tipo_ecs = ?, 
                     version_actual = ?, 
                     estado_ecs = ?,
-                    id_ultimo_modificador = ?,
+                    ruta_repositorio = ?,
                     fecha_ultima_modificacion = CURRENT_TIMESTAMP
                 WHERE id_ecs = ?";
         $stmt = $this->conexion->prepare($sql);
@@ -166,14 +168,14 @@ class ElementoConfiguracionModel {
             error_log("Error en la preparación de la consulta (actualizarECS): " . $this->conexion->error);
             return false;
         }
-        // Asumimos que id_ultimo_modificador se setea desde el controlador
-        $stmt->bind_param("sssssii",
+        
+        $stmt->bind_param("ssssssi", // 6 strings, 1 integer
             $this->nombre_ecs,
             $this->descripcion,
             $this->tipo_ecs,
             $this->version_actual,
             $this->estado_ecs,
-            $this->id_ultimo_modificador,
+            $this->ruta_repositorio,
             $this->id_ecs
         );
 
@@ -192,8 +194,7 @@ class ElementoConfiguracionModel {
      */
     public function eliminarECS($id_ecs) {
         if ($this->conexion === null) return false;
-        // Considerar verificar si el ECS está referenciado en EntregablesActividad, SolicitudesCambio, OrdenesCambio, VersionesECS
-        // antes de permitir la eliminación o manejarlo con ON DELETE SET NULL/CASCADE en la BD.
+        
         $sql = "DELETE FROM ElementosConfiguracion WHERE id_ecs = ?";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
