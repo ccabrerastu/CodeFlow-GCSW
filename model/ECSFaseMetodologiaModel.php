@@ -75,12 +75,13 @@ class ECSFaseMetodologiaModel {
      */
     public function asociarECSAFase($id_ecs, $id_fase_metodologia, $descripcion = null) {
         if ($this->conexion === null) return false;
-
+        
         $sql = "INSERT INTO ECS_FaseMetodologia (id_ecs, id_fase_metodologia, descripcion) VALUES (?, ?, ?)";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
             error_log("Error prepare asociarECSAFase: " . $this->conexion->error);
             return false;
+            
         }
         // El tipo para id_fase_metodologia es 'i' (integer), pero si es NULL, bind_param lo maneja.
         $stmt->bind_param("iis", $id_ecs, $id_fase_metodologia, $descripcion);

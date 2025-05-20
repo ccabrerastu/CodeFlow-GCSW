@@ -10,6 +10,7 @@ class FasesMetodologiaModel {
     private $orden;
 
     private $conexion;
+    private $ecsFaseModel;
 
     public function __construct() {
         try {
@@ -18,7 +19,7 @@ class FasesMetodologiaModel {
             if ($this->conexion === null) {
                 throw new Exception("La conexión a la base de datos no se pudo establecer en FaseMetodologiaModel.");
             }
-            //$this->ecsFaseModel = new ECSFaseMetodologiaModel();
+            $this->ecsFaseModel = new ECSFaseMetodologiaModel();
         } catch (Exception $e) {
             error_log("Error de conexión en FasesMetodologiaModel: " . $e->getMessage());
             die("Error de conexión a la base de datos. Por favor, contacte al administrador.");

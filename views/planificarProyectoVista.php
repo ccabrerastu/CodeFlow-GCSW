@@ -1,25 +1,4 @@
 <?php
-// --- INICIO DEL ARCHIVO planificarProyectoVista.php ---
-// Variables esperadas del ProyectoControlador@planificar:
-// $baseUrl (string)
-// $proyecto (array, datos del proyecto actual)
-// $metodologias (array, lista de todas las metodologías)
-// $usuarios (array, lista de todos los usuarios para selectores)
-// $roles_proyecto (array, lista de roles disponibles para asignar en el proyecto)
-// $equipo (array, datos del equipo del proyecto)
-// $miembros_equipo (array, lista de miembros del equipo con id_miembro_equipo, id_usuario, nombre_completo, id_rol_proyecto, nombre_rol_proyecto)
-// $cronograma (array, datos del cronograma del proyecto, puede ser null)
-// $actividades (array, lista de actividades del cronograma)
-// $fases_metodologia (array, lista de fases de la metodología del proyecto)
-// $fases_con_ecs_plantilla (array, para la pestaña ECS)
-// $ecs_seleccionados_ids (array, para la pestaña ECS)
-// $ecs_del_proyecto_detallados (array, para la pestaña ECS)
-// $statusMessage (array)
-// $formDataEquipo, $formErrorsEquipo
-// $formDataECS, $formErrorsECS
-// $formDataActividad, $formErrorsActividad
-
-// Cargar el header
 include __DIR__ . '/partials/header.php';
 
 $id_proyecto_actual = $proyecto['id_proyecto'] ?? null;
@@ -65,7 +44,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     </style>
 </head>
 <body class="bg-gray-100">
-    <?php include __DIR__ . '/partials/header.php'; ?>
 
     <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
         <div class="flex justify-between items-center mb-6">
@@ -97,7 +75,8 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         </div>
 
         <div id="equipo" class="tab-content mt-6">
-            <?php include __DIR__ . '/proyecto/gestionarEquipoVista.php'; ?>
+            
+            
         </div>
 
         <div id="cronograma" class="tab-content mt-6">

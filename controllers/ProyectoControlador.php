@@ -230,6 +230,8 @@ class ProyectoControlador {
         unset($_SESSION['form_data_actividad'], $_SESSION['form_errors_actividad']);
 
 
+        $fases_metodologia = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
+
         require __DIR__ . '/../views/planificarProyectoVista.php';
     }
 
@@ -311,7 +313,8 @@ class ProyectoControlador {
             $nombre_ecs = trim($_POST['nombre_ecs'] ?? '');
             $descripcion_ecs = trim($_POST['descripcion_ecs'] ?? '');
             $tipo_ecs = trim($_POST['tipo_ecs'] ?? '');
-            // $id_actividad_asociada = filter_input(INPUT_POST, 'id_actividad_asociada', FILTER_VALIDATE_INT); // Se omite por ahora
+            $id_fase_metodologia = filter_input(INPUT_POST, 'id_fase_metodologia', FILTER_VALIDATE_INT);
+
 
             $formErrors = [];
             if (!$id_proyecto) {
@@ -341,7 +344,7 @@ class ProyectoControlador {
 
             if ($nuevo_id_ecs_catalogo) {
                 // 2. Crear una entrada en ECS_FaseMetodologia para este ECS personalizado (id_fase_metodologia = NULL)
-                $id_ec_fase_met = $this->ecsFaseMetodologiaModel->asociarECSAFase($nuevo_id_ecs_catalogo, null, "ECS personalizado para proyecto ID: " . $id_proyecto);
+                $id_ec_fase_met = $this->ecsFaseMetodologiaModel->asociarECSAFase($nuevo_id_ecs_catalogo, $id_fase_metodologia, "ECS personalizado para proyecto ID: " . $id_proyecto);
 
                 if ($id_ec_fase_met) {
                     // 3. Crear la entrada en ECS_Proyecto

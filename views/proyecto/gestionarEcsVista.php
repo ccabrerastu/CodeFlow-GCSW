@@ -1,15 +1,4 @@
 <?php
-// Variables esperadas que vienen de planificarProyectoVista.php (y originalmente del ProyectoControlador)
-// $proyecto (array, datos del proyecto actual)
-// $fases_con_ecs_plantilla (array, para la selección de ECS por metodología)
-// $ecs_seleccionados_ids (array, IDs de los ECS de plantilla ya seleccionados para el proyecto)
-// $ecs_del_proyecto_detallados (array, ECS ya activos/personalizados en el proyecto)
-// $actividades (array, lista de actividades del proyecto para asociar ECS)
-// $formDataECS (array, para repoblar formulario de ECS personalizado)
-// $formErrorsECS (array, errores de validación del formulario de ECS personalizado)
-// $baseUrl (string)
-
-// Aseguramos que las variables clave existan para evitar errores
 $id_proyecto_actual = $proyecto['id_proyecto'] ?? null;
 $nombre_metodologia_proyecto = $proyecto['nombre_metodologia'] ?? 'Metodología no definida';
 
@@ -102,6 +91,22 @@ $nombre_metodologia_proyecto = $proyecto['nombre_metodologia'] ?? 'Metodología 
         <label for="descripcion_ecs_personalizado" class="form-label">Descripción del ECS (Opcional):</label>
         <textarea name="descripcion_ecs" id="descripcion_ecs_personalizado" rows="3" 
                   class="form-textarea"><?= htmlspecialchars($formDataECS['descripcion_ecs'] ?? '') ?></textarea>
+    </div>
+
+    <div class="mb-4">
+        <label for="id_fase_metodologia" class="form-label">Fase de la Metodología:</label>
+        <select name="id_fase_metodologia" id="id_fase_metodologia" class="form-select" required>
+            <option value="">Seleccione una fase</option>
+            <?php foreach ($fases_metodologia as $fase): ?>
+                <option value="<?= htmlspecialchars($fase['id_fase_metodologia']) ?>"
+                    <?= (isset($formDataECS['id_fase_metodologia']) && $formDataECS['id_fase_metodologia'] == $fase['id_fase_metodologia']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($fase['nombre_fase']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php if (isset($formErrorsECS['id_fase_metodologia'])): ?>
+            <p class="error-message"><?= htmlspecialchars($formErrorsECS['id_fase_metodologia']) ?></p>
+        <?php endif; ?>
     </div>
     
     <button type="submit" class="btn btn-primary mt-2">
