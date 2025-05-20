@@ -93,8 +93,8 @@
                         <label for="id_ecs_entregable_form" class="form-label">ECS Entregable Principal (Opcional):</label>
                         <select name="id_ecs_entregable" id="id_ecs_entregable_form" class="form-select">
                             <option value="">-- Ninguno --</option>
-                            <?php if (!empty($ecs_definidos)): ?>
-                                <?php foreach ($ecs_definidos as $ecs_item): ?>
+                            <?php if (!empty($ecs_del_proyecto_detallados)): ?>
+                                <?php foreach ($ecs_del_proyecto_detallados as $ecs_item): ?>
                                     <option value="<?= htmlspecialchars($ecs_item['id_ecs']) ?>"
                                         <?= (isset($formDataActividad['id_ecs_entregable']) && $formDataActividad['id_ecs_entregable'] == $ecs_item['id_ecs']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($ecs_item['nombre_ecs']) ?> (ID: <?= htmlspecialchars($ecs_item['id_ecs']) ?>)

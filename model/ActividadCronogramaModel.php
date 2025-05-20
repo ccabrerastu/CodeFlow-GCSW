@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/database.php';
 class ActividadCronogramaModel {
     private $id_actividad;
     private $id_cronograma;
+    private $id_esc;
     private $id_fase_metodologia; // Puede ser NULL
     private $nombre_actividad;
     private $descripcion;
@@ -31,6 +32,9 @@ class ActividadCronogramaModel {
 
     public function getIdCronograma() { return $this->id_cronograma; }
     public function setIdCronograma($id_cronograma) { $this->id_cronograma = $id_cronograma; }
+
+    public function setIdEsc($id_esc) {  $this->id_esc = $id_esc;}
+
 
     public function getIdFaseMetodologia() { return $this->id_fase_metodologia; }
     public function setIdFaseMetodologia($id_fase_metodologia) { $this->id_fase_metodologia = $id_fase_metodologia; }
@@ -68,8 +72,8 @@ class ActividadCronogramaModel {
         }
         $sql = "INSERT INTO ActividadesCronograma 
                     (id_cronograma, id_fase_metodologia, nombre_actividad, descripcion, 
-                     fecha_inicio_planificada, fecha_fin_planificada, estado_actividad, id_responsable) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                     fecha_inicio_planificada, fecha_fin_planificada, estado_actividad, id_responsable, id_esc) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
@@ -79,15 +83,18 @@ class ActividadCronogramaModel {
 
         $estado = $this->estado_actividad ?? 'Pendiente'; // Valor por defecto
 
-        $stmt->bind_param("iisssssi",
+        
+
+        $stmt->bind_param("iisssssii",
             $this->id_cronograma,
-            $this->id_fase_metodologia, // Puede ser NULL
+            $this->id_fase_metodologia,
             $this->nombre_actividad,
             $this->descripcion,
-            $this->fecha_inicio_planificada, // Puede ser NULL
-            $this->fecha_fin_planificada,    // Puede ser NULL
+            $this->fecha_inicio_planificada,
+            $this->fecha_fin_planificada,
             $estado,
-            $this->id_responsable            // Puede ser NULL
+            $this->id_responsable,
+            $this->id_esc
         );
 
         if ($stmt->execute()) {
@@ -224,6 +231,8 @@ class ActividadCronogramaModel {
             $this->id_responsable,
             $this->id_actividad
         );
+
+
 
         $success = $stmt->execute();
         if (!$success) {

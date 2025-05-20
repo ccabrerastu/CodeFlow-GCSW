@@ -75,8 +75,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         </div>
 
         <div id="equipo" class="tab-content mt-6">
-            
-            
+            <?php include __DIR__ . '/proyecto/gestionarEquipoVista.php'; ?>
         </div>
 
         <div id="cronograma" class="tab-content mt-6">

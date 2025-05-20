@@ -22,7 +22,6 @@ class ElementoConfiguracionModel {
         }
     }
 
-    // --- Getters y Setters (Añade según necesidad) ---
     public function setIdEcs($id_ecs) { $this->id_ecs = $id_ecs; }
     public function getIdEcs() { return $this->id_ecs; }
 
@@ -45,10 +44,7 @@ class ElementoConfiguracionModel {
     public function getRutaRepositorio() { return $this->ruta_repositorio; }
 
 
-    /**
-     * Crea un nuevo Elemento de Configuración.
-     * @return int|false El ID del ECS insertado o false en caso de error.
-     */
+
     public function crearECS() {
         if ($this->conexion === null) {
             error_log("ElementoConfiguracionModel: No hay conexión a la base de datos.");

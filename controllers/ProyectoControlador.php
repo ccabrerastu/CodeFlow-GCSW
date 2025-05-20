@@ -181,6 +181,7 @@ class ProyectoControlador {
         $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
         $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
         $equipos_existentes = $this->equipoModel->obtenerEquipos();
+
         $miembros_equipo = [];
         if ($equipo && isset($equipo['id_equipo'])) {
             $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
@@ -231,6 +232,7 @@ class ProyectoControlador {
 
 
         $fases_metodologia = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
+        
 
         require __DIR__ . '/../views/planificarProyectoVista.php';
     }
@@ -439,6 +441,8 @@ class ProyectoControlador {
             $this->actividadModel->setFechaFinPlanificada($fecha_fin_plan ?: null);
             $this->actividadModel->setIdResponsable($id_responsable ?: null);
             // estado_actividad se puede poner por defecto en el modelo o aquí
+            $this->actividadModel->setIdEsc($id_ecs_entregable ?: null);
+
 
             $nueva_id_actividad = $this->actividadModel->crearActividad();
 
