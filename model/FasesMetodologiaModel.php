@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/ElementoConfiguracionModel.php'; // Necesario para el JOIN
+require_once __DIR__ . '/ElementoConfiguracionModel.php';
 require_once __DIR__ . '/ECSFaseMetodologiaModel.php';
 class FasesMetodologiaModel {
     private $id_fase_metodologia;
@@ -26,7 +26,6 @@ class FasesMetodologiaModel {
         }
     }
 
-    // --- Getters y Setters (puedes añadirlos según necesidad) ---
     public function setIdFaseMetodologia($id) { $this->id_fase_metodologia = $id; }
     public function getIdFaseMetodologia() { return $this->id_fase_metodologia; }
     public function setIdMetodologia($id) { $this->id_metodologia = $id; }
@@ -128,19 +127,16 @@ class FasesMetodologiaModel {
         $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
         $fasesConECS = [];
 
-        if ($this->ecsFaseModel === null) { // Verificación defensiva
+        if ($this->ecsFaseModel === null) {
             error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
-            // Devolver solo las fases si el modelo de ECS no está disponible para evitar error fatal
-            // Esto es un parche temporal, la causa raíz de la no instanciación debe ser resuelta.
             foreach ($fases as $fase) {
-                $fase['elementos'] = []; // Array vacío para elementos
+                $fase['elementos'] = [];
                 $fasesConECS[] = $fase;
             }
             return $fasesConECS;
         }
 
         foreach ($fases as $fase) {
-            // Esta es la línea donde ocurría el error (aprox. línea 126 en tu traza)
             $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
             $fasesConECS[] = $fase;
         }

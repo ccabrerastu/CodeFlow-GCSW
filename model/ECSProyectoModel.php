@@ -35,23 +35,22 @@ class ECSProyectoModel {
         return $ids_seleccionados;
     }
     
-    // Dentro de ECSProyectoModel.php
-public function eliminarECSDelProyectoPorId($id_ecs_proyecto) {
-    if ($this->conexion === null) return false;
-    $sql = "DELETE FROM ECS_Proyecto WHERE id_ecs_proyecto = ?";
-    $stmt = $this->conexion->prepare($sql);
-    if (!$stmt) {
-        error_log("Error prepare eliminarECSDelProyectoPorId: " . $this->conexion->error);
-        return false;
+    public function eliminarECSDelProyectoPorId($id_ecs_proyecto) {
+        if ($this->conexion === null) return false;
+        $sql = "DELETE FROM ECS_Proyecto WHERE id_ecs_proyecto = ?";
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("Error prepare eliminarECSDelProyectoPorId: " . $this->conexion->error);
+            return false;
+        }
+        $stmt->bind_param("i", $id_ecs_proyecto);
+        $success = $stmt->execute();
+        if (!$success) {
+            error_log("Error execute eliminarECSDelProyectoPorId: " . $stmt->error);
+        }
+        $stmt->close();
+        return $success;
     }
-    $stmt->bind_param("i", $id_ecs_proyecto);
-    $success = $stmt->execute();
-    if (!$success) {
-        error_log("Error execute eliminarECSDelProyectoPorId: " . $stmt->error);
-    }
-    $stmt->close();
-    return $success;
-}
     public function obtenerDetallesECSeleccionadosPorProyecto($id_proyecto) {
         if ($this->conexion === null) return [];
 

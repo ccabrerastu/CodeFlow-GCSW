@@ -1,6 +1,4 @@
 <?php
-// Asume que $baseUrl, $metodologia, $fases y $statusMessage están disponibles desde el controlador.
-// include __DIR__ . '/partials/header.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -30,7 +28,7 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <?php include __DIR__ . '/partials/header.php'; // Incluye el header adaptado ?>
+    <?php include __DIR__ . '/partials/header.php'; ?>
 
     <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
         <div class="flex justify-between items-center mb-6">
@@ -91,6 +89,6 @@
         </div>
     </div>
 
-    <?php include __DIR__ . '/partials/footer.php'; // Incluye el footer adaptado ?>
+    <?php include __DIR__ . '/partials/footer.php';?>
 </body>
 </html>

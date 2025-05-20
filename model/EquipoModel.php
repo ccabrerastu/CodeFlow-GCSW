@@ -14,42 +14,38 @@ class EquipoModel {
     }
 
     public function guardarNombreEquipo($id_proyecto, $nombre_equipo) {
-    // 1. Verificar si el proyecto ya tiene un equipo asignado
-    $stmt = $this->conexion->prepare("SELECT id_equipo FROM Proyectos WHERE id_proyecto = ?");
-    $stmt->bind_param("i", $id_proyecto);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+        $stmt = $this->conexion->prepare("SELECT id_equipo FROM Proyectos WHERE id_proyecto = ?");
+        $stmt->bind_param("i", $id_proyecto);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
-    if ($resultado->num_rows > 0) {
-        $row = $resultado->fetch_assoc();
-        $id_equipo = $row['id_equipo'];
-        $stmt->close();
+        if ($resultado->num_rows > 0) {
+            $row = $resultado->fetch_assoc();
+            $id_equipo = $row['id_equipo'];
+            $stmt->close();
 
-        if (!empty($id_equipo)) {
-            // 2. Ya tiene equipo, actualizar nombre
-            $stmtUpdate = $this->conexion->prepare("UPDATE Equipos SET nombre_equipo = ? WHERE id_equipo = ?");
-            $stmtUpdate->bind_param("si", $nombre_equipo, $id_equipo);
-            $stmtUpdate->execute();
-            $stmtUpdate->close();
+            if (!empty($id_equipo)) {
+                $stmtUpdate = $this->conexion->prepare("UPDATE Equipos SET nombre_equipo = ? WHERE id_equipo = ?");
+                $stmtUpdate->bind_param("si", $nombre_equipo, $id_equipo);
+                $stmtUpdate->execute();
+                $stmtUpdate->close();
+            } else {
+                $stmtInsert = $this->conexion->prepare("INSERT INTO Equipos (nombre_equipo) VALUES (?)");
+                $stmtInsert->bind_param("s", $nombre_equipo);
+                $stmtInsert->execute();
+                $nuevo_id_equipo = $stmtInsert->insert_id;
+                $stmtInsert->close();
+
+                $stmtUpdateProyecto = $this->conexion->prepare("UPDATE Proyectos SET id_equipo = ? WHERE id_proyecto = ?");
+                $stmtUpdateProyecto->bind_param("ii", $nuevo_id_equipo, $id_proyecto);
+                $stmtUpdateProyecto->execute();
+                $stmtUpdateProyecto->close();
+            }
         } else {
-            // 3. No tiene equipo, crear nuevo y asignarlo
-            $stmtInsert = $this->conexion->prepare("INSERT INTO Equipos (nombre_equipo) VALUES (?)");
-            $stmtInsert->bind_param("s", $nombre_equipo);
-            $stmtInsert->execute();
-            $nuevo_id_equipo = $stmtInsert->insert_id;
-            $stmtInsert->close();
-
-            // 4. Actualizar el proyecto para que tenga ese id_equipo
-            $stmtUpdateProyecto = $this->conexion->prepare("UPDATE Proyectos SET id_equipo = ? WHERE id_proyecto = ?");
-            $stmtUpdateProyecto->bind_param("ii", $nuevo_id_equipo, $id_proyecto);
-            $stmtUpdateProyecto->execute();
-            $stmtUpdateProyecto->close();
+            $stmt->close();
+            echo "Proyecto no encontrado";
         }
-    } else {
-        $stmt->close();
-        echo "Proyecto no encontrado";
     }
-}
 
 
     public function obtenerRolesProyecto() {
@@ -62,37 +58,32 @@ class EquipoModel {
         return $roles;
     }
 
-public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) {
-    // Verificar cuántos roles tiene ya el usuario en el equipo
-    $stmt = $this->conexion->prepare("SELECT COUNT(*) as total FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ?");
-    $stmt->bind_param("ii", $id_equipo, $id_usuario);
-    $stmt->execute();
-    $resultado = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) {
+        $stmt = $this->conexion->prepare("SELECT COUNT(*) as total FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ?");
+        $stmt->bind_param("ii", $id_equipo, $id_usuario);
+        $stmt->execute();
+        $resultado = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-    // Verificar si ya tiene ese mismo rol
-    $stmt = $this->conexion->prepare("SELECT COUNT(*) as existe FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ? AND id_rol_proyecto = ?");
-    $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
-    $stmt->execute();
-    $verificaRol = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+        $stmt = $this->conexion->prepare("SELECT COUNT(*) as existe FROM MiembrosEquipo WHERE id_equipo = ? AND id_usuario = ? AND id_rol_proyecto = ?");
+        $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
+        $stmt->execute();
+        $verificaRol = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-    if ($resultado['total'] >= 1 || $verificaRol['existe'] > 0) {
-        // Ya tiene 2 roles o el mismo rol ya fue asignado
-        return false;
+        if ($resultado['total'] >= 1 || $verificaRol['existe'] > 0) {
+            return false;
+        }
+
+        $stmt = $this->conexion->prepare("INSERT INTO MiembrosEquipo (id_equipo, id_usuario, id_rol_proyecto) VALUES (?, ?, ?)");
+        $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
+        $stmt->execute();
+        $stmt->close();
+
+        return true;
     }
 
-    // Si pasa las verificaciones, insertar
-    $stmt = $this->conexion->prepare("INSERT INTO MiembrosEquipo (id_equipo, id_usuario, id_rol_proyecto) VALUES (?, ?, ?)");
-    $stmt->bind_param("iii", $id_equipo, $id_usuario, $id_rol_proyecto);
-    $stmt->execute();
-    $stmt->close();
-
-    return true;
-}
-
     public function obtenerEquipoPorProyecto($id_proyecto) {
-        // Paso 1: Obtener el id_equipo del proyecto
         $stmt = $this->conexion->prepare("SELECT id_equipo FROM Proyectos WHERE id_proyecto = ?");
         $stmt->bind_param("i", $id_proyecto);
         $stmt->execute();
@@ -103,7 +94,6 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
             $id_equipo = $row['id_equipo'];
             $stmt->close();
 
-            // Paso 2: Si hay id_equipo, obtener datos del equipo
             if (!empty($id_equipo)) {
                 $stmtEquipo = $this->conexion->prepare("SELECT * FROM Equipos WHERE id_equipo = ?");
                 $stmtEquipo->bind_param("i", $id_equipo);
@@ -114,11 +104,11 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
 
                 return $equipo;
             } else {
-                return null; // El proyecto no tiene equipo asignado
+                return null;
             }
         } else {
             $stmt->close();
-            return null; // Proyecto no encontrado
+            return null;
         }
     }
 
@@ -171,7 +161,6 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
     }
 
     public function obtenerEquipoPorProyecto2($id_proyecto) {
-        // Paso 1: Obtener el id_equipo desde el proyecto
         $stmt = $this->conexion->prepare("SELECT id_equipo FROM Proyectos WHERE id_proyecto = ?");
         $stmt->bind_param("i", $id_proyecto);
         $stmt->execute();
@@ -180,12 +169,11 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
         $stmt->close();
 
         if (!$proyecto || empty($proyecto['id_equipo'])) {
-            return null; // No hay equipo asignado
+            return null;
         }
 
         $id_equipo = $proyecto['id_equipo'];
 
-        // Paso 2: Obtener los datos del equipo
         $stmt2 = $this->conexion->prepare("SELECT * FROM Equipos WHERE id_equipo = ?");
         $stmt2->bind_param("i", $id_equipo);
         $stmt2->execute();
@@ -196,57 +184,51 @@ public function asignarMiembroEquipo($id_equipo, $id_usuario, $id_rol_proyecto) 
         return $equipo ?: null;
     }
 
-public function obtenerUsuariosDisponibles() {
-    $query = "SELECT id_usuario, nombre_completo AS nombre_completo FROM Usuarios";
-    $result = $this->conexion->query($query);
+    public function obtenerUsuariosDisponibles() {
+        $query = "SELECT id_usuario, nombre_completo AS nombre_completo FROM Usuarios";
+        $result = $this->conexion->query($query);
 
-    $usuarios = [];
-    while ($row = $result->fetch_assoc()) {
-        $usuarios[] = $row;
+        $usuarios = [];
+        while ($row = $result->fetch_assoc()) {
+            $usuarios[] = $row;
+        }
+
+        return $usuarios;
     }
 
-    return $usuarios;
-}
-
-public function obtenerMiembroPorIdYEquipo($id_usuario, $id_equipo) {
-    $stmt = $this->conexion->prepare("SELECT * FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
-    $stmt->bind_param("ii", $id_usuario, $id_equipo);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
-}
-
-public function eliminarMiembroDeEquipo($id_usuario, $id_equipo) {
-    $stmt = $this->conexion->prepare("DELETE FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
-    $stmt->bind_param("ii", $id_usuario, $id_equipo);
-    return $stmt->execute();
-}
-public function actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto) {
-    $sql = "UPDATE MiembrosEquipo 
-            SET id_rol_proyecto = ? 
-            WHERE id_usuario = ? AND id_equipo = ?";
-    $stmt = $this->conexion->prepare($sql);
-    if (!$stmt) {
-        return false;
+    public function obtenerMiembroPorIdYEquipo($id_usuario, $id_equipo) {
+        $stmt = $this->conexion->prepare("SELECT * FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
+        $stmt->bind_param("ii", $id_usuario, $id_equipo);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
-    $stmt->bind_param("iii", $idRolProyecto, $idMiembro, $idEquipo);
-    $resultado = $stmt->execute();
-    $stmt->close();
-    return $resultado;  // true si actualizó, false si no
-}
 
-/**
-     * Obtiene los miembros de un equipo de un proyecto específico, formateado para un select.
-     * Útil para asignar responsables a tareas/actividades.
-     * @param int $id_proyecto
-     * @return array Lista de miembros del equipo del proyecto (id_usuario, nombre_completo).
-     */
+    public function eliminarMiembroDeEquipo($id_usuario, $id_equipo) {
+        $stmt = $this->conexion->prepare("DELETE FROM MiembrosEquipo WHERE id_usuario = ? AND id_equipo = ?");
+        $stmt->bind_param("ii", $id_usuario, $id_equipo);
+        return $stmt->execute();
+    }
+    public function actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto) {
+        $sql = "UPDATE MiembrosEquipo 
+                SET id_rol_proyecto = ? 
+                WHERE id_usuario = ? AND id_equipo = ?";
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param("iii", $idRolProyecto, $idMiembro, $idEquipo);
+        $resultado = $stmt->execute();
+        $stmt->close();
+        return $resultado;
+    }
+
+
     public function obtenerMiembrosParaSelect($id_proyecto) {
         if ($this->conexion === null) return [];
 
-        // ✅ Usar el método actualizado que obtiene el equipo por id_proyecto
         $equipo = $this->obtenerEquipoPorProyecto2($id_proyecto);
         if (!$equipo || !isset($equipo['id_equipo'])) {
-            return []; // No hay equipo asignado
+            return [];
         }
 
         $id_equipo = $equipo['id_equipo'];
@@ -277,14 +259,12 @@ public function actualizarRolMiembro($idMiembro, $idEquipo, $idRolProyecto) {
     }
 
     public function asignarEquipoExistenteAProyecto($id_proyecto, $id_equipo) {
-    $stmt = $this->conexion->prepare("UPDATE Proyectos SET id_equipo = ? WHERE id_proyecto = ?");
-    $stmt->bind_param("ii", $id_equipo, $id_proyecto);
-    $stmt->execute();
-    $stmt->close();
-}
+        $stmt = $this->conexion->prepare("UPDATE Proyectos SET id_equipo = ? WHERE id_proyecto = ?");
+        $stmt->bind_param("ii", $id_equipo, $id_proyecto);
+        $stmt->execute();
+        $stmt->close();
+    }
 
-
-   
 }
 
 

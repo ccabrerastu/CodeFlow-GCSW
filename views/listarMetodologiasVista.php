@@ -1,7 +1,5 @@
 <?php
-// Asume que $baseUrl, $metodologias y $statusMessage están disponibles desde el controlador.
-// Incluir el header común si lo tienes
-// include __DIR__ . '/partials/header.php'; // O el nombre de tu header, asegúrate que la ruta es correcta
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

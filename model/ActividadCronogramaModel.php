@@ -5,14 +5,14 @@ class ActividadCronogramaModel {
     private $id_actividad;
     private $id_cronograma;
     private $id_esc;
-    private $id_fase_metodologia; // Puede ser NULL
+    private $id_fase_metodologia;
     private $nombre_actividad;
     private $descripcion;
-    private $fecha_inicio_planificada; // Puede ser NULL
-    private $fecha_fin_planificada;    // Puede ser NULL
-    private $fecha_entrega_real;       // Puede ser NULL
+    private $fecha_inicio_planificada;
+    private $fecha_fin_planificada;
+    private $fecha_entrega_real;
     private $estado_actividad;
-    private $id_responsable;           // Puede ser NULL
+    private $id_responsable;
 
     private $conexion;
 
@@ -60,11 +60,7 @@ class ActividadCronogramaModel {
     public function getIdResponsable() { return $this->id_responsable; }
     public function setIdResponsable($id_responsable) { $this->id_responsable = $id_responsable; }
 
-    /**
-     * Crea una nueva actividad en el cronograma.
-     * Utiliza las propiedades seteadas en el objeto.
-     * @return int|false El ID de la actividad insertada o false en caso de error.
-     */
+
     public function crearActividad() {
         if ($this->conexion === null) {
             error_log("ActividadCronogramaModel: No hay conexión a la base de datos.");
@@ -81,7 +77,7 @@ class ActividadCronogramaModel {
             return false;
         }
 
-        $estado = $this->estado_actividad ?? 'Pendiente'; // Valor por defecto
+        $estado = $this->estado_actividad ?? 'Pendiente';
 
         
 
@@ -108,11 +104,7 @@ class ActividadCronogramaModel {
         }
     }
 
-    /**
-     * Obtiene todas las actividades de un cronograma específico.
-     * @param int $id_cronograma
-     * @return array Lista de actividades o un array vacío.
-     */
+
     public function obtenerActividadesPorCronograma($id_cronograma) {
         if ($this->conexion === null) return [];
         
@@ -138,15 +130,11 @@ class ActividadCronogramaModel {
         return $actividades;
     }
 
-    /**
-     * Obtiene todas las actividades de un proyecto específico (a través de su cronograma).
-     * @param int $id_proyecto
-     * @return array Lista de actividades o un array vacío.
-     */
+
     public function obtenerActividadesPorProyecto($id_proyecto) {
         if ($this->conexion === null) return [];
         
-        // Primero obtenemos el id_cronograma del proyecto
+
         $sql_cronograma = "SELECT id_cronograma FROM Cronogramas WHERE id_proyecto = ? LIMIT 1";
         $stmt_cronograma = $this->conexion->prepare($sql_cronograma);
         if (!$stmt_cronograma) {
@@ -160,7 +148,7 @@ class ActividadCronogramaModel {
         $stmt_cronograma->close();
 
         if (!$cronograma_data || !isset($cronograma_data['id_cronograma'])) {
-            return []; // No hay cronograma para este proyecto
+            return [];
         }
         $id_cronograma = $cronograma_data['id_cronograma'];
 
@@ -168,11 +156,7 @@ class ActividadCronogramaModel {
     }
 
 
-    /**
-     * Obtiene una actividad específica por su ID.
-     * @param int $id_actividad
-     * @return array|null Datos de la actividad o null si no se encuentra.
-     */
+
     public function obtenerActividadPorId($id_actividad) {
         if ($this->conexion === null) return null;
         $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable
@@ -193,11 +177,8 @@ class ActividadCronogramaModel {
         return $actividad;
     }
 
-    /**
-     * Actualiza una actividad existente.
-     * Utiliza las propiedades seteadas en el objeto.
-     * @return bool True si la actualización fue exitosa, false en caso contrario.
-     */
+
+    
     public function actualizarActividad() {
         if ($this->conexion === null || $this->id_actividad === null) {
             error_log("ActividadCronogramaModel: No hay conexión o ID de actividad no especificado.");
@@ -242,15 +223,9 @@ class ActividadCronogramaModel {
         return $success;
     }
 
-    /**
-     * Elimina una actividad por su ID.
-     * @param int $id_actividad
-     * @return bool True si la eliminación fue exitosa, false en caso contrario.
-     */
+
     public function eliminarActividad($id_actividad) {
         if ($this->conexion === null) return false;
-        // Considerar eliminar también las entradas en EntregablesActividad relacionadas
-        // o manejarlo con ON DELETE CASCADE en la base de datos.
         $sql = "DELETE FROM ActividadesCronograma WHERE id_actividad = ?";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {

@@ -7,7 +7,7 @@ class ElementoConfiguracionModel {
     private $descripcion;
     private $tipo_ecs;
     private $version_actual;
-    private $estado_ecs; // Corregido de stado_ec
+    private $estado_ecs;
     private $ruta_repositorio;
 
     private $conexion;
@@ -58,7 +58,7 @@ class ElementoConfiguracionModel {
 
         $sql = "INSERT INTO ElementosConfiguracion 
                     (nombre_ecs, descripcion, tipo_ecs, version_actual, estado_ecs, ruta_repositorio) 
-                VALUES (?, ?, ?, ?, ?, ?)"; // 6 columnas, 6 placeholders
+                VALUES (?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conexion->prepare($sql);
 
@@ -67,14 +67,12 @@ class ElementoConfiguracionModel {
             return false;
         }
 
-        // Usar las propiedades del objeto que fueron seteadas por el controlador
         $descripcion_val = $this->descripcion ?? null;
         $tipo_ecs_val = $this->tipo_ecs ?? null;
         $version_val = $this->version_actual ?? '1.0';
-        $estado_val = $this->estado_ecs ?? 'Definido'; // O 'En Desarrollo' según tu default de BD
+        $estado_val = $this->estado_ecs ?? 'Definido';
         $ruta_repositorio_val = $this->ruta_repositorio ?? null;
 
-        // Tipos: s(nombre_ecs), s(descripcion), s(tipo_ecs), s(version_actual), s(estado_ecs), s(ruta_repositorio)
         $stmt->bind_param("ssssss",
             $this->nombre_ecs,
             $descripcion_val,
@@ -95,11 +93,7 @@ class ElementoConfiguracionModel {
         }
     }
 
-    /**
-     * Obtiene todos los ECS de un proyecto específico.
-     * @param int $id_proyecto
-     * @return array Lista de ECS o un array vacío.
-     */
+
     public function obtenerTodosLosECS() {
         if ($this->conexion === null) return [];
         $sql = "SELECT * FROM ElementosConfiguracion ORDER BY nombre_ecs ASC";
@@ -118,11 +112,7 @@ class ElementoConfiguracionModel {
         return $ecs_lista;
     }
 
-    /**
-     * Obtiene un ECS específico por su ID.
-     * @param int $id_ecs
-     * @return array|null Datos del ECS o null si no se encuentra.
-     */
+
     public function obtenerECSPorId($id_ecs) {
         if ($this->conexion === null) return null;
         $sql = "SELECT * FROM ElementosConfiguracion WHERE id_ecs = ?";
@@ -139,10 +129,7 @@ class ElementoConfiguracionModel {
         return $ecs;
     }
 
-    /**
-     * Actualiza un ECS existente.
-     * @return bool True si la actualización fue exitosa, false en caso contrario.
-     */
+
     public function actualizarECS() {
         if ($this->conexion === null || $this->id_ecs === null) {
             error_log("ElementoConfiguracionModel: No hay conexión o ID de ECS no especificado.");
@@ -165,7 +152,7 @@ class ElementoConfiguracionModel {
             return false;
         }
         
-        $stmt->bind_param("ssssssi", // 6 strings, 1 integer
+        $stmt->bind_param("ssssssi",
             $this->nombre_ecs,
             $this->descripcion,
             $this->tipo_ecs,
@@ -183,11 +170,7 @@ class ElementoConfiguracionModel {
         return $success;
     }
 
-    /**
-     * Elimina un ECS por su ID.
-     * @param int $id_ecs
-     * @return bool True si la eliminación fue exitosa, false en caso contrario.
-     */
+
     public function eliminarECS($id_ecs) {
         if ($this->conexion === null) return false;
         

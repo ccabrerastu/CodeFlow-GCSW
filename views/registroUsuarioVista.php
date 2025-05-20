@@ -14,7 +14,7 @@
         .form-input { width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         .form-label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
         .btn { padding: 10px 15px; border-radius: 4px; text-decoration: none; display: inline-block; font-size: 0.9rem; }
-        .btn-primary { background-color: #28a745; color: white; border:none; } /* Verde para registrar */
+        .btn-primary { background-color: #28a745; color: white; border:none; }
         .btn-primary:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; color: white; border:none; }
         .btn-secondary:hover { background-color: #5a6268; }

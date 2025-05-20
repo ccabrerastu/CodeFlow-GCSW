@@ -14,17 +14,11 @@ class ECSFaseMetodologiaModel {
             }
         } catch (Exception $e) {
             error_log("Error de conexión en ECSFaseMetodologiaModel: " . $e->getMessage());
-            // Re-lanzar la excepción para que sea manejada por el código que llama
             throw new Exception("Error al inicializar ECSFaseMetodologiaModel: " . $e->getMessage());
         }
     }
 
-    /**
-     * Obtiene los ECS asociados a una fase de metodología específica.
-     * Realiza un JOIN con ElementosConfiguracion para obtener los detalles del ECS.
-     * @param int $id_fase_metodologia
-     * @return array Lista de ECS asociados a la fase.
-     */
+
     public function obtenerECSPorFase($id_fase_metodologia) {
         if ($this->conexion === null) {
              error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
@@ -66,13 +60,7 @@ class ECSFaseMetodologiaModel {
         return $ecs_fase;
     }
 
-    /**
-     * Asocia un ECS (del catálogo general) a una Fase de Metodología.
-     * @param int $id_ecs
-     * @param int $id_fase_metodologia
-     * @param string $descripcion
-     * @return int|false El ID de la nueva asociación o false si falla.
-     */
+
     public function asociarECSAFase($id_ecs, $id_fase_metodologia, $descripcion = null) {
         if ($this->conexion === null) return false;
         
@@ -83,7 +71,7 @@ class ECSFaseMetodologiaModel {
             return false;
             
         }
-        // El tipo para id_fase_metodologia es 'i' (integer), pero si es NULL, bind_param lo maneja.
+
         $stmt->bind_param("iis", $id_ecs, $id_fase_metodologia, $descripcion);
         if ($stmt->execute()) {
             $new_id = $stmt->insert_id;
@@ -112,9 +100,7 @@ class ECSFaseMetodologiaModel {
 
     public function __destruct() {
         if ($this->conexion) {
-            // No es estrictamente necesario cerrar aquí si la conexión es persistente
-            // o si el script termina, pero es buena práctica si se manejan conexiones explícitas.
-            // $this->conexion->close(); 
+            
         }
     }
 }

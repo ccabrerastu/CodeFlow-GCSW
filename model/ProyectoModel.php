@@ -65,7 +65,7 @@ class ProyectoModel {
             return false;
         }
 
-        $estado = $this->estado_proyecto ?? 'Activo'; // Valor por defecto
+        $estado = $this->estado_proyecto ?? 'Activo';
 
         $stmt->bind_param("ssiisss",
             $this->nombre_proyecto,

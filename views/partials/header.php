@@ -1,5 +1,4 @@
 <?php
-// Define la URL base de tu aplicación. Ajusta si es necesario.
 $baseUrl = "/";
 ?>
 <!DOCTYPE html>
@@ -11,17 +10,13 @@ $baseUrl = "/";
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
-        /* Transición base para los elementos que se van a transformar */
         #logo-link-header,
         #logout-link-header {
             transition: transform 0.3s ease-in-out;
         }
-        /* Cuando el header tiene la clase 'header-shifted' (añadida por JS) */
-        /* Y la pantalla es >= 768px (breakpoint 'md') */
         @media (min-width: 768px) {
             #header.header-shifted #logo-link-header,
             #header.header-shifted #logout-link-header {
-                /* Aplicamos la transformación inversa (asumiendo sidebar w-64 = 16rem) */
                 transform: translateX(-16rem);
             }
         }

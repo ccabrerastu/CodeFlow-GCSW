@@ -55,11 +55,7 @@ class CronogramaModel {
         }
     }
 
-    /**
-     * Obtiene el cronograma de un proyecto específico por id_proyecto.
-     * @param int $id_proyecto
-     * @return array|null Datos del cronograma o null si no se encuentra.
-     */
+
     public function obtenerCronogramaPorProyecto($id_proyecto) {
         if ($this->conexion === null) return null;
         $sql = "SELECT * FROM Cronogramas WHERE id_proyecto = ? LIMIT 1";
@@ -76,7 +72,6 @@ class CronogramaModel {
         return $cronograma;
     }
 
-    // Podrías añadir métodos para actualizar la descripción del cronograma si fuera necesario.
 
     public function __destruct() {
         if ($this->conexion) {

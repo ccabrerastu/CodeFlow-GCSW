@@ -1,6 +1,4 @@
 <?php
-// Asume que $baseUrl, $metodologia, $fase (si es editar), $formData, $formErrors, y $accion ('crear' o 'editar') están disponibles.
-// include __DIR__ . '/partials/header.php';
 
 $esEditar = isset($accion) && $accion === 'editar';
 $tituloPagina = $esEditar ? "Editar Fase de " . htmlspecialchars($metodologia['nombre_metodologia']) : "Nueva Fase para " . htmlspecialchars($metodologia['nombre_metodologia']);

@@ -187,7 +187,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
                     <label for="modal_id_ecs_entregable" class="form-label">ECS Entregable Principal:</label>
                     <select name="id_ecs_entregable" id="modal_id_ecs_entregable" class="form-select">
                         <option value="">-- Ninguno --</option>
-                        <?php if (!empty($ecs_del_proyecto_detallados)): // Usar la lista de ECS del proyecto (ya seleccionados o personalizados) ?>
+                        <?php if (!empty($ecs_del_proyecto_detallados)): ?>
                             <?php foreach ($ecs_del_proyecto_detallados as $ecs_item): ?>
                                 <option value="<?= htmlspecialchars($ecs_item['id_ecs']) ?>">
                                     <?= htmlspecialchars($ecs_item['nombre_ecs']) ?> (ID: <?= htmlspecialchars($ecs_item['id_ecs']) ?>)
@@ -218,7 +218,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         tablinks = document.getElementsByClassName("tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].classList.remove("active");
-            // Asegurarse que solo el botón clickeado tenga 'active'
             if (tablinks[i] === event.currentTarget) {
                 tablinks[i].classList.add("active");
             }
@@ -226,8 +225,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         document.getElementById(tabName).style.display = "block";
         document.getElementById(tabName).classList.add("active");
         
-        // Guardar la pestaña activa en localStorage, usando el ID del proyecto para hacerlo específico
-        if (typeof projectId !== 'undefined' && projectId) { // projectId debe estar definido globalmente en el script o pasado
+        if (typeof projectId !== 'undefined' && projectId) {
             localStorage.setItem('activeProjectPlanTab_' + projectId, tabName);
         } else {
             localStorage.setItem('activeProjectPlanTab_default', tabName);
@@ -235,7 +233,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const projectIdForTab = '<?= $id_proyecto_actual ?? 'default' ?>'; // Usar el ID del proyecto actual
+        const projectIdForTab = '<?= $id_proyecto_actual ?? 'default' ?>';
         const urlParams = new URLSearchParams(window.location.search);
         let activeTab = urlParams.get('tab');
         
@@ -246,12 +244,9 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         const tabButtonToActivate = document.querySelector(`.tab-button[data-tab-target='${activeTab}']`);
         
         if (tabButtonToActivate) {
-            // Simulamos un evento click para que la lógica de openTab se ejecute correctamente
-            // incluyendo el event.currentTarget para marcar el botón como activo
             const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
             tabButtonToActivate.dispatchEvent(clickEvent);
         } else {
-            // Fallback a la primera pestaña si la guardada no existe o no se encuentra
             const firstTabButton = document.querySelector('.tab-button[data-tab-target="general"]');
             if (firstTabButton) {
                const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
@@ -264,7 +259,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         const modal = document.getElementById('modalEditarRol');
         if (modal) {
             modal.classList.remove('hidden');
-            // Asegúrate de que los elementos existan antes de intentar acceder a sus propiedades
             const nombreMiembroModalEl = document.getElementById('nombreMiembroModal');
             const modalIdMiembroEquipoRolEl = document.getElementById('modal_id_miembro_equipo_rol');
             const modalIdRolProyectoEl = document.getElementById('modal_id_rol_proyecto');
@@ -287,13 +281,13 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     const modalEditarRolElement = document.getElementById('modalEditarRol');
     if (modalEditarRolElement) {
         modalEditarRolElement.addEventListener('click', function(e) {
-            if (e.target === this) { // Si se hace clic en el fondo del modal
+            if (e.target === this) {
                 cerrarModalEditarRol();
             }
         });
     }
 
-    function abrirModalEditarActividad(actividad) { // actividad es un objeto JS
+    function abrirModalEditarActividad(actividad) {
         const modal = document.getElementById('modalEditarActividad');
         if (modal) {
             modal.classList.remove('hidden');
@@ -309,8 +303,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
             document.getElementById('modal_estado_actividad').value = actividad.estado_actividad || 'Pendiente';
             document.getElementById('modal_id_cronograma').value = actividad.id_cronograma || '<?= htmlspecialchars($id_cronograma_actual ?? '') ?>';
             
-            // Preseleccionar el ECS entregable
-            // Asumimos que el objeto 'actividad' pasado a esta función ya tiene 'id_ecs_entregable'
             document.getElementById('modal_id_ecs_entregable').value = actividad.id_ecs_entregable || ''; 
         } else {
             console.error("Modal con ID 'modalEditarActividad' no encontrado.");
