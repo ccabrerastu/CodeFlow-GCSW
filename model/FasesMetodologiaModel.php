@@ -168,7 +168,8 @@ class FasesMetodologiaModel {
                 f.id_fase_metodologia, 
                 f.nombre_fase,
                 e.id_ecs,
-                e.nombre_ecs
+                e.nombre_ecs,
+                efm.id_ec_fase_met
             FROM Proyectos p
             JOIN FasesMetodologia f ON p.id_metodologia = f.id_metodologia
             LEFT JOIN ECS_FaseMetodologia efm ON f.id_fase_metodologia = efm.id_fase_metodologia

@@ -228,6 +228,8 @@ class FasesMetodologiaControlador {
         header("Location: index.php?c=FasesMetodologia&a=listarPorMetodologia&id_metodologia=" . $id_metodologia);
         exit;
     }
+
+    //no es
 public function mostrarFasesPorProyecto($id_proyecto) {
     $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
     if (!$proyecto) {

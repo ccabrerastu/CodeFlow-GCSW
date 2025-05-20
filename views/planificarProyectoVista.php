@@ -216,10 +216,20 @@
                 </section>
             <?php endforeach; ?>
         </div>
+
     <?php else: ?>
         <p class="text-center text-gray-500 italic">No hay fases para este proyecto.</p>
     <?php endif; ?>
+        <div class="mt-10 text-right">
+        <button 
+            type="submit" 
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
+        >
+            Agregar elementos
+        </button>
+    </div>
 </div>
+
 
 <!-- Modal Editar Rol -->
 <!-- Modal Editar Rol -->

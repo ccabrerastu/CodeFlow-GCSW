@@ -146,7 +146,7 @@ public function planificar() {
         header("Location: index.php?c=Proyecto&a=index");
         exit;
     }
-     $fases = $this->fasesModel->obtenerFasesPorProyecto($id_proyecto);
+    $fases = $this->fasesModel->obtenerFasesPorProyecto($id_proyecto); //este es
      
     $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
     if (!$proyecto) {
