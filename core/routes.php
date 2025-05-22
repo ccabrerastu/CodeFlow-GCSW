@@ -1,14 +1,13 @@
 <?php
 
 function cargarControlador($controlador) {
-    // Nombre del archivo del controlador
     $controlador = $controlador . "Controlador";
     $archivo = "controllers/" . $controlador . ".php";
 
    if (file_exists($archivo)) {
         require_once $archivo;
 
-      // Instancia el controlador
+      
        if (class_exists($controlador)) {
             return new $controlador();
         } else {
@@ -20,10 +19,9 @@ function cargarControlador($controlador) {
 }
 
 function cargarAccion($controlador, $accion, $id = null) {
-    // Verifica que el método exista
     if (method_exists($controlador, $accion)) {
-        if ($id !== null) {
-            $controlador->$accion($id);
+        if (isset($_GET['id_solicitud'])) {
+            $controlador->$accion($_GET['id_solicitud']);
         } else {
             $controlador->$accion();
         }
@@ -31,3 +29,4 @@ function cargarAccion($controlador, $accion, $id = null) {
         die("La acción '$accion' no está definida en el controlador.");
     }
 }
+?>

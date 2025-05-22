@@ -1,5 +1,4 @@
 <?php
-// views/solicitudCambio/crearEditarSolicitudVista.php
 $esEditar      = !empty($formData['id_solicitud']);
 $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de Cambio';
 ?>

@@ -13,14 +13,7 @@ class SolicitudCambioModel {
         }
     }
 
-    /**
-     * Crea una nueva solicitud de cambio.
-     * @param int    $id_proyecto     ID del proyecto al que pertenece la solicitud.
-     * @param int    $id_solicitante  ID del usuario que solicita.
-     * @param string $titulo          Título de la solicitud.
-     * @param string $descripcion     Descripción detallada de la solicitud.
-     * @return int|false              ID generado o false en error.
-     */
+   
     public function crearSolicitud($id_proyecto, $id_solicitante, $titulo, $descripcion) {
         $sql = "INSERT INTO SolicitudesCambio 
                     (id_proyecto, id_solicitante, titulo, descripcion_detallada, fecha_solicitud, estado_sc)
@@ -42,10 +35,6 @@ class SolicitudCambioModel {
         }
     }
 
-    /**
-     * Devuelve todas las solicitudes con datos de usuario.
-     * @return array
-     */
     public function obtenerTodasLasSolicitudes() {
         $sql = "SELECT 
                 sc.id_sc       AS id_solicitud,
@@ -65,11 +54,6 @@ class SolicitudCambioModel {
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 
-    /**
-     * Devuelve las solicitudes filtradas por estado.
-     * @param string $estado
-     * @return array
-     */
     public function obtenerSolicitudesPorEstado($estado) {
         $sql = "SELECT id_sc AS id_solicitud, titulo
                 FROM SolicitudesCambio
@@ -84,11 +68,6 @@ class SolicitudCambioModel {
         return $arr;
     }
 
-    /**
-     * Devuelve una sola solicitud por ID.
-     * @param int $id_solicitud
-     * @return array|null
-     */
     public function obtenerSolicitudPorId($id_solicitud) {
         $sql = "SELECT 
                 sc.id_sc       AS id_solicitud,
@@ -113,13 +92,6 @@ class SolicitudCambioModel {
         return $sol;
     }
 
-    /**
-     * Actualiza título y descripción de una solicitud.
-     * @param int    $id_solicitud
-     * @param string $titulo
-     * @param string $descripcion
-     * @return bool
-     */
     public function actualizarSolicitud($id_solicitud, $titulo, $descripcion) {
         $sql = "UPDATE SolicitudesCambio
                 SET titulo = ?, descripcion_detallada = ?
@@ -133,11 +105,6 @@ class SolicitudCambioModel {
         return $ok;
     }
 
-    /**
-     * Elimina una solicitud.
-     * @param int $id_solicitud
-     * @return bool
-     */
     public function eliminarSolicitud($id_solicitud) {
         $sql = "DELETE FROM SolicitudesCambio WHERE id_sc = ?";
         $stmt = $this->db->prepare($sql);

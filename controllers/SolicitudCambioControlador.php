@@ -1,5 +1,4 @@
 <?php
-// controllers/SolicitudCambioControlador.php
 
 require_once __DIR__ . '/../model/SolicitudCambioModel.php';
 require_once __DIR__ . '/../model/ProyectoModel.php';
@@ -42,7 +41,6 @@ class SolicitudCambioControlador {
         }
 
         $id_proyecto    = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
-        // Ahora leemos la sesión tal como guarda el login:
         $id_solicitante = $_SESSION['id_usuario'] ?? null;
         $titulo         = trim($_POST['titulo'] ?? '');
         $descripcion    = trim($_POST['descripcion'] ?? '');
