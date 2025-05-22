@@ -1,57 +1,72 @@
 <?php
-$esEditar = isset($solicitud);
-$titulo   = $esEditar ? "Editar Solicitud de Cambio" : "Nueva Solicitud de Cambio";
-$action   = $esEditar ? "editar" : "crear";
+// views/solicitudCambio/crearEditarSolicitudVista.php
+$esEditar      = !empty($formData['id_solicitud']);
+$tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de Cambio';
 ?>
-<?php include __DIR__ . '/../partials/header.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SGC - <?= $titulo ?></title>
+    <title>SGC - <?= htmlspecialchars($tituloPagina) ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <h1 class="text-2xl font-bold text-gray-700 mb-6"><?= $titulo ?></h1>
+    <?php include __DIR__ . '/../partials/header.php'; ?>
+
+    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+        <h1 class="text-2xl font-bold mb-6"><?= htmlspecialchars($tituloPagina) ?></h1>
 
         <?php if (!empty($formErrors['general'])): ?>
-            <div class="p-3 mb-4 text-red-700 bg-red-100 rounded-lg">
+            <div class="p-3 mb-4 text-red-700 bg-red-100 rounded">
                 <?= htmlspecialchars($formErrors['general']) ?>
             </div>
         <?php endif; ?>
 
-        <form action="index.php?c=SolicitudCambio&a=<?= $action ?>" method="POST" enctype="multipart/form-data">
+        <form action="index.php?c=SolicitudCambio&a=<?= $esEditar ? 'editar' : 'crear' ?>" method="POST" class="space-y-4">
             <?php if ($esEditar): ?>
-                <input type="hidden" name="id_sc" value="<?= $solicitud['id_sc'] ?>">
+                <input type="hidden" name="id_solicitud" value="<?= htmlspecialchars($formData['id_solicitud']) ?>">
             <?php endif; ?>
 
-            <div class="mb-4">
-                <label for="titulo" class="form-label">Título:</label>
-                <input type="text" name="titulo" id="titulo" class="form-input"
-                       value="<?= htmlspecialchars($formData['titulo'] ?? $solicitud['titulo'] ?? '') ?>" required>
-                <?php if (isset($formErrors['titulo'])): ?>
-                    <p class="error-message"><?= htmlspecialchars($formErrors['titulo']) ?></p>
+            <div>
+                <label for="id_proyecto" class="block font-bold mb-1">Proyecto:</label>
+                <select name="id_proyecto" id="id_proyecto" class="w-full border p-2 rounded" required>
+                    <option value="">-- Seleccione un proyecto --</option>
+                    <?php foreach ($proyectos as $p): ?>
+                        <option value="<?= $p['id_proyecto'] ?>"
+                            <?= ($formData['id_proyecto'] == $p['id_proyecto']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($p['nombre_proyecto']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!empty($formErrors['id_proyecto'])): ?>
+                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['id_proyecto']) ?></p>
                 <?php endif; ?>
             </div>
 
-            <div class="mb-4">
-                <label for="descripcion" class="form-label">Descripción:</label>
-                <textarea name="descripcion" id="descripcion" rows="4" class="form-textarea"><?= htmlspecialchars($formData['descripcion'] ?? $solicitud['descripcion'] ?? '') ?></textarea>
+            <div>
+                <label for="titulo" class="block font-bold mb-1">Título:</label>
+                <input type="text" name="titulo" id="titulo" class="w-full border p-2 rounded"
+                       value="<?= htmlspecialchars($formData['titulo'] ?? '') ?>" required>
+                <?php if (!empty($formErrors['titulo'])): ?>
+                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['titulo']) ?></p>
+                <?php endif; ?>
             </div>
 
-            <div class="mb-4">
-                <label for="archivo" class="form-label">Archivo Adjunto (Opcional):</label>
-                <input type="file" name="archivo" id="archivo" class="form-input">
+            <div>
+                <label for="descripcion" class="block font-bold mb-1">Descripción:</label>
+                <textarea name="descripcion" id="descripcion" rows="4"
+                          class="w-full border p-2 rounded" required><?= htmlspecialchars($formData['descripcion'] ?? '') ?></textarea>
             </div>
 
-            <div class="flex justify-end space-x-4 mt-6">
-                <a href="index.php?c=SolicitudCambio&a=listar" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save mr-1"></i> <?= $esEditar ? 'Actualizar' : 'Crear' ?>
+            <div class="flex items-center space-x-4">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
+                    <?= $esEditar ? 'Actualizar' : 'Crear' ?>
                 </button>
+                <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Cancelar</a>
             </div>
         </form>
     </div>
+
     <?php include __DIR__ . '/../partials/footer.php'; ?>
 </body>
 </html>

@@ -6,36 +6,21 @@
     <title>SGC - Detalle Solicitud de Cambio</title>
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <h1 class="text-2xl font-bold text-gray-700 mb-4">
-            Solicitud #<?= $solicitud['id_sc'] ?> – <?= htmlspecialchars($solicitud['titulo']) ?>
+    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+        <h1 class="text-2xl font-bold mb-4">
+            Solicitud #<?= htmlspecialchars($sol['id_solicitud']) ?> –
+            <?= htmlspecialchars($sol['titulo']) ?>
         </h1>
-        <p class="mb-2"><strong>Solicitante:</strong> <?= htmlspecialchars($solicitud['nombre_usuario']) ?></p>
-        <p class="mb-2"><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($solicitud['fecha_creacion'])) ?></p>
-        <p class="mb-4"><strong>Estado:</strong> <?= htmlspecialchars($solicitud['estado_sc']) ?></p>
+        <p><strong>Proyecto:</strong> <?= htmlspecialchars($sol['nombre_proyecto']) ?></p>
+        <p><strong>Solicitante:</strong> <?= htmlspecialchars($sol['nombre_completo']) ?></p>
+        <p><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($sol['fecha_creacion'])) ?></p>
+        <p><strong>Estado:</strong> <?= htmlspecialchars($sol['estado']) ?></p>
 
-        <div class="mb-6">
-            <h2 class="font-semibold text-gray-800">Descripción:</h2>
-            <p class="text-gray-700"><?= nl2br(htmlspecialchars($solicitud['descripcion'])) ?></p>
-        </div>
+        <h2 class="mt-6 font-semibold">Descripción detallada</h2>
+        <p class="whitespace-pre-wrap"><?= htmlspecialchars($sol['descripcion']) ?></p>
 
-        <?php if (!empty($archivos)): ?>
-            <div class="mb-6">
-                <h2 class="font-semibold text-gray-800 mb-2">Archivos Adjuntos:</h2>
-                <ul class="list-disc ml-6">
-                    <?php foreach ($archivos as $file): ?>
-                        <li>
-                            <a href="<?= $file['ruta'] ?>" class="text-indigo-600 hover:underline" target="_blank">
-                                <?= htmlspecialchars($file['nombre_archivo']) ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-
-        <a href="index.php?c=SolicitudCambio&a=listar" class="btn btn-secondary">
-            <i class="fas fa-arrow-left mr-1"></i> Volver
+        <a href="index.php?c=SolicitudCambio&a=index" class="mt-6 inline-block text-blue-600 hover:underline">
+            ← Volver al listado
         </a>
     </div>
     <?php include __DIR__ . '/../partials/footer.php'; ?>
