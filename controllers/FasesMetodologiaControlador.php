@@ -35,6 +35,7 @@ class FasesMetodologiaControlador {
         }
 
         $fases = $this->fasesMetodologiaModel->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesecs = $this->fasesMetodologiaModel->obtenerFasesConSusECS($id_metodologia);
         $statusMessage = $_SESSION['status_message'] ?? null;
         unset($_SESSION['status_message']);
 

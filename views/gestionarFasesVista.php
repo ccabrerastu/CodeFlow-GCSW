@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SGC - Gestionar Fases de Metodología: <?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Desconocida') ?></title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
@@ -34,6 +35,7 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-700">
                 Gestionar Fases de: <span class="text-blue-600"><?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Metodología Desconocida') ?></span>
+                
             </h1>
             <a href="index.php?c=FasesMetodologia&a=mostrarFormularioCrear&id_metodologia=<?= htmlspecialchars($metodologia['id_metodologia'] ?? '') ?>" class="btn btn-primary">
                 <i class="fas fa-plus mr-1"></i> Nueva Fase
@@ -61,8 +63,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($fases)): ?>
-                        <?php foreach ($fases as $index => $fase): ?>
+                    <?php if (!empty($fasesecs)): ?>
+                        <?php foreach ($fasesecs as $index => $fase): ?>
                             <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
                                 <td class="px-6 py-4"><?= htmlspecialchars($fase['orden']); ?></td>
                                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
@@ -73,7 +75,31 @@
                                     </a>
                                 </td>
                             </tr>
+
+                            <?php if (!empty($fase['elementos'])): ?>
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm">
+                                        <strong>Actividades:</strong>
+                                        <ul class="list-disc list-inside mt-2">
+                                            <?php foreach ($fase['elementos'] as $actividad): ?>
+                                                <li>
+                                                    <?= htmlspecialchars($actividad['nombre_ecs']) ?>
+                                                    - <em><?= htmlspecialchars($actividad['estado_ecs']) ?></em>
+                                                    - v<?= htmlspecialchars($actividad['version_actual']) ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm text-gray-500">
+                                        No hay actividades registradas para esta fase.
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
+                        
                     <?php else: ?>
                         <tr>
                             <td colspan="4" class="px-6 py-4 text-center text-gray-500">
@@ -82,6 +108,7 @@
                         </tr>
                     <?php endif; ?>
                 </tbody>
+
             </table>
         </div>
     </div>
