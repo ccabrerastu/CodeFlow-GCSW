@@ -71,9 +71,6 @@
                                     <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="btn btn-edit">
                                         <i class="fas fa-edit mr-1"></i> Editar
                                     </a>
-                                    <a href="index.php?c=FasesMetodologia&a=eliminar&id_fase=<?= $fase['id_fase_metodologia'] ?>&id_metodologia=<?= $metodologia['id_metodologia'] ?>" class="btn btn-delete" onclick="return confirm('¿Está seguro de que desea eliminar esta fase? Esto podría afectar a los proyectos que la utilicen.');">
-                                        <i class="fas fa-trash-alt mr-1"></i> Eliminar
-                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

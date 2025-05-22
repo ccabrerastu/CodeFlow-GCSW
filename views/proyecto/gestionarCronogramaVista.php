@@ -73,21 +73,32 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="fecha_inicio_planificada_act_form" class="form-label">Fecha Inicio Planificada:</label>
-                            <input type="date" name="fecha_inicio_planificada" id="fecha_inicio_planificada_act_form" class="form-input"
-                                   value="<?= htmlspecialchars($formDataActividad['fecha_inicio_planificada'] ?? '') ?>">
+                            <input type="date" 
+                                name="fecha_inicio_planificada" 
+                                id="fecha_inicio_planificada_act_form" 
+                                class="form-input"
+                                value="<?= htmlspecialchars($formDataActividad['fecha_inicio_planificada'] ?? '') ?>"
+                                min="<?= htmlspecialchars($proyecto['fecha_inicio_planificada']) ?>"
+                                max="<?= htmlspecialchars($proyecto['fecha_fin_planificada']) ?>">
                             <?php if (isset($formErrorsActividad['fecha_inicio_planificada'])): ?>
                                 <p class="error-message"><?= htmlspecialchars($formErrorsActividad['fecha_inicio_planificada']) ?></p>
                             <?php endif; ?>
                         </div>
                         <div>
                             <label for="fecha_fin_planificada_act_form" class="form-label">Fecha Fin Planificada:</label>
-                            <input type="date" name="fecha_fin_planificada" id="fecha_fin_planificada_act_form" class="form-input"
-                                   value="<?= htmlspecialchars($formDataActividad['fecha_fin_planificada'] ?? '') ?>">
+                            <input type="date" 
+                                name="fecha_fin_planificada" 
+                                id="fecha_fin_planificada_act_form" 
+                                class="form-input"
+                                value="<?= htmlspecialchars($formDataActividad['fecha_fin_planificada'] ?? '') ?>"
+                                min="<?= htmlspecialchars($proyecto['fecha_inicio_planificada']) ?>"
+                                max="<?= htmlspecialchars($proyecto['fecha_fin_planificada']) ?>">
                             <?php if (isset($formErrorsActividad['fecha_fin_planificada'])): ?>
                                 <p class="error-message"><?= htmlspecialchars($formErrorsActividad['fecha_fin_planificada']) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
+
 
                     <div class="mb-4">
                         <label for="id_ecs_entregable_form" class="form-label">ECS Entregable Principal (Opcional):</label>

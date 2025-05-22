@@ -26,8 +26,8 @@ $baseUrl = "/";
 
     <aside id="sidebar" class="w-64 bg-gray-800 text-white min-h-screen p-4 space-y-4 transition-transform duration-300 fixed left-0 top-0 transform -translate-x-full z-30">
         <h4 class="text-xl font-bold mb-4 text-center border-b border-gray-700 pb-2">SGC Menú</h4>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Dashboard&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
-            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+        <a href="<?php echo $baseUrl; ?>index.php?c=Metodologia&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
+            <i class="fas fa-tachometer-alt mr-2"></i>Metodologías
         </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=Proyecto&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-project-diagram mr-2"></i>Proyectos
