@@ -124,27 +124,20 @@ class FasesMetodologiaModel {
         return $fase;
     }
     public function obtenerFasesConSusECS($id_metodologia) {
-        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
-        $fasesConECS = [];
+    $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+    $fasesConECS = [];
 
-        if ($this->ecsFaseModel === null) { // Verificación defensiva
-            error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
-            // Devolver solo las fases si el modelo de ECS no está disponible para evitar error fatal
-            // Esto es un parche temporal, la causa raíz de la no instanciación debe ser resuelta.
-            foreach ($fases as $fase) {
-                $fase['elementos'] = []; // Array vacío para elementos
-                $fasesConECS[] = $fase;
-            }
-            return $fasesConECS;
-        }
+    // Instanciar directamente el modelo ECSFaseMetodologia
+    $ecsFaseModel = new ECSFaseMetodologiaModel();
 
-        foreach ($fases as $fase) {
-            // Esta es la línea donde ocurría el error (aprox. línea 126 en tu traza)
-            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
-            $fasesConECS[] = $fase;
-        }
-        return $fasesConECS;
+    foreach ($fases as $fase) {
+        $fase['elementos'] = $ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+        $fasesConECS[] = $fase;
     }
+
+    return $fasesConECS;
+}
+
 
     public function actualizarFase() {
         if ($this->conexion === null || $this->id_fase_metodologia === null) {
