@@ -63,6 +63,19 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
                 </button>
                 <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Cancelar</a>
             </div>
+            <div>
+            <label for="adjuntos" class="form-label">Archivos justificativos:</label>
+            <input 
+                type="file" 
+                name="adjuntos[]" 
+                id="adjuntos" 
+                class="form-input" 
+                multiple
+            >
+            <?php if (!empty($formErrors['adjuntos'])): ?>
+                <div class="error-message"><?= htmlspecialchars($formErrors['adjuntos']) ?></div>
+            <?php endif; ?>
+            </div>
         </form>
     </div>
 
