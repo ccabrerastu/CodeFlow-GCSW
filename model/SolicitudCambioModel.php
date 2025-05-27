@@ -35,6 +35,40 @@ class SolicitudCambioModel {
         }
     }
 
+    public function guardarArchivo(int $id_sc, string $nombre, string $tipo, string $ruta): bool {
+        $sql  = "INSERT INTO ArchivosAdjuntosSC (id_sc, nombre_archivo, tipo_archivo, ruta_archivo)
+                VALUES (?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("isss", $id_sc, $nombre, $tipo, $ruta);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    public function obtenerAdjuntos($id_solicitud) {
+        $sql = "SELECT id_adjunto_sc, nombre_archivo, tipo_archivo, ruta_archivo, fecha_subida
+                FROM ArchivosAdjuntosSC
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id_solicitud);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $res;
+    }
+
+    public function obtenerArchivosPorSolicitud(int $id_sc): array {
+        $sql  = "SELECT nombre_archivo, ruta_archivo 
+                FROM ArchivosAdjuntosSC 
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id_sc);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $res;
+    }
+
     public function obtenerTodasLasSolicitudes() {
         $sql = "SELECT 
                 sc.id_sc       AS id_solicitud,

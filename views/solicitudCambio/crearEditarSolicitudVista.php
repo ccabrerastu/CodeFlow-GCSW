@@ -21,7 +21,7 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
             </div>
         <?php endif; ?>
 
-        <form action="index.php?c=SolicitudCambio&a=<?= $esEditar ? 'editar' : 'crear' ?>" method="POST" class="space-y-4">
+        <form action="index.php?c=SolicitudCambio&a=<?= $esEditar ? 'editar' : 'crear' ?>" method="POST" class="space-y-4" enctype="multipart/form-data">
             <?php if ($esEditar): ?>
                 <input type="hidden" name="id_solicitud" value="<?= htmlspecialchars($formData['id_solicitud']) ?>">
             <?php endif; ?>
@@ -64,17 +64,8 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
                 <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Cancelar</a>
             </div>
             <div>
-            <label for="adjuntos" class="form-label">Archivos justificativos:</label>
-            <input 
-                type="file" 
-                name="adjuntos[]" 
-                id="adjuntos" 
-                class="form-input" 
-                multiple
-            >
-            <?php if (!empty($formErrors['adjuntos'])): ?>
-                <div class="error-message"><?= htmlspecialchars($formErrors['adjuntos']) ?></div>
-            <?php endif; ?>
+                <label class="form-label">Adjuntar justificantes:</label>
+                <input type="file" name="archivos[]" multiple class="form-input" />
             </div>
         </form>
     </div>

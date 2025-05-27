@@ -19,6 +19,21 @@
         <h2 class="mt-6 font-semibold">Descripción detallada</h2>
         <p class="whitespace-pre-wrap"><?= htmlspecialchars($sol['descripcion']) ?></p>
 
+        <?php if (!empty($archivos)): ?>
+            <h2 class="mt-6 font-semibold">Archivos Adjuntos</h2>
+            <ul class="list-disc ml-6">
+                <?php foreach ($archivos as $f): ?>
+                    <li class="mt-2">
+                        <a href="<?= htmlspecialchars($f['ruta_archivo']) ?>"
+                           class="text-indigo-600 hover:underline"
+                           target="_blank">
+                           <?= htmlspecialchars($f['nombre_archivo']) ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+
         <a href="index.php?c=SolicitudCambio&a=index" class="mt-6 inline-block text-blue-600 hover:underline">
             ← Volver al listado
         </a>

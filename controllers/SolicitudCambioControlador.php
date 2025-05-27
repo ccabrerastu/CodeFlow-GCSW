@@ -67,6 +67,20 @@ class SolicitudCambioControlador {
             $descripcion
         );
 
+        if ($newId && !empty($_FILES['archivos'])) {
+        foreach ($_FILES['archivos']['error'] as $i => $error) {
+            if ($error === UPLOAD_ERR_OK) {
+            $tmp  = $_FILES['archivos']['tmp_name'][$i];
+            $name = basename($_FILES['archivos']['name'][$i]);
+            $dest = __DIR__ . "/../public/uploads/sc_$newId/$name";
+            if (!is_dir(dirname($dest))) mkdir(dirname($dest), 0755, true);
+            if (move_uploaded_file($tmp, $dest)) {
+                $this->model->guardarArchivo($newId, $name, $_FILES['archivos']['type'][$i], "/uploads/sc_$newId/$name");
+            }
+            }
+        }
+        }
+
         $_SESSION['status_message'] = $newId
             ? ['type'=>'success','text'=>'Solicitud creada exitosamente.']
             : ['type'=>'error','text'=>'Error al crear la solicitud.'];
@@ -82,6 +96,8 @@ class SolicitudCambioControlador {
             header("Location: index.php?c=SolicitudCambio&a=index");
             exit;
         }
+
+        $archivos = $this->model->obtenerArchivosPorSolicitud($id_solicitud);
         require __DIR__ . '/../views/solicitudCambio/detalleSolicitudVista.php';
     }
 
