@@ -197,7 +197,7 @@ class ProyectoControlador {
         $fases_metodologia_cronograma = [];
 
         if ($cronograma && isset($cronograma['id_cronograma'])) {
-            $actividades = $this->actividadModel->obtenerActividadesPorCronograma($cronograma['id_cronograma']); // Necesitarás este método
+            $actividades = $this->actividadModel->obtenerActividadesPorCronograma($cronograma['id_cronograma']);
         }
         if (isset($proyecto['id_metodologia'])) {
             $fases_metodologia_cronograma = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
