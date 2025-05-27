@@ -57,16 +57,35 @@ class SolicitudCambioModel {
         return $res;
     }
 
-    public function obtenerArchivosPorSolicitud(int $id_sc): array {
-        $sql  = "SELECT nombre_archivo, ruta_archivo 
-                FROM ArchivosAdjuntosSC 
+    public function obtenerArchivosPorSolicitud(int $id_solicitud): array
+    {
+        $sql = "SELECT 
+                    id_adjunto_sc, 
+                    nombre_archivo, 
+                    ruta_archivo 
+                FROM ArchivosAdjuntosSC
                 WHERE id_sc = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("i", $id_sc);
+        $stmt->bind_param("i", $id_solicitud);
         $stmt->execute();
-        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $res = $stmt->get_result();
+        $archivos = $res->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
-        return $res;
+        return $archivos;
+    }
+
+    public function obtenerArchivoPorId(int $id_adjunto): ?array
+    {
+        $sql = "SELECT id_adjunto_sc, nombre_archivo, tipo_archivo, ruta_archivo
+                FROM ArchivosAdjuntosSC
+                WHERE id_adjunto_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return null;
+        $stmt->bind_param("i", $id_adjunto);
+        $stmt->execute();
+        $file = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $file ?: null;
     }
 
     public function obtenerTodasLasSolicitudes() {
@@ -163,15 +182,23 @@ class SolicitudCambioModel {
         return $ok;
     }
 
-    public function actualizarDecisionFinal(int $id_solicitud, string $decision): bool
+    public function actualizarDecisionFinal(int $id_solicitud, string $estado, string $decision): bool
     {
         $sql = "UPDATE SolicitudesCambio
-                SET decision_final = ?, estado_sc = 'Aprobada', fecha_decision_final = NOW()
+                SET estado_sc = ?, 
+                    decision_final = ?,
+                    fecha_decision_final = NOW()
                 WHERE id_sc = ?";
         $stmt = $this->db->prepare($sql);
-        if (!$stmt) return false;
-        $stmt->bind_param("si", $decision, $id_solicitud);
+        if (!$stmt) {
+            error_log("Error al preparar actualizarDecisionFinal: " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("ssi", $estado, $decision, $id_solicitud);
         $ok = $stmt->execute();
+        if (!$ok) {
+            error_log("Error al ejecutar actualizarDecisionFinal: " . $stmt->error);
+        }
         $stmt->close();
         return $ok;
     }
