@@ -73,6 +73,7 @@ class FasesMetodologiaModel {
         $stmt->close();
         return $fases;
     }
+    
 
 
     public function crearFase() {
@@ -124,6 +125,25 @@ class FasesMetodologiaModel {
         return $fase;
     }
     public function obtenerFasesConSusECS($id_metodologia) {
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECS = [];
+
+        if ($this->ecsFaseModel === null) {
+            error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
+            foreach ($fases as $fase) {
+                $fase['elementos'] = [];
+                $fasesConECS[] = $fase;
+            }
+            return $fasesConECS;
+        }
+
+        foreach ($fases as $fase) {
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+            $fasesConECS[] = $fase;
+        }
+        return $fasesConECS;
+    }
+    public function obtenerFasesConSusECSD($id_metodologia) {
         $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
         $fasesConECS = [];
 
