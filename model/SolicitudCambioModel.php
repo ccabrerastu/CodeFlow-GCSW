@@ -35,6 +35,59 @@ class SolicitudCambioModel {
         }
     }
 
+    public function guardarArchivo(int $id_sc, string $nombre, string $tipo, string $ruta): bool {
+        $sql  = "INSERT INTO ArchivosAdjuntosSC (id_sc, nombre_archivo, tipo_archivo, ruta_archivo)
+                VALUES (?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("isss", $id_sc, $nombre, $tipo, $ruta);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    public function obtenerAdjuntos($id_solicitud) {
+        $sql = "SELECT id_adjunto_sc, nombre_archivo, tipo_archivo, ruta_archivo, fecha_subida
+                FROM ArchivosAdjuntosSC
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id_solicitud);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $res;
+    }
+
+    public function obtenerArchivosPorSolicitud(int $id_solicitud): array
+    {
+        $sql = "SELECT 
+                    id_adjunto_sc, 
+                    nombre_archivo, 
+                    ruta_archivo 
+                FROM ArchivosAdjuntosSC
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id_solicitud);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $archivos = $res->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $archivos;
+    }
+
+    public function obtenerArchivoPorId(int $id_adjunto): ?array
+    {
+        $sql = "SELECT id_adjunto_sc, nombre_archivo, tipo_archivo, ruta_archivo
+                FROM ArchivosAdjuntosSC
+                WHERE id_adjunto_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return null;
+        $stmt->bind_param("i", $id_adjunto);
+        $stmt->execute();
+        $file = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $file ?: null;
+    }
+
     public function obtenerTodasLasSolicitudes() {
         $sql = "SELECT 
                 sc.id_sc       AS id_solicitud,
@@ -112,6 +165,40 @@ class SolicitudCambioModel {
         $stmt->bind_param("i", $id_solicitud);
         $ok = $stmt->execute();
         if (!$ok) error_log("SolicitudCambioModel::eliminarSolicitud error: " . $stmt->error);
+        $stmt->close();
+        return $ok;
+    }
+
+    public function actualizarAnalisisImpacto(int $id_solicitud, string $analisis): bool
+    {
+        $sql = "UPDATE SolicitudesCambio
+                SET analisis_impacto = ?, estado_sc = 'En Análisis'
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return false;
+        $stmt->bind_param("si", $analisis, $id_solicitud);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    public function actualizarDecisionFinal(int $id_solicitud, string $estado, string $decision): bool
+    {
+        $sql = "UPDATE SolicitudesCambio
+                SET estado_sc = ?, 
+                    decision_final = ?,
+                    fecha_decision_final = NOW()
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            error_log("Error al preparar actualizarDecisionFinal: " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("ssi", $estado, $decision, $id_solicitud);
+        $ok = $stmt->execute();
+        if (!$ok) {
+            error_log("Error al ejecutar actualizarDecisionFinal: " . $stmt->error);
+        }
         $stmt->close();
         return $ok;
     }

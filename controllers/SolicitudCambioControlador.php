@@ -67,6 +67,20 @@ class SolicitudCambioControlador {
             $descripcion
         );
 
+        if ($newId && !empty($_FILES['archivos'])) {
+        foreach ($_FILES['archivos']['error'] as $i => $error) {
+            if ($error === UPLOAD_ERR_OK) {
+            $tmp  = $_FILES['archivos']['tmp_name'][$i];
+            $name = basename($_FILES['archivos']['name'][$i]);
+            $dest = __DIR__ . "/../public/uploads/sc_$newId/$name";
+            if (!is_dir(dirname($dest))) mkdir(dirname($dest), 0755, true);
+            if (move_uploaded_file($tmp, $dest)) {
+                $this->model->guardarArchivo($newId, $name, $_FILES['archivos']['type'][$i], "/uploads/sc_$newId/$name");
+            }
+            }
+        }
+        }
+
         $_SESSION['status_message'] = $newId
             ? ['type'=>'success','text'=>'Solicitud creada exitosamente.']
             : ['type'=>'error','text'=>'Error al crear la solicitud.'];
@@ -82,6 +96,8 @@ class SolicitudCambioControlador {
             header("Location: index.php?c=SolicitudCambio&a=index");
             exit;
         }
+
+        $archivos = $this->model->obtenerArchivosPorSolicitud($id_solicitud);
         require __DIR__ . '/../views/solicitudCambio/detalleSolicitudVista.php';
     }
 
@@ -153,4 +169,90 @@ class SolicitudCambioControlador {
         header("Location: index.php?c=SolicitudCambio&a=index");
         exit;
     }
+
+    public function registrarAnalisis()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?c=SolicitudCambio&a=index");
+            exit;
+        }
+
+        $id   = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+        $text = trim($_POST['analisis_impacto'] ?? '');
+
+        if (!$id || $text === '') {
+            $_SESSION['status_message'] = ['type'=>'error','text'=>'Debe completar el análisis de impacto.'];
+        } else {
+            $ok = $this->model->actualizarAnalisisImpacto($id, $text);
+            $_SESSION['status_message'] = $ok
+                ? ['type'=>'success','text'=>'Análisis de impacto guardado.']
+                : ['type'=>'error','text'=>'Error al guardar el análisis.'];
+        }
+
+        header("Location: index.php?c=SolicitudCambio&a=detalle&id_solicitud={$id}");
+        exit;
+    }
+
+    public function registrarDecision()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?c=SolicitudCambio&a=index");
+            exit;
+        }
+
+        $id            = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+        $estado        = $_POST['estado_sc']       ?? '';
+        $decision_text = trim($_POST['decision_final'] ?? '');
+
+        $errors = [];
+        if (!$id) {
+            $errors['general'] = "ID de solicitud inválido.";
+        }
+        if (!in_array($estado, ['Aprobada','Rechazada'], true)) {
+            $errors['estado_sc'] = "Seleccione Aprobada o Rechazada.";
+        }
+        if ($decision_text === '') {
+            $errors['decision_final'] = "El comentario justificativo es obligatorio.";
+        }
+
+        if ($errors) {
+            $_SESSION['form_errors_solicitud'] = $errors;
+            $_SESSION['form_data_solicitud']   = [
+                'estado_sc'      => $estado,
+                'decision_final' => $decision_text
+            ];
+            header("Location: index.php?c=SolicitudCambio&a=detalle&id_solicitud={$id}");
+            exit;
+        }
+
+        $ok = $this->model->actualizarDecisionFinal($id, $estado, $decision_text);
+
+        $_SESSION['status_message'] = $ok
+            ? ['type'=>'success','text'=>"Decisión '{$estado}' registrada correctamente."]
+            : ['type'=>'error','text'=>'Error al guardar la decisión.'];
+
+        header("Location: index.php?c=SolicitudCambio&a=detalle&id_solicitud={$id}");
+        exit;
+    }
+
+public function descargarArchivo()
+{
+    $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+    if (!$id) {
+        die("Adjunto inválido.");
+    }
+    $file = $this->model->obtenerArchivoPorId($id);
+    if (!$file) {
+        die("Archivo no encontrado.");
+    }
+    $ruta = $_SERVER['DOCUMENT_ROOT'] . $file['ruta_archivo'];
+    if (!is_readable($ruta)) {
+        die("No se puede leer el archivo.");
+    }
+
+    header('Content-Type: ' . $file['tipo_archivo']);
+    header('Content-Disposition: attachment; filename="' . basename($file['nombre_archivo']) . '"');
+    readfile($ruta);
+    exit;
+}
 }
