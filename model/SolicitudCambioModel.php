@@ -149,4 +149,30 @@ class SolicitudCambioModel {
         $stmt->close();
         return $ok;
     }
+
+    public function actualizarAnalisisImpacto(int $id_solicitud, string $analisis): bool
+    {
+        $sql = "UPDATE SolicitudesCambio
+                SET analisis_impacto = ?, estado_sc = 'En Análisis'
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return false;
+        $stmt->bind_param("si", $analisis, $id_solicitud);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    public function actualizarDecisionFinal(int $id_solicitud, string $decision): bool
+    {
+        $sql = "UPDATE SolicitudesCambio
+                SET decision_final = ?, estado_sc = 'Aprobada', fecha_decision_final = NOW()
+                WHERE id_sc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return false;
+        $stmt->bind_param("si", $decision, $id_solicitud);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
 }

@@ -169,4 +169,50 @@ class SolicitudCambioControlador {
         header("Location: index.php?c=SolicitudCambio&a=index");
         exit;
     }
+
+    public function registrarAnalisis()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?c=SolicitudCambio&a=index");
+            exit;
+        }
+
+        $id   = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+        $text = trim($_POST['analisis_impacto'] ?? '');
+
+        if (!$id || $text === '') {
+            $_SESSION['status_message'] = ['type'=>'error','text'=>'Debe completar el análisis de impacto.'];
+        } else {
+            $ok = $this->model->actualizarAnalisisImpacto($id, $text);
+            $_SESSION['status_message'] = $ok
+                ? ['type'=>'success','text'=>'Análisis de impacto guardado.']
+                : ['type'=>'error','text'=>'Error al guardar el análisis.'];
+        }
+
+        header("Location: index.php?c=SolicitudCambio&a=detalle&id_solicitud={$id}");
+        exit;
+    }
+
+    public function registrarDecision()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?c=SolicitudCambio&a=index");
+            exit;
+        }
+
+        $id   = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+        $text = trim($_POST['decision_final'] ?? '');
+
+        if (!$id || $text === '') {
+            $_SESSION['status_message'] = ['type'=>'error','text'=>'Debe ingresar la decisión final.'];
+        } else {
+            $ok = $this->model->actualizarDecisionFinal($id, $text);
+            $_SESSION['status_message'] = $ok
+                ? ['type'=>'success','text'=>'Decisión final registrada.']
+                : ['type'=>'error','text'=>'Error al guardar la decisión.'];
+        }
+
+        header("Location: index.php?c=SolicitudCambio&a=detalle&id_solicitud={$id}");
+        exit;
+    }
 }

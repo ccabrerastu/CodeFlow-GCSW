@@ -34,6 +34,24 @@
             </ul>
         <?php endif; ?>
 
+        <?php if ($sol['estado'] === 'Registrada'): ?>
+            <form action="index.php?c=SolicitudCambio&a=registrarAnalisis" method="POST" class="mt-6 bg-yellow-50 p-4 rounded">
+                <h2 class="font-semibold mb-2">Análisis de Impacto</h2>
+                <input type="hidden" name="id_solicitud" value="<?= $sol['id_solicitud'] ?>">
+                <textarea name="analisis_impacto" rows="4" class="form-textarea w-full"><?= htmlspecialchars($sol['analisis_impacto'] ?? '') ?></textarea>
+                <button type="submit" class="btn-primary mt-2">Guardar Análisis</button>
+            </form>
+        <?php endif; ?>
+
+        <?php if ($sol['estado'] === 'En Análisis'): ?>
+            <form action="index.php?c=SolicitudCambio&a=registrarDecision" method="POST" class="mt-6 bg-green-50 p-4 rounded">
+                <h2 class="font-semibold mb-2">Decisión Final</h2>
+                <input type="hidden" name="id_solicitud" value="<?= $sol['id_solicitud'] ?>">
+                <textarea name="decision_final" rows="3" class="form-textarea w-full"><?= htmlspecialchars($sol['decision_final'] ?? '') ?></textarea>
+                <button type="submit" class="btn-primary mt-2">Registrar Decisión</button>
+            </form>
+        <?php endif; ?>
+
         <a href="index.php?c=SolicitudCambio&a=index" class="mt-6 inline-block text-blue-600 hover:underline">
             ← Volver al listado
         </a>
