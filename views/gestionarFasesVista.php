@@ -52,65 +52,45 @@
             </div>
         <?php endif; ?>
 
-        <div class="table-container">
-            <table class="w-full text-sm text-left text-gray-700">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-200">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Orden</th>
-                        <th scope="col" class="px-6 py-3">Nombre Fase</th>
-                        <th scope="col" class="px-6 py-3">Descripción</th>
-                        <th scope="col" class="px-6 py-3">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($fasesecs)): ?>
-                        <?php foreach ($fasesecs as $index => $fase): ?>
-                            <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['orden']); ?></td>
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['descripcion'] ?? 'N/A'); ?></td>
-                                <td class="px-6 py-4">
-                                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="btn btn-edit">
-                                        <i class="fas fa-edit mr-1"></i> Editar
-                                    </a>
-                                </td>
-                            </tr>
+        <div class="space-y-6">
+    <?php if (!empty($fasesecs)): ?>
+        <?php foreach ($fasesecs as $fase): ?>
+            <section class="bg-indigo-50 p-4 rounded-md border border-indigo-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-lg font-semibold text-indigo-700 flex items-center">
+                        <i class="fas fa-layer-group mr-2"></i>
+                        Fase <?= htmlspecialchars($fase['orden']) ?>: <?= htmlspecialchars($fase['nombre_fase']) ?>
+                    </h4>
+                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        <i class="fas fa-edit mr-1"></i> Editar
+                    </a>
+                </div>
+                <p class="text-gray-700 mb-3"><?= htmlspecialchars($fase['descripcion'] ?? 'Sin descripción') ?></p>
 
-                            <?php if (!empty($fase['elementos'])): ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm">
-                                        <strong>Actividades:</strong>
-                                        <ul class="list-disc list-inside mt-2">
-                                            <?php foreach ($fase['elementos'] as $actividad): ?>
-                                                <li>
-                                                    <?= htmlspecialchars($actividad['nombre_ecs']) ?>
-                                                    - <em><?= htmlspecialchars($actividad['estado_ecs']) ?></em>
-                                                    - v<?= htmlspecialchars($actividad['version_actual']) ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm text-gray-500">
-                                        No hay actividades registradas para esta fase.
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                        
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                No hay fases registradas para esta metodología.
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-
-            </table>
+                <?php if (!empty($fase['elementos'])): ?>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-800 mb-2">Actividades:</p>
+                        <ul class="space-y-2 list-disc list-inside">
+                            <?php foreach ($fase['elementos'] as $actividad): ?>
+                                <li class="text-gray-700">
+                                    <?= htmlspecialchars($actividad['nombre_ecs']) ?>
+                                    <span class="text-sm text-gray-500">(<?= htmlspecialchars($actividad['estado_ecs']) ?>, v<?= htmlspecialchars($actividad['version_actual']) ?>)</span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php else: ?>
+                    <p class="italic text-gray-500 mt-1 text-sm ml-3">No hay actividades registradas para esta fase.</p>
+                <?php endif; ?>
+            </section>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="text-center text-gray-500 italic">
+            No hay fases registradas para esta metodología.
         </div>
+    <?php endif; ?>
+</div>
+
     </div>
 
     <?php include __DIR__ . '/partials/footer.php';?>
