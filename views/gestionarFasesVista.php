@@ -53,8 +53,8 @@
         <?php endif; ?>
 
         <div class="space-y-6">
-    <?php if (!empty($fasesecs)): ?>
-        <?php foreach ($fasesecs as $fase): ?>
+    <?php if (!empty($fasesecsD)): ?>
+        <?php foreach ($fasesecsD as $fase): ?>
             <section class="bg-indigo-50 p-4 rounded-md border border-indigo-200">
                 <div class="flex justify-between items-center mb-2">
                     <h4 class="text-lg font-semibold text-indigo-700 flex items-center">

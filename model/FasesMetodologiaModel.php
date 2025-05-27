@@ -157,7 +157,7 @@ class FasesMetodologiaModel {
         }
 
         foreach ($fases as $fase) {
-            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFaseD($fase['id_fase_metodologia']);
             $fasesConECS[] = $fase;
         }
         return $fasesConECS;

@@ -108,7 +108,7 @@ class ActividadCronogramaModel {
     public function obtenerActividadesPorCronograma($id_cronograma) {
         if ($this->conexion === null) return [];
         
-        $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable
+        $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable, ac.nombre_actividad as nombre_actividad
                 FROM ActividadesCronograma ac
                 LEFT JOIN FasesMetodologia fm ON ac.id_fase_metodologia = fm.id_fase_metodologia
                 LEFT JOIN Usuarios u ON ac.id_responsable = u.id_usuario

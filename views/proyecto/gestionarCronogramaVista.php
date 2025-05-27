@@ -37,8 +37,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label for="id_fase_metodologia_form" class="form-label">Fase de Metodología (Opcional):</label>
-                            <select name="id_fase_metodologia" id="id_fase_metodologia_form" class="form-select">
+                            <label for="id_fase_metodologia_form" class="form-label">Fase de Metodología:</label>
+                            <select name="id_fase_metodologia" id="id_fase_metodologia_form" class="form-select" required>
                                 <option value="">-- Ninguna --</option>
                                 <?php if (!empty($fases_metodologia)): ?>
                                     <?php foreach ($fases_metodologia as $fase_met): ?>
@@ -53,8 +53,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="id_responsable_form" class="form-label">Responsable (Opcional):</label>
-                            <select name="id_responsable" id="id_responsable_form" class="form-select">
+                            <label for="id_responsable_form" class="form-label">Responsable:</label>
+                            <select name="id_responsable" id="id_responsable_form" class="form-select" required>
                                 <option value="">-- Ninguno --</option>
                                 <?php if (!empty($miembros_equipo)): ?>
                                     <?php foreach ($miembros_equipo as $miembro): ?>
@@ -128,7 +128,7 @@
                         <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
                             <thead class="bg-gray-100 border-b border-gray-300">
                                 <tr>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Nombre</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Actividad </th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Fase</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Responsable</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Inicio Plan.</th>

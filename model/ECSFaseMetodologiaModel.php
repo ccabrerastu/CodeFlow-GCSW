@@ -36,7 +36,7 @@ class ECSFaseMetodologiaModel {
                     ec.estado_ecs
                 FROM ECS_FaseMetodologia efm
                 JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
-                WHERE efm.id_fase_metodologia = ?
+                WHERE efm.id_fase_metodologia = ? 
                 ORDER BY ec.nombre_ecs ASC";
         
         $stmt = $this->conexion->prepare($sql);
@@ -76,7 +76,7 @@ class ECSFaseMetodologiaModel {
                     ec.estado_ecs
                 FROM ECS_FaseMetodologia efm
                 JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
-                WHERE efm.id_fase_metodologia = ?
+                WHERE efm.id_fase_metodologia = ? and efm.descripcion IS NULL
                 ORDER BY ec.nombre_ecs ASC";
         
         $stmt = $this->conexion->prepare($sql);
