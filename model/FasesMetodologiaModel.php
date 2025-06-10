@@ -142,6 +142,25 @@ class FasesMetodologiaModel {
         }
         return $fasesConECS;
     }
+    public function obtenerFasesConSusECSB($id_metodologia) {
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECSB = [];
+
+        if ($this->ecsFaseModel === null) {
+            error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
+            foreach ($fases as $fase) {
+                $fase['elementos'] = [];
+                $fasesConECSB[] = $fase;
+            }
+            return $fasesConECSB;
+        }
+
+        foreach ($fases as $fase) {
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSBasePorFase($fase['id_fase_metodologia']);
+            $fasesConECSB[] = $fase;
+        }
+        return $fasesConECSB;
+    }
 
     public function actualizarFase() {
         if ($this->conexion === null || $this->id_fase_metodologia === null) {

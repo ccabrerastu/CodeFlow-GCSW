@@ -186,7 +186,7 @@ class ProyectoControlador {
         
         $fases_con_ecs_plantilla = [];
         if (isset($proyecto['id_metodologia'])) {
-            $fases_con_ecs_plantilla = $this->faseMetodologiaModel->obtenerFasesConSusECS($proyecto['id_metodologia']);
+            $fases_con_ecs_plantilla = $this->faseMetodologiaModel->obtenerFasesConSusECSB($proyecto['id_metodologia']);
         }
         $ecs_seleccionados_ids = $this->ecsProyectoModel->obtenerIdsECSeleccionadosPorProyecto($id_proyecto);
         $ecs_del_proyecto_detallados = $this->ecsProyectoModel->obtenerDetallesECSeleccionadosPorProyecto($id_proyecto);

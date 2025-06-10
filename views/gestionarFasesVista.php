@@ -26,6 +26,12 @@
         .status-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
         .status-message.success { background-color: #e6fffa; border: 1px solid #38a169; color: #2f855a; }
         .status-message.error { background-color: #fed7d7; border: 1px solid #e53e3e; color: #c53030; }
+        /* Estilos para la fila desplegable de ECS */
+        .ecs-details-row { display: none; }
+        .ecs-details-row.visible { display: table-row; }
+        .ecs-card { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .arrow-icon { transition: transform 0.3s; }
+        .arrow-icon.rotated { transform: rotate(180deg); }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -63,8 +69,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($fasesecs)): ?>
-                        <?php foreach ($fasesecs as $index => $fase): ?>
+                    <?php if (!empty($fasesecsB)): ?>
+                        <?php foreach ($fasesecsB as $index => $fase): ?>
                             <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
                                 <td class="px-6 py-4"><?= htmlspecialchars($fase['orden']); ?></td>
                                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
@@ -113,6 +119,28 @@
         </div>
     </div>
 
+       <script>
+        function toggleEcs(button, rowId) {
+            const ecsRow = document.getElementById(rowId);
+            const arrowIcon = button.querySelector('.arrow-icon');
+            if (ecsRow) {
+                const isVisible = ecsRow.classList.contains('visible');
+                // Cerrar todas las filas abiertas
+                document.querySelectorAll('.ecs-details-row.visible').forEach(row => {
+                    row.classList.remove('visible');
+                });
+                document.querySelectorAll('.arrow-icon.rotated').forEach(icon => {
+                    icon.classList.remove('rotated');
+                });
+                
+                // Abrir la fila actual si estaba cerrada
+                if (!isVisible) {
+                    ecsRow.classList.add('visible');
+                    arrowIcon.classList.add('rotated');
+                }
+            }
+        }
+    </script>
     <?php include __DIR__ . '/partials/footer.php';?>
 </body>
 </html>
