@@ -91,7 +91,7 @@ unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
         <?php endif; ?>
 
         <?php if ($sol['estado'] === 'Aprobada'): ?>
-            <a href="index.php?c=OrdenCambio&a=mostrarFormularioCrear&id_solicitud=<?= $sol['id_solicitud'] ?>"
+            <a href="index.php?c=OrdenCambio&a=mostrarFormularioCrear&id=<?= $sol['id_solicitud'] ?>"
                class="btn-primary mt-4 inline-block">
                ← Convertir en Orden de Cambio
             </a>
