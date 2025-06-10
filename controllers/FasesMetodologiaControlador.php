@@ -36,11 +36,12 @@ class FasesMetodologiaControlador {
 
         $fases = $this->fasesMetodologiaModel->obtenerFasesPorMetodologia($id_metodologia);
         $fasesecs = $this->fasesMetodologiaModel->obtenerFasesConSusECS($id_metodologia);
-        $fasesecsD = $this->fasesMetodologiaModel->obtenerFasesConSusECSD($id_metodologia);
+        
+        $fasesecsB = $this->fasesMetodologiaModel->obtenerFasesConSusECSB($id_metodologia);
         $statusMessage = $_SESSION['status_message'] ?? null;
         unset($_SESSION['status_message']);
 
-        $baseUrl = "/"; 
+        $baseUrl = "/";
 
         require __DIR__ . '/../views/gestionarFasesVista.php';
     }
