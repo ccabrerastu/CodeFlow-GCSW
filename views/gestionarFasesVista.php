@@ -71,41 +71,62 @@
                 <tbody>
                     <?php if (!empty($fasesecsB)): ?>
                         <?php foreach ($fasesecsB as $index => $fase): ?>
-                            <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['orden']); ?></td>
+                            <tr class="fase-row border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 text-center font-bold text-lg text-gray-500"><?= htmlspecialchars($fase['orden']); ?></td>
                                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['descripcion'] ?? 'N/A'); ?></td>
-                                <td class="px-6 py-4">
-                                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="btn btn-edit">
-                                        <i class="fas fa-edit mr-1"></i> Editar
+                                <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($fase['descripcion'] ?? 'N/A'); ?></td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="toggleEcs(this, 'ecs-row-<?= $fase['id_fase_metodologia'] ?>')" class="btn btn-secondary text-xs">
+                                        <i class="fas fa-cubes mr-1"></i>
+                                        Ver ECS (<?= count($fase['elementos'] ?? []) ?>)
+                                        <i class="fas fa-chevron-down arrow-icon ml-2"></i>
+                                    </button>
+                                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="btn btn-edit text-xs">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
                             </tr>
+                            
+                            <!-- Fila oculta con los detalles de los ECS -->
+                            <tr class="ecs-details-row" id="ecs-row-<?= $fase['id_fase_metodologia'] ?>">
+                                <td colspan="4" class="p-0 bg-gray-50">
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h5 class="font-semibold text-gray-700">ECS Predeterminados para esta Fase</h5>
+                                            <a href="#" class="btn btn-primary btn-sm text-xs">
+                                                <i class="fas fa-plus mr-1"></i> Asociar Nuevo ECS
+                                            </a>
+                                        </div>
 
-                            <?php if (!empty($fase['elementos'])): ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm">
-                                        <strong>Actividades:</strong>
-                                        <ul class="list-disc list-inside mt-2">
-                                            <?php foreach ($fase['elementos'] as $actividad): ?>
-                                                <li>
-                                                    <?= htmlspecialchars($actividad['nombre_ecs']) ?>
-                                                    - <em><?= htmlspecialchars($actividad['estado_ecs']) ?></em>
-                                                    - v<?= htmlspecialchars($actividad['version_actual']) ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 bg-gray-100 text-sm text-gray-500">
-                                        No hay actividades registradas para esta fase.
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
+                                        <?php if (!empty($fase['elementos'])): ?>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <?php foreach ($fase['elementos'] as $actividad): ?>
+                                                    <div class="ecs-card">
+                                                        <div>
+                                                            <p class="font-semibold text-gray-800"><?= htmlspecialchars($actividad['nombre_ecs']) ?></p>
+                                                            <p class="text-xs text-gray-500"><?= htmlspecialchars($actividad['tipo_ecs'] ?? 'Genérico') ?></p>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                                v<?= htmlspecialchars($actividad['version_actual']) ?>
+                                                            </span>
+                                                            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                                <?= htmlspecialchars($actividad['estado_ecs']) ?>
+                                                            </span>
+                                                            <button title="Quitar asociación" class="text-red-500 hover:text-red-700 ml-2">
+                                                                <i class="fas fa-times-circle"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <p class="italic text-gray-500 text-center py-4">No hay ECS predefinidos para esta fase.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
-                        
                     <?php else: ?>
                         <tr>
                             <td colspan="4" class="px-6 py-4 text-center text-gray-500">
