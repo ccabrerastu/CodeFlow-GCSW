@@ -323,6 +323,32 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
             }
         });
     }
+
+    const showBtn = document.getElementById('show-custom-ecs-form-btn');
+    const hideBtn = document.getElementById('hide-custom-ecs-form-btn');
+    const formContainer = document.getElementById('custom-ecs-form-container');
+
+    if (showBtn && hideBtn && formContainer) {
+        showBtn.addEventListener('click', () => {
+            formContainer.classList.remove('hidden');
+            showBtn.classList.add('hidden');
+        });
+
+        hideBtn.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            showBtn.classList.remove('hidden');
+        });
+    }
+
+    <?php if (!empty($formErrorsECS)): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (showBtn) {
+                showBtn.click();
+            }
+        });
+    <?php endif; ?>
+
+
 </script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
