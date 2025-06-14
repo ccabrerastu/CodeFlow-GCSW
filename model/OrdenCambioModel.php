@@ -103,4 +103,50 @@ class OrdenCambioModel {
         $stmt->close();
         return $ok;
     }
+
+    public function actualizarEstadoOC(int $id_orden, string $nuevoEstado): bool {
+        $sql = "UPDATE OrdenesCambio
+                SET estado_oc = ?, fecha_ultima_modificacion = NOW()
+                WHERE id_oc = ?";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            error_log("OrdenCambioModel::actualizarEstadoOC prepare error: " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("si", $nuevoEstado, $id_orden);
+        $ok = $stmt->execute();
+        if (!$ok) error_log("OrdenCambioModel::actualizarEstadoOC execute error: " . $stmt->error);
+        $stmt->close();
+        return $ok;
+    }
+
+    public function agregarComentarioOC(int $id_orden, int $id_usuario, string $comentario): bool {
+        $sql = "INSERT INTO ComentariosOC (id_oc, id_usuario, comentario)
+                VALUES (?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            error_log("OrdenCambioModel::agregarComentarioOC prepare error: " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("iis", $id_orden, $id_usuario, $comentario);
+        $ok = $stmt->execute();
+        if (!$ok) error_log("OrdenCambioModel::agregarComentarioOC execute error: " . $stmt->error);
+        $stmt->close();
+        return $ok;
+    }
+
+    public function obtenerComentariosOC(int $id_orden): array {
+        $sql = "SELECT c.id_comentario_oc, u.nombre_completo, c.comentario, c.fecha_comentario
+                FROM ComentariosOC c
+                JOIN Usuarios u ON c.id_usuario = u.id_usuario
+                WHERE c.id_oc = ?
+                ORDER BY c.fecha_comentario ASC";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return [];
+        $stmt->bind_param("i", $id_orden);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $res;
+    }
 }

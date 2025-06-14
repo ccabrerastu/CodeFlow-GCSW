@@ -75,20 +75,56 @@
             exit;
         }
 
-        public function detalle() {
-            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-            if (!$id) {
-                $_SESSION['status_message'] = ['type'=>'error','text'=>'ID de Orden inválido.'];
-                header("Location: index.php?c=OrdenCambio&a=index");
-                exit;
-            }
-            $orden = $this->model->obtenerOrdenPorId($id);
+        public function detalle($id_orden) {
+            $orden = $this->model->obtenerOrdenPorId($id_orden);
             if (!$orden) {
                 $_SESSION['status_message'] = ['type'=>'error','text'=>'Orden no encontrada.'];
                 header("Location: index.php?c=OrdenCambio&a=index");
                 exit;
             }
+            $comentarios = $this->model->obtenerComentariosOC($id_orden);
+
+            $formDataSeg   = $_SESSION['form_data_seguimiento']   ?? [];
+            $formErrorsSeg = $_SESSION['form_errors_seguimiento'] ?? [];
+            unset($_SESSION['form_data_seguimiento'], $_SESSION['form_errors_seguimiento']);
+
             require __DIR__ . '/../views/ordenCambio/detalleOrdenCambioVista.php';
+        }
+
+        public function registrarSeguimiento() {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header("Location: index.php?c=OrdenCambio&a=index");
+                exit;
+            }
+            $id_orden    = filter_input(INPUT_POST,'id_orden',FILTER_VALIDATE_INT);
+            $nuevoEstado = $_POST['nuevo_estado'] ?? '';
+            $comentario  = trim($_POST['comentario'] ?? '');
+
+            $formErrors = [];
+            if (!$id_orden)                              $formErrors['general']      = "Orden inválida.";
+            if (!in_array($nuevoEstado,['En Proceso','Terminado'])) {
+                $formErrors['nuevo_estado'] = "Seleccione un estado válido.";
+            }
+
+            if ($formErrors) {
+                $_SESSION['form_data_seguimiento']   = $_POST;
+                $_SESSION['form_errors_seguimiento'] = $formErrors;
+                header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+                exit;
+            }
+
+            $ok1 = $this->model->actualizarEstadoOC($id_orden, $nuevoEstado);
+            $ok2 = true;
+            if ($comentario !== '') {
+                $ok2 = $this->model->agregarComentarioOC($id_orden, $_SESSION['id_usuario'], $comentario);
+            }
+
+            $_SESSION['status_message'] = ($ok1 && $ok2)
+                ? ['type'=>'success','text'=>'Seguimiento registrado correctamente.']
+                : ['type'=>'error','text'=>'Error al registrar el seguimiento.'];
+
+            header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+            exit;
         }
 
         public function eliminar() {
