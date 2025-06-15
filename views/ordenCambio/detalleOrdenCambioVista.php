@@ -1,5 +1,15 @@
 <?php include __DIR__ . '/../partials/header.php'; ?>
 
+<?php
+    $formDataSeg   = $_SESSION['form_data_seguimiento'] ?? [];
+    $formErrorsSeg = $_SESSION['form_errors_seguimiento'] ?? [];
+    unset($_SESSION['form_data_seguimiento'], $_SESSION['form_errors_seguimiento']);
+
+    $formDataVal   = $_SESSION['form_data_validacion']   ?? [];
+    $formErrorsVal = $_SESSION['form_errors_validacion'] ?? [];
+    unset($_SESSION['form_data_validacion'], $_SESSION['form_errors_validacion']);
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -21,7 +31,6 @@
     <h2 class="mt-6 font-semibold">Descripción</h2>
     <p class="whitespace-pre-wrap"><?= nl2br(htmlspecialchars($orden['descripcion'])) ?></p>
 
-    <!-- 1) Formulario de seguimiento (ingeniero) -->
     <?php if (!in_array($orden['estado'], ['Terminado','Aprobada','Rechazada'])): ?>
         <form action="index.php?c=OrdenCambio&a=registrarSeguimiento" method="POST"
               class="mt-6 bg-blue-50 p-4 rounded border">
@@ -55,7 +64,6 @@
         </form>
     <?php endif; ?>
 
-    <!-- 2) Historial de seguimiento -->
     <?php if (!empty($comentarios)): ?>
         <div class="mt-8">
             <h2 class="text-xl font-semibold mb-2">Historial de Seguimiento</h2>
@@ -71,6 +79,44 @@
                 <?php endforeach; ?>
             </ul>
         </div>
+    <?php endif; ?>
+
+    <?php if ($orden['estado'] === 'Terminado'): ?>
+        <form action="index.php?c=ValidacionOC&a=validar" method="POST"
+            class="mt-8 bg-purple-50 p-4 rounded border">
+            <h2 class="text-xl font-semibold mb-2">Validación QA</h2>
+            <input type="hidden" name="id_orden" value="<?= $orden['id_orden'] ?>">
+
+            <div class="mb-4">
+                <label class="form-label font-medium">Resultado:</label>
+                <select name="decision" class="form-select w-full" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="Aprobada"
+                        <?= ($formDataVal['decision'] ?? '') === 'Aprobada' ? 'selected':'' ?>>
+                        Aprobada
+                    </option>
+                    <option value="Rechazada"
+                        <?= ($formDataVal['decision'] ?? '') === 'Rechazada' ? 'selected':'' ?>>
+                        Rechazada
+                    </option>
+                </select>
+                <?php if (!empty($formErrorsVal['decision'])): ?>
+                    <div class="text-red-600 text-sm"><?= htmlspecialchars($formErrorsVal['decision']) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label font-medium">Comentarios justificativos:</label>
+                <textarea name="comentario" rows="4"
+                        class="form-textarea w-full"
+                        placeholder="Obligatorio"><?= htmlspecialchars($formDataVal['comentario'] ?? '') ?></textarea>
+                <?php if (!empty($formErrorsVal['comentario'])): ?>
+                    <div class="text-red-600 text-sm"><?= htmlspecialchars($formErrorsVal['comentario']) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <button type="submit" class="btn-primary">Confirmar Validación</button>
+        </form>
     <?php endif; ?>
 
     <a href="index.php?c=OrdenCambio&a=index"
