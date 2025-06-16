@@ -75,20 +75,113 @@
             exit;
         }
 
-        public function detalle() {
-            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-            if (!$id) {
-                $_SESSION['status_message'] = ['type'=>'error','text'=>'ID de Orden inválido.'];
-                header("Location: index.php?c=OrdenCambio&a=index");
-                exit;
-            }
-            $orden = $this->model->obtenerOrdenPorId($id);
+        public function detalle($id_orden) {
+            $orden = $this->model->obtenerOrdenPorId($id_orden);
             if (!$orden) {
                 $_SESSION['status_message'] = ['type'=>'error','text'=>'Orden no encontrada.'];
                 header("Location: index.php?c=OrdenCambio&a=index");
                 exit;
             }
+            $comentarios = $this->model->obtenerComentariosOC($id_orden);
+
+            $formDataSeg   = $_SESSION['form_data_seguimiento']   ?? [];
+            $formErrorsSeg = $_SESSION['form_errors_seguimiento'] ?? [];
+            unset($_SESSION['form_data_seguimiento'], $_SESSION['form_errors_seguimiento']);
+
             require __DIR__ . '/../views/ordenCambio/detalleOrdenCambioVista.php';
+        }
+
+        public function registrarSeguimiento()
+        {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header("Location: index.php?c=OrdenCambio&a=index");
+                exit;
+            }
+
+            $id_orden    = filter_input(INPUT_POST, 'id_orden',    FILTER_VALIDATE_INT);
+            $nuevoEstado = trim($_POST['nuevo_estado'] ?? '');
+            $comentario  = trim($_POST['comentario']  ?? '');
+
+            $errors = [];
+            if (!$id_orden) {
+                $errors['general'] = "Orden de Cambio inválida.";
+            }
+            if (!in_array($nuevoEstado, ['En Proceso', 'Terminado'], true)) {
+                $errors['nuevo_estado'] = "Debes seleccionar un estado válido.";
+            }
+
+            if ($errors) {
+                $_SESSION['form_data_seg']   = $_POST;
+                $_SESSION['form_errors_seg'] = $errors;
+                header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+                exit;
+            }
+
+            $okEstado = $this->model->actualizarEstadoOC($id_orden, $nuevoEstado);
+            $okComentario = true;
+            if ($comentario !== '') {
+                $usuarioId = $_SESSION['id_usuario'];
+                $okComentario = $this->model->agregarComentarioOC($id_orden, $usuarioId, $comentario);
+            }
+
+            if ($okEstado && $okComentario) {
+                $_SESSION['status_message'] = [
+                    'type' => 'success',
+                    'text' => "Seguimiento guardado correctamente."
+                ];
+            } else {
+                $_SESSION['status_message'] = [
+                    'type' => 'error',
+                    'text' => "Hubo un error al guardar el seguimiento."
+                ];
+            }
+
+            header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+            exit;
+        }
+
+        public function registrarValidacion() {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                header("Location: index.php?c=OrdenCambio&a=index");
+                exit;
+            }
+            session_start();
+            $id_orden   = filter_input(INPUT_POST, 'id_orden', FILTER_VALIDATE_INT);
+            $decision   = $_POST['decision'] ?? '';
+            $comentario = trim($_POST['comentario'] ?? '');
+
+            $errors = [];
+            if (!$id_orden) {
+                $errors['general'] = "Orden inválida.";
+            }
+            if (!in_array($decision, ['Aprobada', 'Rechazada'])) {
+                $errors['decision'] = "Debes seleccionar Aprobada o Rechazada.";
+            }
+            if ($comentario === '') {
+                $errors['comentario'] = "El comentario es obligatorio.";
+            }
+
+            if ($errors) {
+                $_SESSION['form_data_validacion']  = $_POST;
+                $_SESSION['form_errors_validacion'] = $errors;
+                header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+                exit;
+            }
+
+            require_once __DIR__ . '/../model/ValidacionOCModel.php';
+            $valModel = new ValidacionOCModel();
+            $ok = $valModel->validarOrden(
+                $id_orden,
+                $_SESSION['id_usuario'], 
+                $decision,
+                $comentario
+            );
+
+            $_SESSION['status_message'] = $ok
+                ? ['type'=>'success','text'=>'Orden validada exitosamente.']
+                : ['type'=>'error','text'=>'Error al validar la orden.'];
+            header("Location: index.php?c=OrdenCambio&a=detalle&id_orden={$id_orden}");
+            exit;
         }
 
         public function eliminar() {

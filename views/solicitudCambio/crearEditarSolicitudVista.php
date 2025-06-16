@@ -61,7 +61,7 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
                     <?= $esEditar ? 'Actualizar' : 'Crear' ?>
                 </button>
-                <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Cancelar</a>
+                <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Volver a la lista</a>
             </div>
             <div>
                 <label class="form-label">Adjuntar justificantes:</label>
