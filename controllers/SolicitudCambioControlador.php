@@ -22,9 +22,12 @@ class SolicitudCambioControlador {
 
     public function mostrarFormularioCrear() {
         $formData   = $_SESSION['form_data_solicitud']   ?? [
-            'id_proyecto'=>'',
-            'titulo'=>'',
-            'descripcion'=>''
+            'id_proyecto'  => '',
+            'prioridad'    => '',
+            'tipo_cambio'  => '',
+            'justificacion'=> '',
+            'titulo'       => '',
+            'descripcion'  => ''
         ];
         $formErrors = $_SESSION['form_errors_solicitud'] ?? [];
         unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
@@ -42,12 +45,24 @@ class SolicitudCambioControlador {
 
         $id_proyecto    = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
         $id_solicitante = $_SESSION['id_usuario'] ?? null;
-        $titulo         = trim($_POST['titulo'] ?? '');
-        $descripcion    = trim($_POST['descripcion'] ?? '');
+        $prioridad      = $_POST['prioridad']     ?? '';
+        $tipo_cambio    = $_POST['tipo_cambio']   ?? '';
+        $justificacion  = trim($_POST['justificacion'] ?? '');
+        $titulo         = trim($_POST['titulo']        ?? '');
+        $descripcion    = trim($_POST['descripcion']   ?? '');
 
         $formErrors = [];
         if (!$id_proyecto) {
             $formErrors['id_proyecto'] = "Debe seleccionar un proyecto.";
+        }
+        if (!in_array($prioridad, ['ALTA','MEDIA','BAJA'])) {
+            $formErrors['prioridad'] = "Debe seleccionar una prioridad válida.";
+        }
+        if (!in_array($tipo_cambio, ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'])) {
+            $formErrors['tipo_cambio'] = "Debe seleccionar un tipo de cambio válido.";
+        }
+        if (empty($justificacion)) {
+            $formErrors['justificacion'] = "La justificación es obligatoria.";
         }
         if (empty($titulo)) {
             $formErrors['titulo'] = "El título es obligatorio.";
@@ -63,22 +78,30 @@ class SolicitudCambioControlador {
         $newId = $this->model->crearSolicitud(
             $id_proyecto,
             $id_solicitante,
+            $prioridad,
+            $tipo_cambio,
+            $justificacion,
             $titulo,
             $descripcion
         );
 
         if ($newId && !empty($_FILES['archivos'])) {
-        foreach ($_FILES['archivos']['error'] as $i => $error) {
-            if ($error === UPLOAD_ERR_OK) {
-            $tmp  = $_FILES['archivos']['tmp_name'][$i];
-            $name = basename($_FILES['archivos']['name'][$i]);
-            $dest = __DIR__ . "/../public/uploads/sc_$newId/$name";
-            if (!is_dir(dirname($dest))) mkdir(dirname($dest), 0755, true);
-            if (move_uploaded_file($tmp, $dest)) {
-                $this->model->guardarArchivo($newId, $name, $_FILES['archivos']['type'][$i], "/uploads/sc_$newId/$name");
+            foreach ($_FILES['archivos']['error'] as $i => $error) {
+                if ($error === UPLOAD_ERR_OK) {
+                    $tmp  = $_FILES['archivos']['tmp_name'][$i];
+                    $name = basename($_FILES['archivos']['name'][$i]);
+                    $dest = __DIR__ . "/../public/uploads/sc_$newId/$name";
+                    if (!is_dir(dirname($dest))) mkdir(dirname($dest), 0755, true);
+                    if (move_uploaded_file($tmp, $dest)) {
+                        $this->model->guardarArchivo(
+                            $newId,
+                            $name,
+                            $_FILES['archivos']['type'][$i],
+                            "/uploads/sc_$newId/$name"
+                        );
+                    }
+                }
             }
-            }
-        }
         }
 
         $_SESSION['status_message'] = $newId
@@ -124,10 +147,13 @@ class SolicitudCambioControlador {
             exit;
         }
 
-        $id_solicitud = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
-        $id_proyecto  = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
-        $titulo       = trim($_POST['titulo'] ?? '');
-        $descripcion  = trim($_POST['descripcion'] ?? '');
+        $id_solicitud  = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+        $id_proyecto   = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
+        $prioridad     = $_POST['prioridad']     ?? '';
+        $tipo_cambio   = $_POST['tipo_cambio']   ?? '';
+        $justificacion = trim($_POST['justificacion'] ?? '');
+        $titulo        = trim($_POST['titulo'] ?? '');
+        $descripcion   = trim($_POST['descripcion'] ?? '');
 
         $formErrors = [];
         if (!$id_solicitud) {
@@ -136,11 +162,20 @@ class SolicitudCambioControlador {
         if (!$id_proyecto) {
             $formErrors['id_proyecto'] = "Debe seleccionar un proyecto.";
         }
+        if (!in_array($prioridad, ['ALTA','MEDIA','BAJA'])) {
+            $formErrors['prioridad'] = "Debe seleccionar una prioridad válida.";
+        }
+        if (!in_array($tipo_cambio, ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'])) {
+            $formErrors['tipo_cambio'] = "Debe seleccionar un tipo de cambio válido.";
+        }
+        if (empty($justificacion)) {
+            $formErrors['justificacion'] = "La justificación es obligatoria.";
+        }
         if (empty($titulo)) {
             $formErrors['titulo'] = "El título es obligatorio.";
         }
 
-        if ($formErrors) {
+        if (!empty($formErrors)) {
             $_SESSION['form_data_solicitud']   = $_POST;
             $_SESSION['form_errors_solicitud'] = $formErrors;
             header("Location: index.php?c=SolicitudCambio&a=mostrarFormularioEditar&id_solicitud={$id_solicitud}");
@@ -149,6 +184,9 @@ class SolicitudCambioControlador {
 
         $ok = $this->model->actualizarSolicitud(
             $id_solicitud,
+            $prioridad,
+            $tipo_cambio,
+            $justificacion,
             $titulo,
             $descripcion
         );
@@ -160,6 +198,7 @@ class SolicitudCambioControlador {
         header("Location: index.php?c=SolicitudCambio&a=index");
         exit;
     }
+
 
     public function eliminar($id_solicitud) {
         $ok = $this->model->eliminarSolicitud($id_solicitud);

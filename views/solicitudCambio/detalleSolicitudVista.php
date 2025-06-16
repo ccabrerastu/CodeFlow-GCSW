@@ -23,7 +23,13 @@ unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
         <p><strong>Solicitante:</strong> <?= htmlspecialchars($sol['nombre_completo']) ?></p>
         <p><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($sol['fecha_creacion'])) ?></p>
         <p><strong>Estado:</strong> <?= htmlspecialchars($sol['estado']) ?></p>
-
+        <p><strong>Prioridad:</strong> <?= htmlspecialchars($sol['prioridad']) ?></p>
+        <p><strong>Tipo de Cambio:</strong> <?= htmlspecialchars($sol['tipo_cambio']) ?></p>
+        <?php if (!empty($sol['justificacion'])): ?>
+            <h2 class="mt-4 font-semibold">Justificación</h2>
+            <p class="whitespace-pre-wrap"><?= nl2br(htmlspecialchars($sol['justificacion'])) ?></p>
+        <?php endif; ?>
+        
         <h2 class="mt-6 font-semibold">Descripción detallada</h2>
         <p class="whitespace-pre-wrap"><?= nl2br(htmlspecialchars($sol['descripcion'])) ?></p>
 
