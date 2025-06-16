@@ -141,7 +141,7 @@ class ECSFaseMetodologiaModel {
         return $ecsB_fase;
     }
 
-    public function obtenerECSBasePorFase($id_fase_metodologia) {
+    public function obtenerECSBasePorFaseU($id_fase_metodologia) {
         if ($this->conexion === null) {
              error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
              return [];

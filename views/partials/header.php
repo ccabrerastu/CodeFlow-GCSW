@@ -32,6 +32,9 @@ $baseUrl = "/";
         <a href="<?php echo $baseUrl; ?>index.php?c=Proyecto&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-project-diagram mr-2"></i>Proyectos
         </a>
+        <a href="<?php echo $baseUrl; ?>index.php?c=Actividad&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 transition duration-200">
+            <i class="fas fa-tasks mr-2 w-5 text-center"></i>Mis Actividades
+        </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=SolicitudCambio&a=crear" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-file-alt mr-2"></i>Solicitudes de Cambio
         </a>
