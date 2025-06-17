@@ -30,6 +30,8 @@
                     <th class="p-2">Solicitante</th>
                     <th class="p-2">Fecha</th>
                     <th class="p-2">Estado</th>
+                    <th class="px-6 py-3">Prioridad</th>
+                    <th class="px-6 py-3">Tipo</th>
                     <th class="p-2">Acciones</th>
                 </tr>
             </thead>
@@ -43,6 +45,8 @@
                             <td class="p-2"><?= htmlspecialchars($sol['nombre_completo']) ?></td>
                             <td class="p-2"><?= date('d/m/Y', strtotime($sol['fecha_creacion'])) ?></td>
                             <td class="p-2"><?= htmlspecialchars($sol['estado']) ?></td>
+                            <td class="px-6 py-4"><?= htmlspecialchars($sol['prioridad']) ?></td>
+                            <td class="px-6 py-4"><?= htmlspecialchars($sol['tipo_cambio']) ?></td>
                             <td class="p-2 space-x-2">
                                 <a href="index.php?c=SolicitudCambio&a=detalle&id_solicitud=<?= $sol['id_solicitud'] ?>"
                                    class="text-blue-600 hover:underline text-sm">Ver</a>
