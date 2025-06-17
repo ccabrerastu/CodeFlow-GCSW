@@ -127,7 +127,7 @@ class SolicitudCambioModel {
                 FROM SolicitudesCambio sc
                 JOIN Usuarios   u ON sc.id_solicitante = u.id_usuario
                 JOIN Proyectos  p ON sc.id_proyecto   = p.id_proyecto
-                ORDER BY sc.fecha_solicitud DESC";
+                ORDER BY sc.fecha_solicitud ASC";
         $res = $this->db->query($sql);
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
@@ -139,7 +139,7 @@ class SolicitudCambioModel {
                     sc.titulo
                 FROM SolicitudesCambio sc
                 WHERE sc.estado_sc = ?
-                ORDER BY sc.fecha_solicitud DESC";
+                ORDER BY sc.fecha_solicitud ASC";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) return [];
         $stmt->bind_param("s", $estado);

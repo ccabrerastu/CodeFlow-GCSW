@@ -1,6 +1,18 @@
 # Imagen base con PHP y Apache
 FROM php:8.2-apache
 
+# Instalar las librerías de GD y compila la extensión
+RUN apt-get update \
+ && apt-get install -y \
+      libpng-dev \
+      libjpeg-dev \
+      libfreetype6-dev \
+ && docker-php-ext-configure gd \
+      --with-freetype=/usr/include/ \
+      --with-jpeg=/usr/include/ \
+ && docker-php-ext-install gd \
+ && rm -rf /var/lib/apt/lists/*
+
 # Habilitar mod_rewrite para URLs amigables en Apache
 RUN a2enmod rewrite
 
