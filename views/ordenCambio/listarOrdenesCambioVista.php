@@ -9,11 +9,10 @@
     <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-700">Órdenes de Cambio</h1>
-            <a href="index.php?c=OrdenCambio&a=mostrarFormularioCrear" class="btn btn-primary">
-                <i class="fas fa-cogs mr-1"></i> Nueva Orden
-            </a>
+            
         </div>
 
+        
         <?php if (!empty($status)): ?>
             <div class="status-message <?= htmlspecialchars($status['type']) ?>">
                 <?= htmlspecialchars($status['text']) ?>

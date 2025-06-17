@@ -38,20 +38,11 @@ $baseUrl = "/";
         <a href="<?php echo $baseUrl; ?>index.php?c=SolicitudCambio&a=crear" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-file-alt mr-2"></i>Solicitudes de Cambio
         </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=SolicitudCambio&a=listar" class="block py-2.5 px-4 rounded hover:bg-gray-700">
-            <i class="fas fa-tasks mr-2"></i>Gestionar SC
-        </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=OrdenCambio&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
         <i class="fas fa-cogs mr-2"></i>Órdenes de Cambio
         </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Ecs&a=gestionar" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-archive mr-2"></i>Repositorio ECS
-        </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=Reporte&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-chart-bar mr-2"></i>Reportes
-        </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Usuario&a=gestionar" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-users-cog mr-2"></i>Gestionar Usuarios
         </a>
         </aside>
 
