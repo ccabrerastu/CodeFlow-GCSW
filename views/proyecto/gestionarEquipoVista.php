@@ -173,6 +173,3 @@ function mostrarFormularioNuevoEquipo(valor) {
 
 
 </script>
-
-
-

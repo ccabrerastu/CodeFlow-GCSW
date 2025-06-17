@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/ElementoConfiguracionModel.php';
 require_once __DIR__ . '/ECSFaseMetodologiaModel.php';
+
 class FasesMetodologiaModel {
     private $id_fase_metodologia;
     private $id_metodologia;
@@ -26,6 +27,7 @@ class FasesMetodologiaModel {
         }
     }
 
+    // Setters y getters
     public function setIdFaseMetodologia($id) { $this->id_fase_metodologia = $id; }
     public function getIdFaseMetodologia() { return $this->id_fase_metodologia; }
     public function setIdMetodologia($id) { $this->id_metodologia = $id; }
@@ -36,8 +38,6 @@ class FasesMetodologiaModel {
     public function getDescripcion() { return $this->descripcion; }
     public function setOrden($orden) { $this->orden = $orden; }
     public function getOrden() { return $this->orden; }
-
-
 
     public function obtenerFasesPorMetodologia($id_metodologia) {
         if ($this->conexion === null) {
@@ -74,13 +74,14 @@ class FasesMetodologiaModel {
         return $fases;
     }
 
-
     public function crearFase() {
         if ($this->conexion === null) {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return false;
         }
-        $sql = "INSERT INTO FasesMetodologia (id_metodologia, nombre_fase, descripcion, orden) VALUES (?, ?, ?, ?)";
+
+        $sql = "INSERT INTO FasesMetodologia (id_metodologia, nombre_fase, descripcion, orden) 
+                VALUES (?, ?, ?, ?)";
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
@@ -106,41 +107,62 @@ class FasesMetodologiaModel {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return null;
         }
-        $sql = "SELECT id_fase_metodologia, id_metodologia, nombre_fase, descripcion, orden FROM FasesMetodologia WHERE id_fase_metodologia = ?";
+
+        $sql = "SELECT id_fase_metodologia, id_metodologia, nombre_fase, descripcion, orden 
+                FROM FasesMetodologia 
+                WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
+
         if (!$stmt) {
             error_log("Error en prepare obtenerFasePorId: " . $this->conexion->error);
             return null;
         }
+
         $stmt->bind_param("i", $id_fase);
         if (!$stmt->execute()) {
             error_log("Error en execute obtenerFasePorId: " . $stmt->error);
             $stmt->close();
             return null;
         }
+
         $resultado = $stmt->get_result();
         $fase = $resultado->fetch_assoc();
         $stmt->close();
         return $fase;
     }
+
     public function obtenerFasesConSusECS($id_metodologia) {
         $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
         $fasesConECS = [];
 
+        $ecsFaseModel = new ECSFaseMetodologiaModel();
+        foreach ($fases as $fase) {
+            $fase['elementos'] = $ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+            $fasesConECS[] = $fase;
+        }
+
+        return $fasesConECS;
+    }
+
+    public function obtenerFasesConSusECSB($id_metodologia) {
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECSB = [];
+
         if ($this->ecsFaseModel === null) {
-            error_log("FaseMetodologiaModel::obtenerFasesConSusECS - ECSFaseMetodologiaModel no fue instanciado.");
+            error_log("FasesMetodologiaModel::obtenerFasesConSusECSB - ECSFaseMetodologiaModel no fue instanciado.");
             foreach ($fases as $fase) {
                 $fase['elementos'] = [];
-                $fasesConECS[] = $fase;
+                $fasesConECSB[] = $fase;
             }
-            return $fasesConECS;
+            return $fasesConECSB;
         }
 
         foreach ($fases as $fase) {
-            $fase['elementos'] = $this->ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
-            $fasesConECS[] = $fase;
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSBasePorFase($fase['id_fase_metodologia']);
+            $fasesConECSB[] = $fase;
         }
-        return $fasesConECS;
+
+        return $fasesConECSB;
     }
 
     public function actualizarFase() {
@@ -148,13 +170,17 @@ class FasesMetodologiaModel {
             error_log("FasesMetodologiaModel: No hay conexión o ID de fase no especificado para actualizar.");
             return false;
         }
-        $sql = "UPDATE FasesMetodologia SET nombre_fase = ?, descripcion = ?, orden = ? WHERE id_fase_metodologia = ?";
+
+        $sql = "UPDATE FasesMetodologia 
+                SET nombre_fase = ?, descripcion = ?, orden = ? 
+                WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
             error_log("Error en la preparación de la consulta (actualizarFase): " . $this->conexion->error);
             return false;
         }
+
         $stmt->bind_param("ssii", $this->nombre_fase, $this->descripcion, $this->orden, $this->id_fase_metodologia);
         $success = $stmt->execute();
         if (!$success) {
@@ -169,6 +195,7 @@ class FasesMetodologiaModel {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return false;
         }
+
         $sql = "DELETE FROM FasesMetodologia WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
 
@@ -185,7 +212,59 @@ class FasesMetodologiaModel {
         $stmt->close();
         return $success;
     }
+   public function obtenerFasesPorProyecto($id_proyecto) {
+    if ($this->conexion === null) return [];
 
+    $sql = "SELECT 
+                f.id_fase_metodologia, 
+                f.nombre_fase,
+                e.id_ecs,
+                e.nombre_ecs,
+                efm.id_ec_fase_met
+            FROM Proyectos p
+            JOIN FasesMetodologia f ON p.id_metodologia = f.id_metodologia
+            LEFT JOIN ECS_FaseMetodologia efm ON f.id_fase_metodologia = efm.id_fase_metodologia
+            LEFT JOIN ElementosConfiguracion e ON efm.id_ecs = e.id_ecs
+            WHERE p.id_proyecto = ?
+            ORDER BY f.id_fase_metodologia";
+
+    $stmt = $this->conexion->prepare($sql);
+    if (!$stmt) {
+        error_log("Error en prepare obtenerFasesConElementosPorProyecto: " . $this->conexion->error);
+        return [];
+    }
+
+    $stmt->bind_param("i", $id_proyecto);
+    if (!$stmt->execute()) {
+        error_log("Error en execute obtenerFasesConElementosPorProyecto: " . $stmt->error);
+        return [];
+    }
+
+    $resultado = $stmt->get_result();
+
+    $fases = [];
+    while ($fila = $resultado->fetch_assoc()) {
+        $id_fase = $fila['id_fase_metodologia'];
+
+        if (!isset($fases[$id_fase])) {
+            $fases[$id_fase] = [
+                'id_fase_metodologia' => $id_fase,
+                'nombre_fase' => $fila['nombre_fase'],
+                'elementos' => []
+            ];
+        }
+
+        if (!empty($fila['id_ecs'])) {
+            $fases[$id_fase]['elementos'][] = [
+                'id' => $fila['id_ecs'],
+                'nombre' => $fila['nombre_ecs']
+            ];
+        }
+    }
+
+    $stmt->close();
+    return array_values($fases);
+}
     public function __destruct() {
         if ($this->conexion) {
             $this->conexion->close();

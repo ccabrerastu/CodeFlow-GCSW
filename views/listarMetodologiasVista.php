@@ -1,5 +1,5 @@
 <?php
-
+// Aquí iría tu lógica PHP de carga de $metodologias, etc.
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -7,79 +7,65 @@
     <meta charset="UTF-8">
     <title>SGC - Gestión de Metodologías</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js + Luxon -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <style>
-        body { font-family: sans-serif; }
-        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #e2e8f0; }
-        tr:hover { background-color: #f1f5f9; }
-        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; display: inline-block; margin-right: 5px; font-size: 0.875rem; }
-        .btn-primary { background-color: #4A90E2; color: white; }
-        .btn-primary:hover { background-color: #357ABD; }
-        .btn-secondary { background-color: #5A67D8; color: white; }
-        .btn-secondary:hover { background-color: #4C51BF; }
-        .btn-edit { background-color: #F5A623; color: white; }
-        .btn-edit:hover { background-color: #D9931F; }
-        .btn-delete { background-color: #D0021B; color: white; }
-        .btn-delete:hover { background-color: #B00216; }
-        .status-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .status-message.success { background-color: #e6fffa; border: 1px solid #38a169; color: #2f855a; }
-        .status-message.error { background-color: #fed7d7; border: 1px solid #e53e3e; color: #c53030; }
-    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-tr from-gray-100 to-white text-gray-800 min-h-screen">
+
     <?php include __DIR__ . '/partials/header.php'; ?>
 
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">Gestión de Metodologías</h1>
-            </div>
+    <div class="max-w-7xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 class="text-4xl font-bold text-gray-800">📊 Gestión de Metodologías</h1>
+        </div>
 
         <?php if (isset($statusMessage) && $statusMessage): ?>
-            <div class="status-message <?= htmlspecialchars($statusMessage['type']) ?>">
+            <div class="mb-4 px-4 py-3 rounded border 
+                <?= $statusMessage['type'] === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'; ?>">
                 <?= htmlspecialchars($statusMessage['text']) ?>
             </div>
         <?php endif; ?>
 
-        <div class="table-container">
-            <table class="w-full text-sm text-left text-gray-700">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+        <div class="overflow-x-auto rounded-lg shadow mb-8 bg-white">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-indigo-600 text-white text-left">
                     <tr>
-                        <th scope="col" class="px-6 py-3">ID</th>
-                        <th scope="col" class="px-6 py-3">Nombre Metodología</th>
-                        <th scope="col" class="px-6 py-3">Descripción</th>
-                        <th scope="col" class="px-6 py-3">Acciones</th>
+                        <th class="px-6 py-3 font-medium">ID</th>
+                        <th class="px-6 py-3 font-medium">Nombre</th>
+                        <th class="px-6 py-3 font-medium">Descripción</th>
+                        <th class="px-6 py-3 font-medium text-center">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
                     <?php if (!empty($metodologias)): ?>
                         <?php foreach ($metodologias as $index => $metodologia): ?>
-                            <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($metodologia['id_metodologia']); ?></td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($metodologia['nombre_metodologia']); ?></td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($metodologia['descripcion'] ?? 'N/A'); ?></td>
-                                <td class="px-6 py-4">
-                                    <a href="index.php?c=FasesMetodologia&a=listarPorMetodologia&id_metodologia=<?= $metodologia['id_metodologia'] ?>" class="btn btn-secondary">
-                                        <i class="fas fa-tasks mr-1"></i> Gestionar Fases
+                            <tr class="<?= $index % 2 === 0 ? 'bg-gray-50' : 'bg-white'; ?> hover:bg-indigo-50">
+                                <td class="px-6 py-4"><?= htmlspecialchars($metodologia['id_metodologia']) ?></td>
+                                <td class="px-6 py-4 font-semibold"><?= htmlspecialchars($metodologia['nombre_metodologia']) ?></td>
+                                <td class="px-6 py-4"><?= htmlspecialchars($metodologia['descripcion'] ?? 'N/A') ?></td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="index.php?c=FasesMetodologia&a=listarPorMetodologia&id_metodologia=<?= $metodologia['id_metodologia'] ?>" 
+                                       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">
+                                       <i class="fas fa-tasks"></i> Fases
                                     </a>
-                                    </td>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                No hay metodologías registradas.
-                            </td>
+                            <td colspan="4" class="text-center text-gray-500 py-6">No hay metodologías registradas.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
+
     </div>
 
-    <?php include __DIR__ . '/partials/footer.php';  ?>
+    <?php include __DIR__ . '/partials/footer.php'; ?>
+
 </body>
 </html>

@@ -12,6 +12,42 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
+        .tab-button {
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.tab-button:hover {
+    color: #1e40af;
+    border-color: #d1d5db;
+}
+.tab-button.active {
+    color: #1d4ed8;
+    border-color: #1d4ed8;
+    font-weight: 600;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.status-message {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+.status-message.success {
+    background-color: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+.status-message.error {
+    background-color: #fef2f2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
         body { font-family: sans-serif; }
         .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .section-title { font-size: 1.5em; font-weight: bold; color: #333; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #4A90E2; }
@@ -45,16 +81,22 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
 </head>
 <body class="bg-gray-100">
 
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">
-                Planificación del Proyecto: <span class="text-blue-600"><?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?></span>
-            </h1>
-            <a href="index.php?c=Proyecto&a=index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left mr-1"></i> Volver a Proyectos
-            </a>
-        </div>
+      <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+        <!-- Título y botón de regreso -->
+        <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 tracking-wide font-sans leading-relaxed">
+    <span class="block md:inline text-gray-500 ">Planificación del Proyecto:</span>
+    <span class="block md:inline text-blue-500 font-medium not-italic">
+        <?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?>
+    </span>
+</h1>
 
+    <a href="index.php?c=Proyecto&a=index"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:text-blue-600 shadow-sm transition">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Proyectos
+    </a>
+</div>
         <?php if (isset($statusMessage) && $statusMessage): ?>
             <div class="status-message <?= htmlspecialchars($statusMessage['type']) === 'success' ? 'success' : 'error' ?>">
                 <?= htmlspecialchars($statusMessage['text']) ?>
@@ -62,7 +104,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         <?php endif; ?>
 
         <div class="mb-4 border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <nav class="-mb-px flex space-x-8 text-sm font-medium text-gray-500" aria-label="Tabs">
                 <button onclick="openTab(event, 'general')" class="tab-button" data-tab-target="general">General</button>
                 <button onclick="openTab(event, 'equipo')" class="tab-button" data-tab-target="equipo">Equipo</button>
                 <button onclick="openTab(event, 'cronograma')" class="tab-button" data-tab-target="cronograma">Cronograma</button>
@@ -323,6 +365,32 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
             }
         });
     }
+
+    const showBtn = document.getElementById('show-custom-ecs-form-btn');
+    const hideBtn = document.getElementById('hide-custom-ecs-form-btn');
+    const formContainer = document.getElementById('custom-ecs-form-container');
+
+    if (showBtn && hideBtn && formContainer) {
+        showBtn.addEventListener('click', () => {
+            formContainer.classList.remove('hidden');
+            showBtn.classList.add('hidden');
+        });
+
+        hideBtn.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            showBtn.classList.remove('hidden');
+        });
+    }
+
+    <?php if (!empty($formErrorsECS)): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (showBtn) {
+                showBtn.click();
+            }
+        });
+    <?php endif; ?>
+
+
 </script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

@@ -108,7 +108,7 @@ class ActividadCronogramaModel {
     public function obtenerActividadesPorCronograma($id_cronograma) {
         if ($this->conexion === null) return [];
         
-        $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable
+        $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable, ac.nombre_actividad as nombre_actividad
                 FROM ActividadesCronograma ac
                 LEFT JOIN FasesMetodologia fm ON ac.id_fase_metodologia = fm.id_fase_metodologia
                 LEFT JOIN Usuarios u ON ac.id_responsable = u.id_usuario
@@ -159,11 +159,20 @@ class ActividadCronogramaModel {
 
     public function obtenerActividadPorId($id_actividad) {
         if ($this->conexion === null) return null;
-        $sql = "SELECT ac.*, fm.nombre_fase, u.nombre_completo as nombre_responsable
+        
+        $sql = "SELECT 
+                    ac.*, 
+                    p.id_proyecto, -- <<< AÑADIDO ESTO
+                    p.nombre_proyecto,
+                    fm.nombre_fase, 
+                    u.nombre_completo as nombre_responsable
                 FROM ActividadesCronograma ac
+                JOIN Cronogramas c ON ac.id_cronograma = c.id_cronograma
+                JOIN Proyectos p ON c.id_proyecto = p.id_proyecto
                 LEFT JOIN FasesMetodologia fm ON ac.id_fase_metodologia = fm.id_fase_metodologia
                 LEFT JOIN Usuarios u ON ac.id_responsable = u.id_usuario
                 WHERE ac.id_actividad = ?";
+        
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
             error_log("Error en prepare obtenerActividadPorId: " . $this->conexion->error);
@@ -176,6 +185,7 @@ class ActividadCronogramaModel {
         $stmt->close();
         return $actividad;
     }
+
 
 
     
@@ -240,6 +250,61 @@ class ActividadCronogramaModel {
         $stmt->close();
         return $success;
     }
+
+    public function obtenerActividadesPorResponsable($id_usuario) {
+        if ($this->conexion === null) return [];
+
+        $this->conexion->query("SET SESSION group_concat_max_len = 1000000;");
+        
+        
+        $sql = "SELECT 
+                    ac.*, 
+                    p.nombre_proyecto,
+                    c.descripcion as nombre_cronograma,
+                    fm.nombre_fase,
+                    GROUP_CONCAT(CONCAT(ec.nombre_ecs, '|', ea.ruta_archivo) SEPARATOR '||') as entregables
+                FROM ActividadesCronograma ac
+                JOIN Cronogramas c ON ac.id_cronograma = c.id_cronograma
+                JOIN Proyectos p ON c.id_proyecto = p.id_proyecto
+                LEFT JOIN FasesMetodologia fm ON ac.id_fase_metodologia = fm.id_fase_metodologia
+                LEFT JOIN EntregablesActividad ea ON ac.id_actividad = ea.id_actividad
+                LEFT JOIN ElementosConfiguracion ec ON ea.id_ecs = ec.id_ecs
+                WHERE ac.id_responsable = ?
+                GROUP BY ac.id_actividad
+                ORDER BY p.nombre_proyecto ASC, ac.fecha_inicio_planificada ASC";
+
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("Error en prepare obtenerActividadesPorResponsable: " . $this->conexion->error);
+            return [];
+        }
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $actividades = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $actividades[] = $fila;
+        }
+        $stmt->close();
+        return $actividades;
+    }
+
+    public function actualizarEstadoActividad($id_actividad, $nuevo_estado) {
+        if ($this->conexion === null) return false;
+        
+        $sql = "UPDATE ActividadesCronograma SET estado_actividad = ? WHERE id_actividad = ?";
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("Error en prepare actualizarEstadoActividad: " . $this->conexion->error);
+            return false;
+        }
+        $stmt->bind_param("si", $nuevo_estado, $id_actividad);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+
 
     public function __destruct() {
         if ($this->conexion) {

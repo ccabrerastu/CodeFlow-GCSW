@@ -37,8 +37,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label for="id_fase_metodologia_form" class="form-label">Fase de Metodología (Opcional):</label>
-                            <select name="id_fase_metodologia" id="id_fase_metodologia_form" class="form-select">
+                            <label for="id_fase_metodologia_form" class="form-label">Fase de Metodología:</label>
+                            <select name="id_fase_metodologia" id="id_fase_metodologia_form" class="form-select" required>
                                 <option value="">-- Ninguna --</option>
                                 <?php if (!empty($fases_metodologia)): ?>
                                     <?php foreach ($fases_metodologia as $fase_met): ?>
@@ -53,8 +53,8 @@
                             </select>
                         </div>
                         <div>
-                            <label for="id_responsable_form" class="form-label">Responsable (Opcional):</label>
-                            <select name="id_responsable" id="id_responsable_form" class="form-select">
+                            <label for="id_responsable_form" class="form-label">Responsable:</label>
+                            <select name="id_responsable" id="id_responsable_form" class="form-select" required>
                                 <option value="">-- Ninguno --</option>
                                 <?php if (!empty($miembros_equipo)): ?>
                                     <?php foreach ($miembros_equipo as $miembro): ?>
@@ -73,21 +73,32 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="fecha_inicio_planificada_act_form" class="form-label">Fecha Inicio Planificada:</label>
-                            <input type="date" name="fecha_inicio_planificada" id="fecha_inicio_planificada_act_form" class="form-input"
-                                   value="<?= htmlspecialchars($formDataActividad['fecha_inicio_planificada'] ?? '') ?>">
+                            <input type="date" 
+                                name="fecha_inicio_planificada" 
+                                id="fecha_inicio_planificada_act_form" 
+                                class="form-input"
+                                value="<?= htmlspecialchars($formDataActividad['fecha_inicio_planificada'] ?? '') ?>"
+                                min="<?= htmlspecialchars($proyecto['fecha_inicio_planificada']) ?>"
+                                max="<?= htmlspecialchars($proyecto['fecha_fin_planificada']) ?>">
                             <?php if (isset($formErrorsActividad['fecha_inicio_planificada'])): ?>
                                 <p class="error-message"><?= htmlspecialchars($formErrorsActividad['fecha_inicio_planificada']) ?></p>
                             <?php endif; ?>
                         </div>
                         <div>
                             <label for="fecha_fin_planificada_act_form" class="form-label">Fecha Fin Planificada:</label>
-                            <input type="date" name="fecha_fin_planificada" id="fecha_fin_planificada_act_form" class="form-input"
-                                   value="<?= htmlspecialchars($formDataActividad['fecha_fin_planificada'] ?? '') ?>">
+                            <input type="date" 
+                                name="fecha_fin_planificada" 
+                                id="fecha_fin_planificada_act_form" 
+                                class="form-input"
+                                value="<?= htmlspecialchars($formDataActividad['fecha_fin_planificada'] ?? '') ?>"
+                                min="<?= htmlspecialchars($proyecto['fecha_inicio_planificada']) ?>"
+                                max="<?= htmlspecialchars($proyecto['fecha_fin_planificada']) ?>">
                             <?php if (isset($formErrorsActividad['fecha_fin_planificada'])): ?>
                                 <p class="error-message"><?= htmlspecialchars($formErrorsActividad['fecha_fin_planificada']) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
+
 
                     <div class="mb-4">
                         <label for="id_ecs_entregable_form" class="form-label">ECS Entregable Principal (Opcional):</label>
@@ -110,51 +121,77 @@
                         <i class="fas fa-plus mr-1"></i> Agregar Actividad
                     </button>
                 </form>
+                
 
-                <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Actividades del Cronograma</h3>
-                <?php if (!empty($actividades)): ?>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-                            <thead class="bg-gray-100 border-b border-gray-300">
-                                <tr>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Nombre</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Fase</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Responsable</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Inicio Plan.</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Fin Plan.</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Entrega Real</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Estado</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $rowIndex = 0; foreach ($actividades as $actividad): ?>
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50 <?= ($rowIndex % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['nombre_actividad']) ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['nombre_fase'] ?? 'N/A') ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['nombre_responsable'] ?? 'No asignado') ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['fecha_inicio_planificada'] ? date('d/m/Y', strtotime($actividad['fecha_inicio_planificada'])) : 'N/A') ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['fecha_fin_planificada'] ? date('d/m/Y', strtotime($actividad['fecha_fin_planificada'])) : 'N/A') ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['fecha_entrega_real'] ? date('d/m/Y', strtotime($actividad['fecha_entrega_real'])) : 'Pendiente') ?></td>
-                                        <td class="px-4 py-2"><?= htmlspecialchars($actividad['estado_actividad']) ?></td>
-                                        <td class="px-4 py-2 space-x-1">
-                                            <button type="button" 
-                                                onclick="abrirModalEditarActividad(<?= htmlspecialchars(json_encode($actividad)) ?>)"
-                                                class="btn btn-edit text-xs">
-                                                <i class="fas fa-edit"></i> Editar
-                                            </button>
-                                            <a href="index.php?c=Proyecto&a=eliminarActividadCronograma&id_actividad=<?= $actividad['id_actividad'] ?>&id_proyecto=<?= $proyecto['id_proyecto'] ?>&tab=cronograma" 
-                                               class="btn btn-delete text-xs" 
-                                               onclick="return confirm('¿Está seguro de eliminar esta actividad?');">
-                                                <i class="fas fa-trash-alt"></i> Eliminar
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php $rowIndex++; endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php else: ?>
-                    <p class="text-gray-500 italic">No hay actividades definidas para este cronograma.</p>
-                <?php endif; ?>
+                <!-- Fechas del proyecto -->
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Cronograma del Proyecto</h3>
+                    <p class="text-gray-700">
+                        <strong>Inicio planificado:</strong> <?= date('d/m/Y', strtotime($proyecto['fecha_inicio_planificada'])) ?> |
+                        <strong>Fin planificado:</strong> <?= date('d/m/Y', strtotime($proyecto['fecha_fin_planificada'])) ?>
+                    </p>
+                </div>
+
+                <!-- Tarjetas por fase -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <?php foreach ($fases_metodologia as $fase): ?>
+                        <div class="border border-gray-300 rounded-lg bg-white shadow-lg overflow-hidden">
+                            <div class="bg-blue-100 px-4 py-3">
+                                <h4 class="text-lg font-semibold text-blue-800"><?= htmlspecialchars($fase['nombre_fase']) ?></h4>
+                            </div>
+                            <div class="p-4">
+                                <?php
+                                    $actividadesFase = array_filter($actividades, function ($actividad) use ($fase) {
+                                        return $actividad['id_fase_metodologia'] == $fase['id_fase_metodologia'];
+                                    });
+                                ?>
+
+                                <?php if (!empty($actividadesFase)): ?>
+                                    <ul class="divide-y divide-gray-200">
+                                        <?php foreach ($actividadesFase as $actividad): ?>
+                                            <li class="py-3">
+                                                <div class="flex justify-between items-start">
+                                                    <div>
+                                                        <p class="text-gray-800 font-medium"><?= htmlspecialchars($actividad['nombre_actividad']) ?></p>
+                                                        <p class="text-sm text-gray-600">
+                                                            Responsable: <?= htmlspecialchars($actividad['nombre_responsable'] ?? 'No asignado') ?>
+                                                        </p>
+                                                        <p class="text-sm text-gray-600">
+                                                            Planificado: <?= date('d/m/Y', strtotime($actividad['fecha_inicio_planificada'])) ?> - 
+                                                            <?= date('d/m/Y', strtotime($actividad['fecha_fin_planificada'])) ?>
+                                                        </p>
+                                                        <p class="text-sm text-gray-600">
+                                                            Entrega real: 
+                                                            <?= $actividad['fecha_entrega_real'] ? date('d/m/Y', strtotime($actividad['fecha_entrega_real'])) : 'Pendiente' ?>
+                                                        </p>
+                                                        <p class="text-sm text-gray-600">
+                                                            Estado: <?= htmlspecialchars($actividad['estado_actividad']) ?>
+                                                        </p>
+                                                    </div>
+                                                    <div class="ml-4 space-y-1">
+                                                        <button 
+                                                            onclick="abrirModalEditarActividad(<?= htmlspecialchars(json_encode($actividad)) ?>)"
+                                                            class="text-blue-600 text-sm hover:underline flex items-center">
+                                                            <i class="fas fa-edit mr-1"></i> Editar
+                                                        </button>
+                                                        <a href="index.php?c=Proyecto&a=eliminarActividadCronograma&id_actividad=<?= $actividad['id_actividad'] ?>&id_proyecto=<?= $proyecto['id_proyecto'] ?>&tab=cronograma"
+                                                        onclick="return confirm('¿Está seguro de eliminar esta actividad?');"
+                                                        class="text-red-600 text-sm hover:underline flex items-center">
+                                                            <i class="fas fa-trash-alt mr-1"></i> Eliminar
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php else: ?>
+                                    <p class="text-gray-500 italic">No hay actividades registradas para esta fase.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+
+
             <?php endif; // Fin de if ($cronograma) ?>

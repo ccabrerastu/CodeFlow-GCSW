@@ -189,6 +189,51 @@ class ProyectoModel {
         $stmt->close();
         return $success;
     }
+    
+
+
+    public function obtenerAvancePorProyecto(): array {
+        if ($this->conexion === null) {
+            error_log("ProyectoModel::obtenerAvancePorProyecto sin conexión");
+            return [];
+        }
+
+        $sql = "
+        SELECT
+            p.id_proyecto,
+            p.nombre_proyecto,
+            COUNT(sc.id_sc)               AS total_sc,
+            SUM(sc.estado_sc = 'Aprobada') AS sc_aprobadas
+        FROM Proyectos p
+        LEFT JOIN SolicitudesCambio sc
+            ON p.id_proyecto = sc.id_proyecto
+        GROUP BY p.id_proyecto, p.nombre_proyecto
+        ";
+
+        $res = $this->conexion->query($sql);
+
+        if (! $res) {
+            error_log("ProyectoModel::obtenerAvancePorProyecto error en query: " . $this->conexion->error);
+            return [];
+        }
+
+        return $res->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function obtenerProyectosPorUsuario(int $id_usuario): array {
+        $sql = "
+          SELECT DISTINCT p.id_proyecto, p.nombre_proyecto
+          FROM Proyectos p
+          JOIN MiembrosEquipo me ON p.id_equipo = me.id_equipo
+          WHERE me.id_usuario = ?
+        ";
+        $stmt = $this->conexion->query($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $arr = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $arr;
+    }
 
     public function __destruct() {
         if ($this->conexion) {

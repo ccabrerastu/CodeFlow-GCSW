@@ -66,6 +66,30 @@ class EntregableActividadModel {
         $stmt->close();
         return $ecs_asociados;
     }
+
+    public function registrarEntrega($id_actividad, $id_ecs, $ruta_archivo) {
+        if ($this->conexion === null) return false;
+
+        $fecha_entrega_real = date('Y-m-d H:i:s');
+
+        $sql = "UPDATE EntregablesActividad 
+                SET ruta_archivo = ?, fecha_entrega_real = ?
+                WHERE id_actividad = ? AND id_ecs = ?";
+        
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("Error en prepare registrarEntrega: " . $this->conexion->error);
+            return false;
+        }
+        $stmt->bind_param("ssii", $ruta_archivo, $fecha_entrega_real, $id_actividad, $id_ecs);
+        
+        $success = $stmt->execute();
+        if (!$success) {
+            error_log("Error execute registrarEntrega: " . $stmt->error);
+        }
+        $stmt->close();
+        return $success;
+    }
     
     public function __destruct() {
         if ($this->conexion) {

@@ -26,29 +26,23 @@ $baseUrl = "/";
 
     <aside id="sidebar" class="w-64 bg-gray-800 text-white min-h-screen p-4 space-y-4 transition-transform duration-300 fixed left-0 top-0 transform -translate-x-full z-30">
         <h4 class="text-xl font-bold mb-4 text-center border-b border-gray-700 pb-2">SGC Menú</h4>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Dashboard&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
-            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+        <a href="<?php echo $baseUrl; ?>index.php?c=Metodologia&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
+            <i class="fas fa-tachometer-alt mr-2"></i>Metodologías
         </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=Proyecto&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-project-diagram mr-2"></i>Proyectos
         </a>
+        <a href="<?php echo $baseUrl; ?>index.php?c=Actividad&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 transition duration-200">
+            <i class="fas fa-tasks mr-2 w-5 text-center"></i>Mis Actividades
+        </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=SolicitudCambio&a=crear" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-file-alt mr-2"></i>Nueva Solicitud
+            <i class="fas fa-file-alt mr-2"></i>Solicitudes de Cambio
         </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=SolicitudCambio&a=listar" class="block py-2.5 px-4 rounded hover:bg-gray-700">
-            <i class="fas fa-tasks mr-2"></i>Gestionar SC
-        </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=OrdenCambio&a=listar" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-cogs mr-2"></i>Órdenes de Cambio
-        </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Ecs&a=gestionar" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-archive mr-2"></i>Repositorio ECS
+        <a href="<?php echo $baseUrl; ?>index.php?c=OrdenCambio&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700">
+        <i class="fas fa-cogs mr-2"></i>Órdenes de Cambio
         </a>
         <a href="<?php echo $baseUrl; ?>index.php?c=Reporte&a=index" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
             <i class="fas fa-chart-bar mr-2"></i>Reportes
-        </a>
-        <a href="<?php echo $baseUrl; ?>index.php?c=Usuario&a=gestionar" class="block py-2.5 px-4 rounded hover:bg-gray-700 ">
-            <i class="fas fa-users-cog mr-2"></i>Gestionar Usuarios
         </a>
         </aside>
 

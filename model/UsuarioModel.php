@@ -146,5 +146,22 @@ class UsuarioModel {
         return $usuarios;
     }
 
+    public function obtenerUsuarioPorId(int $id_usuario): ?array
+    {
+        $sql  = "SELECT id_usuario, nombre_completo, nombre_usuario, email 
+                FROM Usuarios 
+                WHERE id_usuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("UsuarioModel::obtenerUsuarioPorId prepare error: " . $this->conexion->error);
+            return null;
+        }
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $user ?: null;
+    }
+
 }
 ?>

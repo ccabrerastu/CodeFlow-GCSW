@@ -4,91 +4,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SGC - Gestionar Fases de Metodología: <?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Desconocida') ?></title>
+    <title>SGC - Gestionar Fases de: <?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Desconocida') ?></title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <style>
-        body { font-family: sans-serif; }
-        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #e2e8f0; }
-        tr:hover { background-color: #f1f5f9; }
-        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; display: inline-block; margin-right: 5px; font-size: 0.875rem; }
-        .btn-primary { background-color: #4A90E2; color: white; }
-        .btn-primary:hover { background-color: #357ABD; }
-        .btn-edit { background-color: #F5A623; color: white; }
-        .btn-edit:hover { background-color: #D9931F; }
-        .btn-delete { background-color: #D0021B; color: white; }
-        .btn-delete:hover { background-color: #B00216; }
-        .status-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .status-message.success { background-color: #e6fffa; border: 1px solid #38a169; color: #2f855a; }
-        .status-message.error { background-color: #fed7d7; border: 1px solid #e53e3e; color: #c53030; }
-    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-tr from-blue-50 via-white to-blue-100 min-h-screen font-sans">
     <?php include __DIR__ . '/partials/header.php'; ?>
 
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">
-                Gestionar Fases de: <span class="text-blue-600"><?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Metodología Desconocida') ?></span>
+    <main class="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-2xl rounded-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <h1 class="text-3xl font-bold text-gray-800">
+                Fases de Metodologia <span class="text-blue-600"><?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Metodología Desconocida') ?></span>
             </h1>
-            <a href="index.php?c=FasesMetodologia&a=mostrarFormularioCrear&id_metodologia=<?= htmlspecialchars($metodologia['id_metodologia'] ?? '') ?>" class="btn btn-primary">
-                <i class="fas fa-plus mr-1"></i> Nueva Fase
+            <a href="index.php?c=FasesMetodologia&a=mostrarFormularioCrear&id_metodologia=<?= htmlspecialchars($metodologia['id_metodologia'] ?? '') ?>"
+               class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-all">
+                <i class="fas fa-plus mr-2"></i> Nueva Fase
             </a>
         </div>
-        <div class="mb-4">
-            <a href="index.php?c=Metodologia&a=index" class="text-blue-600 hover:underline">&larr; Volver a Metodologías</a>
-        </div>
 
+       <div class="mb-6">
+    <a href="index.php?c=Metodologia&a=index"
+       class="inline-flex items-center px-4 py-2 bg-white border border-blue-300 text-blue-600 rounded-lg shadow-sm hover:bg-blue-50 hover:text-blue-700 transition duration-150 text-sm font-medium">
+        <i class="fas fa-arrow-left mr-2"></i> Volver a Metodologías
+    </a>
+</div>
 
         <?php if (isset($statusMessage) && $statusMessage): ?>
-            <div class="status-message <?= htmlspecialchars($statusMessage['type']) ?>">
+            <div class="p-3 rounded-lg mb-4 text-sm font-medium <?= $statusMessage['type'] === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?>">
                 <?= htmlspecialchars($statusMessage['text']) ?>
             </div>
         <?php endif; ?>
 
-        <div class="table-container">
-            <table class="w-full text-sm text-left text-gray-700">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+        <div class="overflow-x-auto rounded-lg shadow mt-6">
+            <table class="w-full bg-white border border-gray-200 text-sm">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
                     <tr>
-                        <th scope="col" class="px-6 py-3">Orden</th>
-                        <th scope="col" class="px-6 py-3">Nombre Fase</th>
-                        <th scope="col" class="px-6 py-3">Descripción</th>
-                        <th scope="col" class="px-6 py-3">Acciones</th>
+                        <th class="px-6 py-3 text-left">Orden</th>
+                        <th class="px-6 py-3 text-left">Nombre</th>
+                        <th class="px-6 py-3 text-left">Descripción</th>
+                        <th class="px-6 py-3 text-center">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php if (!empty($fases)): ?>
-                        <?php foreach ($fases as $index => $fase): ?>
-                            <tr class="border-b hover:bg-gray-100 <?= ($index % 2 === 0) ? 'bg-white' : 'bg-gray-50'; ?>">
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['orden']); ?></td>
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
-                                <td class="px-6 py-4"><?= htmlspecialchars($fase['descripcion'] ?? 'N/A'); ?></td>
-                                <td class="px-6 py-4">
-                                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>" class="btn btn-edit">
+                <tbody class="text-gray-700">
+                    <?php if (!empty($fasesecsB)): ?>
+                        <?php foreach ($fasesecsB as $index => $fase): ?>
+                            <tr class="<?= $index % 2 === 0 ? 'bg-white' : 'bg-gray-50' ?> border-b hover:bg-blue-50 transition">
+                                <td class="px-6 py-4 font-bold text-blue-600 text-lg text-center"><?= htmlspecialchars($fase['orden']); ?></td>
+                                <td class="px-6 py-4 font-semibold"><?= htmlspecialchars($fase['nombre_fase']); ?></td>
+                                <td class="px-6 py-4"><?= htmlspecialchars($fase['descripcion'] ?? 'Sin descripción'); ?></td>
+                                <td class="px-6 py-4 text-center space-x-1">
+                                    <button onclick="toggleEcs(this, 'ecs-row-<?= $fase['id_fase_metodologia'] ?>')" 
+                                            class="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition text-xs">
+                                        <i class="fas fa-cubes mr-1"></i> Ver ECS (<?= count($fase['elementos'] ?? []) ?>)
+                                        <i class="fas fa-chevron-down ml-2 arrow-icon transition-transform"></i>
+                                    </button>
+                                    <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>"
+                                       class="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition text-xs">
                                         <i class="fas fa-edit mr-1"></i> Editar
                                     </a>
-                                    <a href="index.php?c=FasesMetodologia&a=eliminar&id_fase=<?= $fase['id_fase_metodologia'] ?>&id_metodologia=<?= $metodologia['id_metodologia'] ?>" class="btn btn-delete" onclick="return confirm('¿Está seguro de que desea eliminar esta fase? Esto podría afectar a los proyectos que la utilicen.');">
-                                        <i class="fas fa-trash-alt mr-1"></i> Eliminar
-                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Fila desplegable de ECS -->
+                            <tr class="ecs-details-row hidden" id="ecs-row-<?= $fase['id_fase_metodologia'] ?>">
+                                <td colspan="4" class="bg-gray-50 px-6 py-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h2 class="text-gray-800 font-medium">ECS de esta fase</h2>
+                                        <a href="#" class="text-blue-600 hover:underline text-sm">
+                                            <i class="fas fa-plus-circle mr-1"></i> Asociar nuevo ECS
+                                        </a>
+                                    </div>
+
+                                    <?php if (!empty($fase['elementos'])): ?>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                            <?php foreach ($fase['elementos'] as $ecs): ?>
+                                                <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex justify-between items-center">
+                                                    <div>
+                                                        <p class="font-semibold text-gray-700"><?= htmlspecialchars($ecs['nombre_ecs']) ?></p>
+                                                        <p class="text-xs text-gray-500"><?= htmlspecialchars($ecs['tipo_ecs'] ?? 'Genérico') ?></p>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">v<?= htmlspecialchars($ecs['version_actual']) ?></span>
+                                                        <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium"><?= htmlspecialchars($ecs['estado_ecs']) ?></span>
+                                                        <button title="Quitar asociación" class="text-red-500 hover:text-red-700">
+                                                            <i class="fas fa-times-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="italic text-gray-500 text-center mt-4">No hay ECS registrados para esta fase.</p>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                                No hay fases registradas para esta metodología.
-                            </td>
+                            <td colspan="4" class="text-center py-6 text-gray-500 italic">No se han registrado fases aún.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
-    <?php include __DIR__ . '/partials/footer.php';?>
+    <script>
+        function toggleEcs(button, rowId) {
+            const row = document.getElementById(rowId);
+            const icon = button.querySelector('.arrow-icon');
+
+            document.querySelectorAll('.ecs-details-row').forEach(r => r.classList.add('hidden'));
+            document.querySelectorAll('.arrow-icon').forEach(i => i.classList.remove('rotate-180'));
+
+            if (row.classList.contains('hidden')) {
+                row.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            }
+        }
+    </script>
+
+    <?php include __DIR__ . '/partials/footer.php'; ?>
 </body>
 </html>
