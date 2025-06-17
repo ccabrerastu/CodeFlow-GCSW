@@ -41,7 +41,44 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
                     <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['id_proyecto']) ?></p>
                 <?php endif; ?>
             </div>
-
+            <div>
+                <label for="prioridad" class="form-label">Prioridad:</label>
+                <select name="prioridad" id="prioridad" class="form-select" required>
+                    <option value="">-- Seleccione prioridad --</option>
+                    <?php foreach (['ALTA','MEDIA','BAJA'] as $p): ?>
+                        <option value="<?= $p ?>"
+                            <?= (isset($formData['prioridad']) && $formData['prioridad'] === $p) ? 'selected' : '' ?>>
+                            <?= ucfirst(strtolower($p)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!empty($formErrors['prioridad'])): ?>
+                    <div class="error-message"><?= htmlspecialchars($formErrors['prioridad']) ?></div>
+                <?php endif; ?>
+            </div>
+            <div>
+                <label for="tipo_cambio" class="form-label">Tipo de Cambio:</label>
+                <select name="tipo_cambio" id="tipo_cambio" class="form-select" required>
+                    <option value="">-- Seleccionar tipo --</option>
+                    <?php foreach(['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'] as $tc): ?>
+                        <option value="<?= $tc ?>"
+                            <?= (isset($formData['tipo_cambio']) && $formData['tipo_cambio']===$tc) ? 'selected':'' ?>>
+                            <?= $tc ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!empty($formErrors['tipo_cambio'])): ?>
+                    <div class="error-message"><?= htmlspecialchars($formErrors['tipo_cambio']) ?></div>
+                <?php endif; ?>
+            </div>
+            <div>
+                <label for="justificacion" class="form-label">Justificación:</label>
+                <textarea name="justificacion" id="justificacion" rows="3"
+                        class="form-textarea"><?= htmlspecialchars($formData['justificacion'] ?? '') ?></textarea>
+                <?php if (!empty($formErrors['justificacion'])): ?>
+                    <div class="error-message"><?= htmlspecialchars($formErrors['justificacion']) ?></div>
+                <?php endif; ?>
+            </div>
             <div>
                 <label for="titulo" class="block font-bold mb-1">Título:</label>
                 <input type="text" name="titulo" id="titulo" class="w-full border p-2 rounded"
