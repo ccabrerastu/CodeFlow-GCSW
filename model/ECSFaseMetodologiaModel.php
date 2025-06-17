@@ -14,17 +14,11 @@ class ECSFaseMetodologiaModel {
             }
         } catch (Exception $e) {
             error_log("Error de conexión en ECSFaseMetodologiaModel: " . $e->getMessage());
-            // Re-lanzar la excepción para que sea manejada por el código que llama
             throw new Exception("Error al inicializar ECSFaseMetodologiaModel: " . $e->getMessage());
         }
     }
 
-    /**
-     * Obtiene los ECS asociados a una fase de metodología específica.
-     * Realiza un JOIN con ElementosConfiguracion para obtener los detalles del ECS.
-     * @param int $id_fase_metodologia
-     * @return array Lista de ECS asociados a la fase.
-     */
+
     public function obtenerECSPorFase($id_fase_metodologia) {
         if ($this->conexion === null) {
              error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
@@ -42,7 +36,47 @@ class ECSFaseMetodologiaModel {
                     ec.estado_ecs
                 FROM ECS_FaseMetodologia efm
                 JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
-                WHERE efm.id_fase_metodologia = ?
+                WHERE efm.id_fase_metodologia = ? 
+                ORDER BY ec.nombre_ecs ASC";
+        
+        $stmt = $this->conexion->prepare($sql);
+        if ($stmt === false) {
+            error_log("Error en la preparación de la consulta (obtenerECSPorFase): " . $this->conexion->error);
+            return [];
+        }
+        $stmt->bind_param("i", $id_fase_metodologia);
+        if (!$stmt->execute()) {
+            error_log("Error al ejecutar la consulta (obtenerECSPorFase): " . $stmt->error);
+            $stmt->close();
+            return [];
+        }
+
+        $resultado = $stmt->get_result();
+        $ecs_fase = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $ecs_fase[] = $fila;
+        }
+        $stmt->close();
+        return $ecs_fase;
+    }
+    public function obtenerECSPorFaseD($id_fase_metodologia) {
+        if ($this->conexion === null) {
+             error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
+             return [];
+        }
+
+        $sql = "SELECT 
+                    efm.id_ec_fase_met, 
+                    efm.id_fase_metodologia,
+                    efm.id_ecs,
+                    efm.descripcion as descripcion_en_fase,
+                    ec.nombre_ecs,
+                    ec.tipo_ecs,
+                    ec.version_actual,
+                    ec.estado_ecs
+                FROM ECS_FaseMetodologia efm
+                JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
+                WHERE efm.id_fase_metodologia = ? and efm.descripcion IS NULL
                 ORDER BY ec.nombre_ecs ASC";
         
         $stmt = $this->conexion->prepare($sql);
@@ -66,23 +100,100 @@ class ECSFaseMetodologiaModel {
         return $ecs_fase;
     }
 
-    /**
-     * Asocia un ECS (del catálogo general) a una Fase de Metodología.
-     * @param int $id_ecs
-     * @param int $id_fase_metodologia
-     * @param string $descripcion
-     * @return int|false El ID de la nueva asociación o false si falla.
-     */
+    public function obtenerECSBasePorFase($id_fase_metodologia) {
+        if ($this->conexion === null) {
+             error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
+             return [];
+        }
+
+        $sql = "SELECT 
+                    efm.id_ec_fase_met, 
+                    efm.id_fase_metodologia,
+                    efm.id_ecs,
+                    efm.descripcion as descripcion_en_fase,
+                    ec.nombre_ecs,
+                    ec.tipo_ecs,
+                    ec.version_actual,
+                    ec.estado_ecs
+                FROM ECS_FaseMetodologia efm
+                JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
+                WHERE efm.id_fase_metodologia = ? AND efm.descripcion IS NULL
+                ORDER BY ec.nombre_ecs ASC";
+        
+        $stmt = $this->conexion->prepare($sql);
+        if ($stmt === false) {
+            error_log("Error en la preparación de la consulta (obtenerECSPorFase): " . $this->conexion->error);
+            return [];
+        }
+        $stmt->bind_param("i", $id_fase_metodologia);
+        if (!$stmt->execute()) {
+            error_log("Error al ejecutar la consulta (obtenerECSPorFase): " . $stmt->error);
+            $stmt->close();
+            return [];
+        }
+
+        $resultado = $stmt->get_result();
+        $ecsB_fase = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $ecsB_fase[] = $fila;
+        }
+        $stmt->close();
+        return $ecsB_fase;
+    }
+
+    public function obtenerECSBasePorFaseU($id_fase_metodologia) {
+        if ($this->conexion === null) {
+             error_log("ECSFaseMetodologiaModel::obtenerECSPorFase - No hay conexión a la base de datos.");
+             return [];
+        }
+
+        $sql = "SELECT 
+                    efm.id_ec_fase_met, 
+                    efm.id_fase_metodologia,
+                    efm.id_ecs,
+                    efm.descripcion as descripcion_en_fase,
+                    ec.nombre_ecs,
+                    ec.tipo_ecs,
+                    ec.version_actual,
+                    ec.estado_ecs
+                FROM ECS_FaseMetodologia efm
+                JOIN ElementosConfiguracion ec ON efm.id_ecs = ec.id_ecs
+                WHERE efm.id_fase_metodologia = ? AND efm.descripcion IS NULL
+                ORDER BY ec.nombre_ecs ASC";
+        
+        $stmt = $this->conexion->prepare($sql);
+        if ($stmt === false) {
+            error_log("Error en la preparación de la consulta (obtenerECSPorFase): " . $this->conexion->error);
+            return [];
+        }
+        $stmt->bind_param("i", $id_fase_metodologia);
+        if (!$stmt->execute()) {
+            error_log("Error al ejecutar la consulta (obtenerECSPorFase): " . $stmt->error);
+            $stmt->close();
+            return [];
+        }
+
+        $resultado = $stmt->get_result();
+        $ecsB_fase = [];
+        while ($fila = $resultado->fetch_assoc()) {
+            $ecsB_fase[] = $fila;
+        }
+        $stmt->close();
+        return $ecsB_fase;
+    }
+
+
     public function asociarECSAFase($id_ecs, $id_fase_metodologia, $descripcion = null) {
         if ($this->conexion === null) return false;
-
+        
         $sql = "INSERT INTO ECS_FaseMetodologia (id_ecs, id_fase_metodologia, descripcion) VALUES (?, ?, ?)";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) {
             error_log("Error prepare asociarECSAFase: " . $this->conexion->error);
             return false;
+            
         }
-        // El tipo para id_fase_metodologia es 'i' (integer), pero si es NULL, bind_param lo maneja.
+
         $stmt->bind_param("iis", $id_ecs, $id_fase_metodologia, $descripcion);
         if ($stmt->execute()) {
             $new_id = $stmt->insert_id;
@@ -111,9 +222,7 @@ class ECSFaseMetodologiaModel {
 
     public function __destruct() {
         if ($this->conexion) {
-            // No es estrictamente necesario cerrar aquí si la conexión es persistente
-            // o si el script termina, pero es buena práctica si se manejan conexiones explícitas.
-            // $this->conexion->close(); 
+            
         }
     }
 }

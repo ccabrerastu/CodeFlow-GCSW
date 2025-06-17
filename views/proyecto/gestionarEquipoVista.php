@@ -49,6 +49,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Seleccionar Miembro:</label>
+
                 <select name="id_usuario" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
                     <option value="">-- Seleccionar usuario --</option>
                     <?php foreach ($usuarios as $usuario): ?>
@@ -90,18 +91,19 @@
                         <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
                             <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
                             <button type="button" 
-                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
+                            onclick="abrirModalEditarRol    ('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
                              class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
                             ✏️ Modificar Rol
                             </button>
 
                         </form>
                         <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
-                        <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
-                        <button type="submit" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                        🗑️ Eliminar
-                        </button>
+                            <input type="hidden" name="id_miembro" value="<?= htmlspecialchars($miembro['id_usuario']) ?>">
+                            <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($$equipo['id_equipo']) ?>">
+                            <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                🗑️ Eliminar
+                            </button>
                         </form>
                         </td>
                     </tr>
@@ -162,5 +164,12 @@ function mostrarFormularioNuevoEquipo(valor) {
         inputNombre.removeAttribute('required');
     }
 }
-</script>
 
+
+
+
+
+
+
+
+</script>

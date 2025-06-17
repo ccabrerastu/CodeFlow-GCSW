@@ -61,11 +61,10 @@ class UsuarioModel {
         $stmt->close();
 
         if ($usuarioData && password_verify($clave_plain, $usuarioData['contrasena_hash'])) {
-            // No devolver el hash de la contraseña
             unset($usuarioData['contrasena_hash']);
             return $usuarioData;
         }
-        return null; // Usuario no encontrado, inactivo o contraseña incorrecta
+        return null;
     }
 
 

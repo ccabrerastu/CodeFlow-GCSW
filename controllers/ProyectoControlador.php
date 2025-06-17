@@ -122,7 +122,7 @@ class ProyectoControlador {
 
             $id_proyecto_actualizado_o_creado = null;
 
-            if ($id_proyecto_form) { // Actualizar
+            if ($id_proyecto_form) { 
                 $this->proyectoModel->setIdProyecto($id_proyecto_form);
                 $resultado = $this->proyectoModel->actualizarProyecto();
                 if($resultado) $id_proyecto_actualizado_o_creado = $id_proyecto_form;
@@ -132,11 +132,7 @@ class ProyectoControlador {
                 $id_nuevo  = $this->proyectoModel->crearProyecto();
                 if ($id_nuevo ) {
                     $id_proyecto_actualizado_o_creado = $id_nuevo;
-                    // Crear cronograma por defecto para el nuevo proyecto
-                    //$this->cronogramaModel->setIdProyecto($id_proyecto_nuevo);
-                    //$this->cronogramaModel->setDescripcion("Cronograma para el proyecto: " . $nombre_proyecto);
-                    //$this->cronogramaModel->crearCronograma(); // Asumiendo que este método existe y funciona
-                    $resultado = true; // Asumimos que crearProyecto devuelve el ID o false
+                    $resultado = true;
                 } else {
                     $resultado = false;
                 }
@@ -181,6 +177,7 @@ class ProyectoControlador {
         $usuarios = $this->usuarioModel->obtenerTodosLosUsuarios();
         $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
         $equipos_existentes = $this->equipoModel->obtenerEquipos();
+
         $miembros_equipo = [];
         if ($equipo && isset($equipo['id_equipo'])) {
             $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
@@ -189,22 +186,18 @@ class ProyectoControlador {
         
         $fases_con_ecs_plantilla = [];
         if (isset($proyecto['id_metodologia'])) {
-            // Este método ahora obtiene las fases y para cada fase, sus ECS plantilla
-            $fases_con_ecs_plantilla = $this->faseMetodologiaModel->obtenerFasesConSusECS($proyecto['id_metodologia']);
+            $fases_con_ecs_plantilla = $this->faseMetodologiaModel->obtenerFasesConSusECSB($proyecto['id_metodologia']);
         }
-        // Obtener los id_ec_fase_met que ya están seleccionados para este proyecto
         $ecs_seleccionados_ids = $this->ecsProyectoModel->obtenerIdsECSeleccionadosPorProyecto($id_proyecto);
-        // Obtener los detalles completos de los ECS que están realmente en ECS_Proyecto
         $ecs_del_proyecto_detallados = $this->ecsProyectoModel->obtenerDetallesECSeleccionadosPorProyecto($id_proyecto);
 
         
-        // Cargar cronograma y actividades
         $cronograma = $this->cronogramaModel->obtenerCronogramaPorProyecto($id_proyecto);
         $actividades = [];
         $fases_metodologia_cronograma = [];
 
         if ($cronograma && isset($cronograma['id_cronograma'])) {
-            $actividades = $this->actividadModel->obtenerActividadesPorCronograma($cronograma['id_cronograma']); // Necesitarás este método
+            $actividades = $this->actividadModel->obtenerActividadesPorCronograma($cronograma['id_cronograma']);
         }
         if (isset($proyecto['id_metodologia'])) {
             $fases_metodologia_cronograma = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
@@ -230,12 +223,14 @@ class ProyectoControlador {
         unset($_SESSION['form_data_actividad'], $_SESSION['form_errors_actividad']);
 
 
+        $fases_metodologia = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
+        
+
         require __DIR__ . '/../views/planificarProyectoVista.php';
     }
 
     public function crearCronogramaParaProyecto() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos (PO/JP del proyecto)
 
         $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
         if (!$id_proyecto) {
@@ -251,7 +246,6 @@ class ProyectoControlador {
             exit;
         }
 
-        // Verificar si ya existe un cronograma
         $cronogramaExistente = $this->cronogramaModel->obtenerCronogramaPorProyecto($id_proyecto);
         if ($cronogramaExistente) {
             $_SESSION['status_message'] = ['type' => 'info', 'text' => 'El proyecto ya tiene un cronograma.'];
@@ -272,16 +266,14 @@ class ProyectoControlador {
 
     public function guardarSeleccionECSProyecto() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
+        
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_proyecto = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
-            // Los checkboxes seleccionados vendrán como un array
             $ids_ec_fase_met_seleccionados = $_POST['elementos_seleccionados'] ?? []; 
 
             if (!$id_proyecto) {
                 $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de proyecto no válido.'];
-                // Podríamos redirigir a una página de error o a la lista de proyectos
                 header("Location: index.php?c=Proyecto&a=index");
                 exit;
             }
@@ -296,7 +288,6 @@ class ProyectoControlador {
             header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto . "&tab=ecs");
             exit;
         }
-        // Si no es POST, redirigir
         $id_proyecto_get = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
         header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . ($id_proyecto_get ?: '') . "&tab=ecs");
         exit;
@@ -304,14 +295,14 @@ class ProyectoControlador {
 
     public function agregarECSProyecto() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_proyecto = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
             $nombre_ecs = trim($_POST['nombre_ecs'] ?? '');
             $descripcion_ecs = trim($_POST['descripcion_ecs'] ?? '');
             $tipo_ecs = trim($_POST['tipo_ecs'] ?? '');
-            // $id_actividad_asociada = filter_input(INPUT_POST, 'id_actividad_asociada', FILTER_VALIDATE_INT); // Se omite por ahora
+            $id_fase_metodologia = filter_input(INPUT_POST, 'id_fase_metodologia', FILTER_VALIDATE_INT);
+
 
             $formErrors = [];
             if (!$id_proyecto) {
@@ -320,7 +311,6 @@ class ProyectoControlador {
             if (empty($nombre_ecs)) {
                 $formErrors['nombre_ecs'] = "El nombre del ECS es obligatorio.";
             }
-            // Aquí podrías añadir más validaciones, como verificar si ya existe un ECS con ese nombre
 
             if (!empty($formErrors)) {
                 $_SESSION['form_data_ecs'] = $_POST;
@@ -329,24 +319,18 @@ class ProyectoControlador {
                 exit;
             }
 
-            // 1. Crear el ECS en la tabla ElementosConfiguracion (catálogo general)
             $this->ecsModel->setNombreEcs($nombre_ecs);
             $this->ecsModel->setDescripcion($descripcion_ecs);
             $this->ecsModel->setTipoEcs($tipo_ecs);
             $this->ecsModel->setVersionActual('1.0'); 
-            $this->ecsModel->setEstadoEcs('Definido'); // O 'Personalizado'
-            // $this->ecsModel->setIdCreador($_SESSION['id_usuario'] ?? null); // id_creador ya no está en ElementosConfiguracion
+            $this->ecsModel->setEstadoEcs('Definido'); 
             
             $nuevo_id_ecs_catalogo = $this->ecsModel->crearECS();
 
             if ($nuevo_id_ecs_catalogo) {
-                // 2. Crear una entrada en ECS_FaseMetodologia para este ECS personalizado (id_fase_metodologia = NULL)
-                $id_ec_fase_met = $this->ecsFaseMetodologiaModel->asociarECSAFase($nuevo_id_ecs_catalogo, null, "ECS personalizado para proyecto ID: " . $id_proyecto);
+                $id_ec_fase_met = $this->ecsFaseMetodologiaModel->asociarECSAFase($nuevo_id_ecs_catalogo, $id_fase_metodologia, "ECS personalizado para proyecto ID: " . $id_proyecto);
 
                 if ($id_ec_fase_met) {
-                    // 3. Crear la entrada en ECS_Proyecto
-                    // Usamos el método guardarSeleccionECS, pasándole solo este nuevo id_ec_fase_met
-                    // Primero obtenemos los ya seleccionados para no borrarlos
                     $ecs_actualmente_seleccionados = $this->ecsProyectoModel->obtenerIdsECSeleccionadosPorProyecto($id_proyecto);
                     $todos_los_seleccionados = array_merge($ecs_actualmente_seleccionados, [$id_ec_fase_met]);
                     $todos_los_seleccionados = array_unique($todos_los_seleccionados); // Evitar duplicados
@@ -357,7 +341,6 @@ class ProyectoControlador {
                         $_SESSION['status_message'] = ['type' => 'success', 'text' => 'ECS personalizado agregado y asociado al proyecto exitosamente.'];
                     } else {
                         $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ECS creado en catálogo, pero hubo un error al asociarlo al proyecto.'];
-                        // Aquí podrías considerar eliminar el ECS del catálogo si la asociación falla, o manejarlo de otra forma.
                     }
                 } else {
                     $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ECS creado en catálogo, pero hubo un error al crear la entrada de fase/metodología.'];
@@ -374,7 +357,6 @@ class ProyectoControlador {
     
     public function eliminarECSProyecto() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
 
         $id_ecs = filter_input(INPUT_GET, 'id_ecs', FILTER_VALIDATE_INT);
         $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT); 
@@ -393,10 +375,8 @@ class ProyectoControlador {
         exit;
     }
 
-    // --- Métodos para gestionar Actividades del Cronograma ---
     public function agregarActividadCronograma() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos (PO/JP del proyecto)
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_proyecto = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
@@ -407,7 +387,7 @@ class ProyectoControlador {
             $fecha_inicio_plan = $_POST['fecha_inicio_planificada'] ?? null;
             $fecha_fin_plan = $_POST['fecha_fin_planificada'] ?? null;
             $id_responsable = filter_input(INPUT_POST, 'id_responsable', FILTER_VALIDATE_INT);
-            $id_ecs_entregable = filter_input(INPUT_POST, 'id_ecs_entregable', FILTER_VALIDATE_INT); // Para asociar un ECS
+            $id_ecs_entregable = filter_input(INPUT_POST, 'id_ecs_entregable', FILTER_VALIDATE_INT);
 
             $formErrors = [];
             if (!$id_proyecto || !$id_cronograma) {
@@ -416,7 +396,6 @@ class ProyectoControlador {
             if (empty($nombre_actividad)) {
                 $formErrors['nombre_actividad'] = "El nombre de la actividad es obligatorio.";
             }
-            // Validar fechas
             if (!empty($fecha_inicio_plan) && !empty($fecha_fin_plan) && $fecha_fin_plan < $fecha_inicio_plan) {
                 $formErrors['fecha_fin_planificada'] = "La fecha de fin no puede ser anterior a la fecha de inicio.";
             }
@@ -435,7 +414,8 @@ class ProyectoControlador {
             $this->actividadModel->setFechaInicioPlanificada($fecha_inicio_plan ?: null);
             $this->actividadModel->setFechaFinPlanificada($fecha_fin_plan ?: null);
             $this->actividadModel->setIdResponsable($id_responsable ?: null);
-            // estado_actividad se puede poner por defecto en el modelo o aquí
+            $this->actividadModel->setIdEsc($id_ecs_entregable ?: null);
+
 
             $nueva_id_actividad = $this->actividadModel->crearActividad();
 
@@ -456,11 +436,9 @@ class ProyectoControlador {
 
     public function mostrarFormularioEditarActividad() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
-
         $id_actividad = filter_input(INPUT_GET, 'id_actividad', FILTER_VALIDATE_INT);
-        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT); // Para contexto y redirección
-        $cronograma = $this->cronogramaModel->obtenerCronogramaPorProyecto($id_proyecto); // Necesario para id_cronograma en el form
+        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
+        $cronograma = $this->cronogramaModel->obtenerCronogramaPorProyecto($id_proyecto);
 
 
         if (!$id_actividad || !$id_proyecto) {
@@ -469,8 +447,8 @@ class ProyectoControlador {
             exit;
         }
 
-        $actividad = $this->actividadModel->obtenerActividadPorId($id_actividad); // Necesitarás este método en ActividadCronogramaModel
-        $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto); // Para el nombre del proyecto y id_metodologia
+        $actividad = $this->actividadModel->obtenerActividadPorId($id_actividad);
+        $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
         $ecs_proyecto = $this->ecsProyectoModel->obtenerDetallesECSeleccionadosPorProyecto($id_proyecto);
         if (!$actividad || !$proyecto) {
             $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Actividad o proyecto no encontrado.'];
@@ -483,11 +461,10 @@ class ProyectoControlador {
         if (isset($proyecto['id_metodologia'])) {
             $fases_metodologia_cronograma = $this->faseMetodologiaModel->obtenerFasesPorMetodologia($proyecto['id_metodologia']);
         }
-        $usuarios_equipo = $this->equipoModel->obtenerMiembrosParaSelect($id_proyecto); // Necesitarás un método que devuelva id_usuario y nombre_completo de los miembros del proyecto
-        $ecs_proyecto = $this->ecsModel->obtenerECS_PorProyecto($id_proyecto); // Para el selector de ECS entregable
+        $usuarios_equipo = $this->equipoModel->obtenerMiembrosParaSelect($id_proyecto);
+        $ecs_proyecto = $this->ecsModel->obtenerECS_PorProyecto($id_proyecto);
 
-        // Obtener el ECS actualmente asociado a la actividad para preseleccionar
-        $entregable_actual = $this->entregableActividadModel->obtenerECSAsociadosAActividad($id_actividad); // Asume que este método devuelve un solo ECS o null
+        $entregable_actual = $this->entregableActividadModel->obtenerECSAsociadosAActividad($id_actividad);
         $actividad['id_ecs_entregable'] = $entregable_actual ? $entregable_actual['id_ecs'] : null;
 
 
@@ -498,16 +475,15 @@ class ProyectoControlador {
         $baseUrl = "/";
         $accion_form = "actualizarActividadCronograma";
         $titulo_form = "Editar Actividad del Cronograma";
-        require __DIR__ . '/../views/proyectos/crearEditarActividadVista.php'; // Necesitarás crear esta vista
+        require __DIR__ . '/../views/proyectos/crearEditarActividadVista.php';
     }
 
     public function actualizarActividadCronograma() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_actividad = filter_input(INPUT_POST, 'id_actividad', FILTER_VALIDATE_INT);
-            $id_proyecto = filter_input(INPUT_POST, 'id_proyecto_redirect', FILTER_VALIDATE_INT); // Para redirección
+            $id_proyecto = filter_input(INPUT_POST, 'id_proyecto_redirect', FILTER_VALIDATE_INT);
             $nombre_actividad = trim($_POST['nombre_actividad'] ?? '');
             $descripcion_actividad = trim($_POST['descripcion_actividad'] ?? '');
             $id_fase_metodologia = filter_input(INPUT_POST, 'id_fase_metodologia', FILTER_VALIDATE_INT);
@@ -542,7 +518,6 @@ class ProyectoControlador {
             }
 
             $this->actividadModel->setIdActividad($id_actividad);
-            // El id_cronograma se mantiene, no se actualiza directamente aquí
             $this->actividadModel->setNombreActividad($nombre_actividad);
             $this->actividadModel->setDescripcion($descripcion_actividad);
             $this->actividadModel->setIdFaseMetodologia($id_fase_metodologia ?: null);
@@ -553,19 +528,16 @@ class ProyectoControlador {
             $this->actividadModel->setFechaEntregaReal($fecha_entrega_real ?: null);
 
 
-            $resultado = $this->actividadModel->actualizarActividad(); // Necesitarás este método en ActividadCronogramaModel
+            $resultado = $this->actividadModel->actualizarActividad();
 
             if ($resultado) {
-                // Actualizar la asociación del ECS entregable
-                // Primero, desasociar el antiguo si existía y es diferente del nuevo
                 $entregable_actual = $this->entregableActividadModel->obtenerECSAsociadosAActividad($id_actividad);
                 if ($entregable_actual && $entregable_actual['id_ecs'] != $id_ecs_entregable_nuevo) {
                     $this->entregableActividadModel->desasociarECSDeActividad($id_actividad, $entregable_actual['id_ecs']);
                 }
-                // Asociar el nuevo si se seleccionó uno y es diferente (o no había antes)
                 if ($id_ecs_entregable_nuevo && $id_ecs_entregable_nuevo > 0 && (!$entregable_actual || $entregable_actual['id_ecs'] != $id_ecs_entregable_nuevo)) {
                     $this->entregableActividadModel->asociarECSAActividad($id_actividad, $id_ecs_entregable_nuevo);
-                } elseif (empty($id_ecs_entregable_nuevo) && $entregable_actual) { // Si se deseleccionó
+                } elseif (empty($id_ecs_entregable_nuevo) && $entregable_actual) {
                      $this->entregableActividadModel->desasociarECSDeActividad($id_actividad, $entregable_actual['id_ecs']);
                 }
 
@@ -576,7 +548,6 @@ class ProyectoControlador {
             header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto . "&tab=cronograma");
             exit;
         }
-        // Si no es POST, redirigir
         $id_proyecto_get = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT) ?? filter_input(INPUT_POST, 'id_proyecto_redirect', FILTER_VALIDATE_INT);
         header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=" . $id_proyecto_get . "&tab=cronograma");
         exit;
@@ -584,16 +555,14 @@ class ProyectoControlador {
     
     public function eliminarActividadCronograma() {
         if (session_status() === PHP_SESSION_NONE) { session_start(); }
-        // Verificar permisos
 
         $id_actividad = filter_input(INPUT_GET, 'id_actividad', FILTER_VALIDATE_INT);
-        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT); // Para la redirección
+        $id_proyecto = filter_input(INPUT_GET, 'id_proyecto', FILTER_VALIDATE_INT);
 
         if (!$id_actividad || !$id_proyecto) {
             $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de actividad o proyecto no válido.'];
         } else {
-            // Antes de eliminar, podrías desasociar ECS si es necesario o manejarlo con FK
-            $resultado = $this->actividadModel->eliminarActividad($id_actividad); // Necesitarás este método
+            $resultado = $this->actividadModel->eliminarActividad($id_actividad);
             if ($resultado) {
                 $_SESSION['status_message'] = ['type' => 'success', 'text' => 'Actividad eliminada exitosamente.'];
             } else {

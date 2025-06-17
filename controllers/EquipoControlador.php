@@ -47,7 +47,7 @@ public function asignarMiembro() {
         $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
         $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
         $usuarios = $this->equipoModel->obtenerUsuariosDisponibles();
-        $roles = $this->equipoModel->obtenerRolesProyecto();
+        $roles_proyecto = $this->equipoModel->obtenerRolesProyecto();
         $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
 
         $mensaje = $resultado
@@ -61,8 +61,8 @@ public function asignarMiembro() {
 }
 
     public function obtenerRoles() {
-        $roles = $this->equipoModel->obtenerRolesProyecto();
-        return ['status' => 'success', 'data' => $roles];
+        $roles_proyecto  = $this->equipoModel->obtenerRolesProyecto();
+        return ['status' => 'success', 'data' => $roles_proyecto ];
         require 'views/proyecto/gestionarEquipo.php';
     }
 
@@ -133,13 +133,14 @@ public function eliminarMiembro() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $idMiembro = $_POST['id_miembro'] ?? null;
         $idEquipo = $_POST['id_equipo'] ?? null;
+        $idProyecto = $_POST['id_proyecto'] ?? null;
 
         if ($idMiembro && $idEquipo) {
             $resultado = $this->equipoModel->eliminarMiembroDeEquipo($idMiembro, $idEquipo); // Método nuevo
 
             if ($resultado) {
-             
-                require_once __DIR__ . '/../view/planificarProyectoVista.php';
+                header('Location: index.php?c=Proyecto&a=planificar&id_proyecto=' . $idProyecto);
+                exit;
             } else {
                 echo "No se pudo eliminar al miembro del equipo.";
             }

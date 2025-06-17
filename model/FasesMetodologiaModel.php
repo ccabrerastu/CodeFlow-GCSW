@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/ElementoConfiguracionModel.php'; // Necesario para el JOIN
+require_once __DIR__ . '/ElementoConfiguracionModel.php';
 require_once __DIR__ . '/ECSFaseMetodologiaModel.php';
+
 class FasesMetodologiaModel {
     private $id_fase_metodologia;
     private $id_metodologia;
@@ -10,6 +11,7 @@ class FasesMetodologiaModel {
     private $orden;
 
     private $conexion;
+    private $ecsFaseModel;
 
     public function __construct() {
         try {
@@ -18,14 +20,14 @@ class FasesMetodologiaModel {
             if ($this->conexion === null) {
                 throw new Exception("La conexión a la base de datos no se pudo establecer en FaseMetodologiaModel.");
             }
-            //$this->ecsFaseModel = new ECSFaseMetodologiaModel();
+            $this->ecsFaseModel = new ECSFaseMetodologiaModel();
         } catch (Exception $e) {
             error_log("Error de conexión en FasesMetodologiaModel: " . $e->getMessage());
             die("Error de conexión a la base de datos. Por favor, contacte al administrador.");
         }
     }
 
-    // --- Getters y Setters (puedes añadirlos según necesidad) ---
+    // Setters y getters
     public function setIdFaseMetodologia($id) { $this->id_fase_metodologia = $id; }
     public function getIdFaseMetodologia() { return $this->id_fase_metodologia; }
     public function setIdMetodologia($id) { $this->id_metodologia = $id; }
@@ -36,8 +38,6 @@ class FasesMetodologiaModel {
     public function getDescripcion() { return $this->descripcion; }
     public function setOrden($orden) { $this->orden = $orden; }
     public function getOrden() { return $this->orden; }
-
-
 
     public function obtenerFasesPorMetodologia($id_metodologia) {
         if ($this->conexion === null) {
@@ -74,13 +74,14 @@ class FasesMetodologiaModel {
         return $fases;
     }
 
-
     public function crearFase() {
         if ($this->conexion === null) {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return false;
         }
-        $sql = "INSERT INTO FasesMetodologia (id_metodologia, nombre_fase, descripcion, orden) VALUES (?, ?, ?, ?)";
+
+        $sql = "INSERT INTO FasesMetodologia (id_metodologia, nombre_fase, descripcion, orden) 
+                VALUES (?, ?, ?, ?)";
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
@@ -106,51 +107,80 @@ class FasesMetodologiaModel {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return null;
         }
-        $sql = "SELECT id_fase_metodologia, id_metodologia, nombre_fase, descripcion, orden FROM FasesMetodologia WHERE id_fase_metodologia = ?";
+
+        $sql = "SELECT id_fase_metodologia, id_metodologia, nombre_fase, descripcion, orden 
+                FROM FasesMetodologia 
+                WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
+
         if (!$stmt) {
             error_log("Error en prepare obtenerFasePorId: " . $this->conexion->error);
             return null;
         }
+
         $stmt->bind_param("i", $id_fase);
         if (!$stmt->execute()) {
             error_log("Error en execute obtenerFasePorId: " . $stmt->error);
             $stmt->close();
             return null;
         }
+
         $resultado = $stmt->get_result();
         $fase = $resultado->fetch_assoc();
         $stmt->close();
         return $fase;
     }
+
     public function obtenerFasesConSusECS($id_metodologia) {
-    $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
-    $fasesConECS = [];
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECS = [];
 
-    // Instanciar directamente el modelo ECSFaseMetodologia
-    $ecsFaseModel = new ECSFaseMetodologiaModel();
+        $ecsFaseModel = new ECSFaseMetodologiaModel();
+        foreach ($fases as $fase) {
+            $fase['elementos'] = $ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
+            $fasesConECS[] = $fase;
+        }
 
-    foreach ($fases as $fase) {
-        $fase['elementos'] = $ecsFaseModel->obtenerECSPorFase($fase['id_fase_metodologia']);
-        $fasesConECS[] = $fase;
+        return $fasesConECS;
     }
 
-    return $fasesConECS;
-}
+    public function obtenerFasesConSusECSB($id_metodologia) {
+        $fases = $this->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesConECSB = [];
 
+        if ($this->ecsFaseModel === null) {
+            error_log("FasesMetodologiaModel::obtenerFasesConSusECSB - ECSFaseMetodologiaModel no fue instanciado.");
+            foreach ($fases as $fase) {
+                $fase['elementos'] = [];
+                $fasesConECSB[] = $fase;
+            }
+            return $fasesConECSB;
+        }
+
+        foreach ($fases as $fase) {
+            $fase['elementos'] = $this->ecsFaseModel->obtenerECSBasePorFase($fase['id_fase_metodologia']);
+            $fasesConECSB[] = $fase;
+        }
+
+        return $fasesConECSB;
+    }
 
     public function actualizarFase() {
         if ($this->conexion === null || $this->id_fase_metodologia === null) {
             error_log("FasesMetodologiaModel: No hay conexión o ID de fase no especificado para actualizar.");
             return false;
         }
-        $sql = "UPDATE FasesMetodologia SET nombre_fase = ?, descripcion = ?, orden = ? WHERE id_fase_metodologia = ?";
+
+        $sql = "UPDATE FasesMetodologia 
+                SET nombre_fase = ?, descripcion = ?, orden = ? 
+                WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
 
         if ($stmt === false) {
             error_log("Error en la preparación de la consulta (actualizarFase): " . $this->conexion->error);
             return false;
         }
+
         $stmt->bind_param("ssii", $this->nombre_fase, $this->descripcion, $this->orden, $this->id_fase_metodologia);
         $success = $stmt->execute();
         if (!$success) {
@@ -165,6 +195,7 @@ class FasesMetodologiaModel {
             error_log("FasesMetodologiaModel: No hay conexión a la base de datos.");
             return false;
         }
+
         $sql = "DELETE FROM FasesMetodologia WHERE id_fase_metodologia = ?";
         $stmt = $this->conexion->prepare($sql);
 

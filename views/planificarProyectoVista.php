@@ -1,25 +1,4 @@
 <?php
-// --- INICIO DEL ARCHIVO planificarProyectoVista.php ---
-// Variables esperadas del ProyectoControlador@planificar:
-// $baseUrl (string)
-// $proyecto (array, datos del proyecto actual)
-// $metodologias (array, lista de todas las metodologías)
-// $usuarios (array, lista de todos los usuarios para selectores)
-// $roles_proyecto (array, lista de roles disponibles para asignar en el proyecto)
-// $equipo (array, datos del equipo del proyecto)
-// $miembros_equipo (array, lista de miembros del equipo con id_miembro_equipo, id_usuario, nombre_completo, id_rol_proyecto, nombre_rol_proyecto)
-// $cronograma (array, datos del cronograma del proyecto, puede ser null)
-// $actividades (array, lista de actividades del cronograma)
-// $fases_metodologia (array, lista de fases de la metodología del proyecto)
-// $fases_con_ecs_plantilla (array, para la pestaña ECS)
-// $ecs_seleccionados_ids (array, para la pestaña ECS)
-// $ecs_del_proyecto_detallados (array, para la pestaña ECS)
-// $statusMessage (array)
-// $formDataEquipo, $formErrorsEquipo
-// $formDataECS, $formErrorsECS
-// $formDataActividad, $formErrorsActividad
-
-// Cargar el header
 include __DIR__ . '/partials/header.php';
 
 $id_proyecto_actual = $proyecto['id_proyecto'] ?? null;
@@ -33,6 +12,42 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
+        .tab-button {
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.tab-button:hover {
+    color: #1e40af;
+    border-color: #d1d5db;
+}
+.tab-button.active {
+    color: #1d4ed8;
+    border-color: #1d4ed8;
+    font-weight: 600;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.status-message {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+.status-message.success {
+    background-color: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+.status-message.error {
+    background-color: #fef2f2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
         body { font-family: sans-serif; }
         .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .section-title { font-size: 1.5em; font-weight: bold; color: #333; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #4A90E2; }
@@ -65,18 +80,23 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     </style>
 </head>
 <body class="bg-gray-100">
-    <?php include __DIR__ . '/partials/header.php'; ?>
 
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">
-                Planificación del Proyecto: <span class="text-blue-600"><?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?></span>
-            </h1>
-            <a href="index.php?c=Proyecto&a=index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left mr-1"></i> Volver a Proyectos
-            </a>
-        </div>
+      <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+        <!-- Título y botón de regreso -->
+        <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 tracking-wide font-sans leading-relaxed">
+    <span class="block md:inline text-gray-500 ">Planificación del Proyecto:</span>
+    <span class="block md:inline text-blue-500 font-medium not-italic">
+        <?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?>
+    </span>
+</h1>
 
+    <a href="index.php?c=Proyecto&a=index"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:text-blue-600 shadow-sm transition">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Proyectos
+    </a>
+</div>
         <?php if (isset($statusMessage) && $statusMessage): ?>
             <div class="status-message <?= htmlspecialchars($statusMessage['type']) === 'success' ? 'success' : 'error' ?>">
                 <?= htmlspecialchars($statusMessage['text']) ?>
@@ -84,7 +104,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         <?php endif; ?>
 
         <div class="mb-4 border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <nav class="-mb-px flex space-x-8 text-sm font-medium text-gray-500" aria-label="Tabs">
                 <button onclick="openTab(event, 'general')" class="tab-button" data-tab-target="general">General</button>
                 <button onclick="openTab(event, 'equipo')" class="tab-button" data-tab-target="equipo">Equipo</button>
                 <button onclick="openTab(event, 'cronograma')" class="tab-button" data-tab-target="cronograma">Cronograma</button>
@@ -209,7 +229,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
                     <label for="modal_id_ecs_entregable" class="form-label">ECS Entregable Principal:</label>
                     <select name="id_ecs_entregable" id="modal_id_ecs_entregable" class="form-select">
                         <option value="">-- Ninguno --</option>
-                        <?php if (!empty($ecs_del_proyecto_detallados)): // Usar la lista de ECS del proyecto (ya seleccionados o personalizados) ?>
+                        <?php if (!empty($ecs_del_proyecto_detallados)): ?>
                             <?php foreach ($ecs_del_proyecto_detallados as $ecs_item): ?>
                                 <option value="<?= htmlspecialchars($ecs_item['id_ecs']) ?>">
                                     <?= htmlspecialchars($ecs_item['nombre_ecs']) ?> (ID: <?= htmlspecialchars($ecs_item['id_ecs']) ?>)
@@ -240,7 +260,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         tablinks = document.getElementsByClassName("tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].classList.remove("active");
-            // Asegurarse que solo el botón clickeado tenga 'active'
             if (tablinks[i] === event.currentTarget) {
                 tablinks[i].classList.add("active");
             }
@@ -248,8 +267,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         document.getElementById(tabName).style.display = "block";
         document.getElementById(tabName).classList.add("active");
         
-        // Guardar la pestaña activa en localStorage, usando el ID del proyecto para hacerlo específico
-        if (typeof projectId !== 'undefined' && projectId) { // projectId debe estar definido globalmente en el script o pasado
+        if (typeof projectId !== 'undefined' && projectId) {
             localStorage.setItem('activeProjectPlanTab_' + projectId, tabName);
         } else {
             localStorage.setItem('activeProjectPlanTab_default', tabName);
@@ -257,7 +275,7 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const projectIdForTab = '<?= $id_proyecto_actual ?? 'default' ?>'; // Usar el ID del proyecto actual
+        const projectIdForTab = '<?= $id_proyecto_actual ?? 'default' ?>';
         const urlParams = new URLSearchParams(window.location.search);
         let activeTab = urlParams.get('tab');
         
@@ -268,12 +286,9 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         const tabButtonToActivate = document.querySelector(`.tab-button[data-tab-target='${activeTab}']`);
         
         if (tabButtonToActivate) {
-            // Simulamos un evento click para que la lógica de openTab se ejecute correctamente
-            // incluyendo el event.currentTarget para marcar el botón como activo
             const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
             tabButtonToActivate.dispatchEvent(clickEvent);
         } else {
-            // Fallback a la primera pestaña si la guardada no existe o no se encuentra
             const firstTabButton = document.querySelector('.tab-button[data-tab-target="general"]');
             if (firstTabButton) {
                const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
@@ -286,7 +301,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
         const modal = document.getElementById('modalEditarRol');
         if (modal) {
             modal.classList.remove('hidden');
-            // Asegúrate de que los elementos existan antes de intentar acceder a sus propiedades
             const nombreMiembroModalEl = document.getElementById('nombreMiembroModal');
             const modalIdMiembroEquipoRolEl = document.getElementById('modal_id_miembro_equipo_rol');
             const modalIdRolProyectoEl = document.getElementById('modal_id_rol_proyecto');
@@ -309,13 +323,13 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
     const modalEditarRolElement = document.getElementById('modalEditarRol');
     if (modalEditarRolElement) {
         modalEditarRolElement.addEventListener('click', function(e) {
-            if (e.target === this) { // Si se hace clic en el fondo del modal
+            if (e.target === this) {
                 cerrarModalEditarRol();
             }
         });
     }
 
-    function abrirModalEditarActividad(actividad) { // actividad es un objeto JS
+    function abrirModalEditarActividad(actividad) {
         const modal = document.getElementById('modalEditarActividad');
         if (modal) {
             modal.classList.remove('hidden');
@@ -331,8 +345,6 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
             document.getElementById('modal_estado_actividad').value = actividad.estado_actividad || 'Pendiente';
             document.getElementById('modal_id_cronograma').value = actividad.id_cronograma || '<?= htmlspecialchars($id_cronograma_actual ?? '') ?>';
             
-            // Preseleccionar el ECS entregable
-            // Asumimos que el objeto 'actividad' pasado a esta función ya tiene 'id_ecs_entregable'
             document.getElementById('modal_id_ecs_entregable').value = actividad.id_ecs_entregable || ''; 
         } else {
             console.error("Modal con ID 'modalEditarActividad' no encontrado.");
@@ -353,6 +365,32 @@ $id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
             }
         });
     }
+
+    const showBtn = document.getElementById('show-custom-ecs-form-btn');
+    const hideBtn = document.getElementById('hide-custom-ecs-form-btn');
+    const formContainer = document.getElementById('custom-ecs-form-container');
+
+    if (showBtn && hideBtn && formContainer) {
+        showBtn.addEventListener('click', () => {
+            formContainer.classList.remove('hidden');
+            showBtn.classList.add('hidden');
+        });
+
+        hideBtn.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            showBtn.classList.remove('hidden');
+        });
+    }
+
+    <?php if (!empty($formErrorsECS)): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (showBtn) {
+                showBtn.click();
+            }
+        });
+    <?php endif; ?>
+
+
 </script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
