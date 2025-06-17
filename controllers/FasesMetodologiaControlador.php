@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../model/FasesMetodologiaModel.php';
 require_once __DIR__ . '/../model/MetodologiaModel.php';
 
@@ -37,10 +38,13 @@ class FasesMetodologiaControlador {
         }
 
         $fases = $this->fasesMetodologiaModel->obtenerFasesPorMetodologia($id_metodologia);
+        $fasesecs = $this->fasesMetodologiaModel->obtenerFasesConSusECS($id_metodologia);
+        
+        $fasesecsB = $this->fasesMetodologiaModel->obtenerFasesConSusECSB($id_metodologia);
         $statusMessage = $_SESSION['status_message'] ?? null;
         unset($_SESSION['status_message']);
 
-        $baseUrl = "/"; 
+        $baseUrl = "/";
 
         require __DIR__ . '/../views/gestionarFasesVista.php';
     }
@@ -160,7 +164,7 @@ class FasesMetodologiaControlador {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_fase = filter_input(INPUT_POST, 'id_fase_metodologia', FILTER_VALIDATE_INT);
-            $id_metodologia = filter_input(INPUT_POST, 'id_metodologia', FILTER_VALIDATE_INT); // Para la redirección
+            $id_metodologia = filter_input(INPUT_POST, 'id_metodologia', FILTER_VALIDATE_INT);
             $nombre_fase = trim($_POST['nombre_fase'] ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
             $orden = filter_input(INPUT_POST, 'orden', FILTER_VALIDATE_INT);
@@ -213,7 +217,7 @@ class FasesMetodologiaControlador {
 
 
         $id_fase = filter_input(INPUT_GET, 'id_fase', FILTER_VALIDATE_INT);
-        $id_metodologia = filter_input(INPUT_GET, 'id_metodologia', FILTER_VALIDATE_INT); // Para redirigir correctamente
+        $id_metodologia = filter_input(INPUT_GET, 'id_metodologia', FILTER_VALIDATE_INT);
 
         if (!$id_fase || !$id_metodologia) {
             $_SESSION['status_message'] = ['type' => 'error', 'text' => 'ID de fase o metodología no válido.'];

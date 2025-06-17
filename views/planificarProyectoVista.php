@@ -1,3 +1,9 @@
+<?php
+include __DIR__ . '/partials/header.php';
+
+$id_proyecto_actual = $proyecto['id_proyecto'] ?? null;
+$id_cronograma_actual = $cronograma['id_cronograma'] ?? null;
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +12,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
+        .tab-button {
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.tab-button:hover {
+    color: #1e40af;
+    border-color: #d1d5db;
+}
+.tab-button.active {
+    color: #1d4ed8;
+    border-color: #1d4ed8;
+    font-weight: 600;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.status-message {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+.status-message.success {
+    background-color: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+}
+.status-message.error {
+    background-color: #fef2f2;
+    border: 1px solid #ef4444;
+    color: #991b1b;
+}
         body { font-family: sans-serif; }
         .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .section-title { font-size: 1.5em; font-weight: bold; color: #333; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #4A90E2; }
@@ -16,295 +58,198 @@
         .btn-primary:hover { background-color: #357ABD; }
         .btn-secondary { background-color: #6c757d; color: white; border:none; }
         .btn-secondary:hover { background-color: #5a6268; }
-        .tab-button { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .btn-edit { background-color: #F5A623; color: white; }
+        .btn-edit:hover { background-color: #D9931F; }
+        .btn-delete { background-color: #D0021B; color: white; }
+        .btn-delete:hover { background-color: #B00216; }
+        .status-message { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .status-message.success { background-color: #e6fffa; border: 1px solid #38a169; color: #2f855a; }
+        .status-message.error { background-color: #fed7d7; border: 1px solid #e53e3e; color: #c53030; }
+        .tab-button { padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s ease; }
         .tab-button.active { border-bottom-color: #4A90E2; color: #4A90E2; font-weight: bold; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-button:hover { border-bottom-color: #a0aec0; }
+        .tab-content { display: none; padding-top: 1rem; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .error-message { color: #D0021B; font-size: 0.875em; margin-top: 2px; margin-bottom: 10px; }
+        @keyframes fadeIn {
+          from {opacity: 0; transform: translateY(-10px);}
+          to {opacity: 1; transform: translateY(0);}
+        }
     </style>
 </head>
 <body class="bg-gray-100">
-    <?php include __DIR__ . '/partials/header.php'; ?>
 
-    <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-700">
-                Planificación del Proyecto: <span class="text-blue-600"><?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?></span>
-            </h1>
-            <a href="index.php?c=Proyecto&a=index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left mr-1"></i> Volver a Proyectos
-            </a>
-        </div>
+      <div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+        <!-- Título y botón de regreso -->
+        <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+    <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 tracking-wide font-sans leading-relaxed">
+    <span class="block md:inline text-gray-500 ">Planificación del Proyecto:</span>
+    <span class="block md:inline text-blue-500 font-medium not-italic">
+        <?= htmlspecialchars($proyecto['nombre_proyecto'] ?? 'Desconocido') ?>
+    </span>
+</h1>
 
+    <a href="index.php?c=Proyecto&a=index"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:text-blue-600 shadow-sm transition">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Proyectos
+    </a>
+</div>
         <?php if (isset($statusMessage) && $statusMessage): ?>
-            <div class="p-3 mb-4 text-sm <?= $statusMessage['type'] === 'success' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100' ?> rounded-lg" role="alert">
+            <div class="status-message <?= htmlspecialchars($statusMessage['type']) === 'success' ? 'success' : 'error' ?>">
                 <?= htmlspecialchars($statusMessage['text']) ?>
             </div>
         <?php endif; ?>
 
         <div class="mb-4 border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button onclick="openTab(event, 'general')" class="tab-button active">General</button>
-                <button onclick="openTab(event, 'equipo')" class="tab-button">Equipo</button>
-                <button onclick="openTab(event, 'cronograma')" class="tab-button">Cronograma</button>
-                <button onclick="openTab(event, 'ecs')" class="tab-button">ECS</button>
+            <nav class="-mb-px flex space-x-8 text-sm font-medium text-gray-500" aria-label="Tabs">
+                <button onclick="openTab(event, 'general')" class="tab-button" data-tab-target="general">General</button>
+                <button onclick="openTab(event, 'equipo')" class="tab-button" data-tab-target="equipo">Equipo</button>
+                <button onclick="openTab(event, 'cronograma')" class="tab-button" data-tab-target="cronograma">Cronograma</button>
+                <button onclick="openTab(event, 'ecs')" class="tab-button" data-tab-target="ecs">ECS</button>
             </nav>
         </div>
 
-        <div id="general" class="tab-content active">
-            <h2 class="section-title">Información General del Proyecto</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <p class="detail-item"><span class="detail-label">ID Proyecto:</span> <?= htmlspecialchars($proyecto['id_proyecto']) ?></p>
-                    <p class="detail-item"><span class="detail-label">Nombre:</span> <?= htmlspecialchars($proyecto['nombre_proyecto']) ?></p>
-                    <p class="detail-item"><span class="detail-label">Descripción:</span> <?= nl2br(htmlspecialchars($proyecto['descripcion'] ?? 'N/A')) ?></p>
-                </div>
-                <div>
-                    <p class="detail-item"><span class="detail-label">Metodología:</span> <?= htmlspecialchars($proyecto['nombre_metodologia'] ?? 'No asignada') ?></p>
-                    <p class="detail-item"><span class="detail-label">Product Owner:</span> <?= htmlspecialchars($proyecto['nombre_product_owner'] ?? 'No asignado') ?></p>
-                    <p class="detail-item"><span class="detail-label">Fecha Inicio Planificada:</span> <?= htmlspecialchars($proyecto['fecha_inicio_planificada'] ? date('d/m/Y', strtotime($proyecto['fecha_inicio_planificada'])) : 'N/A') ?></p>
-                    <p class="detail-item"><span class="detail-label">Fecha Fin Planificada:</span> <?= htmlspecialchars($proyecto['fecha_fin_planificada'] ? date('d/m/Y', strtotime($proyecto['fecha_fin_planificada'])) : 'N/A') ?></p>
-                    <p class="detail-item"><span class="detail-label">Estado:</span> <?= htmlspecialchars($proyecto['estado_proyecto']) ?></p>
-                </div>
-            </div>
-            <div class="mt-6">
-                <a href="index.php?c=Proyecto&a=mostrarFormularioProyecto&id_proyecto=<?= $proyecto['id_proyecto'] ?>" class="btn btn-primary">
-                    <i class="fas fa-edit mr-1"></i> Editar Datos Generales
-                </a>
-            </div>
-        </br>
+        <div id="general" class="tab-content">
+            <?php include __DIR__ . '/proyecto/visualizarInformacionVista.php'; ?>
         </div>
 
-<div id="equipo" class="tab-content mt-6">
-    <h2 class="section-title">Equipo del Proyecto</h2>
-<?php if (!empty($equipo['nombre_equipo'])): ?>
-    <div class="mb-4">
-        <p class="text-sm font-medium text-gray-700">Nombre del Equipo:</p>
-        <p class="mt-1 text-lg font-semibold text-blue-600"><?= htmlspecialchars($equipo['nombre_equipo']) ?></p>
-    </div>
-<?php else: ?>
-    <form action="index.php?c=Equipo&a=guardarEquipo" method="POST" class="mb-6">
-        <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Nombre del Equipo:</label>
-            <input type="text" name="nombre_equipo" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+        <div id="equipo" class="tab-content mt-6">
+            <?php include __DIR__ . '/proyecto/gestionarEquipoVista.php'; ?>
         </div>
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save mr-1"></i> Guardar Nombre del Equipo
-        </button>
-    </form>
-<?php endif; ?>
 
-    <!-- Asignar miembros al equipo -->
-    <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>
-    <?php if (isset($mensaje)): ?>
-    <div class="<?= $mensaje['tipo'] === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' ?> border px-4 py-3 rounded mb-4">
-        <strong><?= ucfirst($mensaje['tipo']) ?>:</strong> <?= $mensaje['texto'] ?>
-    </div>
-<?php endif; ?>
-
-    <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="mb-6">
-        <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
-    <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Seleccionar Miembro:</label>
-                <select name="id_usuario" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                    <option value="">-- Seleccionar usuario --</option>
-                    <?php foreach ($usuarios as $usuario): ?>
-                        <option value="<?= $usuario['id_usuario'] ?>"><?= htmlspecialchars($usuario['nombre_completo']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Rol en el Proyecto:</label>
-                <select name="id_rol_proyecto" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                    <option value="">-- Seleccionar rol --</option>
-                    <?php foreach ($roles as $rol): ?>
-                        <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary mt-4">
-            <i class="fas fa-user-plus mr-1"></i> Asignar Miembro
-        </button>
-    </form>
-<?php if (!empty($miembros_equipo)): ?>
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Miembros Asignados</h3>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-            <thead class="bg-gray-100 border-b border-gray-300">
-                <tr>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Nombre Completo</th>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Rol</th>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($miembros_equipo as $miembro): ?>
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
-                        <td class="px-4 py-2 font-semibold text-blue-600"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
-                        <td class="px-4 py-2 space-x-2">
-                        <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
-                            <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
-                            <button type="button" 
-                            onclick="abrirModal('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
-                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                            ✏️ Modificar Rol
-                            </button>
-
-                        </form>
-                        <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
-                        <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
-                        <button type="submit" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                        🗑️ Eliminar
-                        </button>
-                        </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-<?php else: ?>
-    <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
-<?php endif; ?>
-
-</div>
         <div id="cronograma" class="tab-content mt-6">
-        
+            <?php include __DIR__ . '/proyecto/gestionarCronogramaVista.php'; ?>
         </div>
-     <div id="ecs" class="tab-content mt-8 max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-blue-100" data-id-proyecto="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-    <?php if (!empty($fases)): ?>
-        <h2 class="text-3xl md:text-4xl font-bold text-blue-700 mb-10 border-b pb-4 border-blue-200">
-            Metodología: <span class="text-gray-800"><?= htmlspecialchars($proyecto['nombre_metodologia']) ?></span>
-        </h2>
 
-        <div class="space-y-8">
-            <?php foreach ($fases as $fase): ?>
-                <section class="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm">
-                    <h3 class="text-2xl font-semibold text-blue-600 mb-4 flex items-center gap-2">
-                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m2 0a8 8 0 11-16 0 8 8 0 0116 0z" />
-                        </svg>
-                        <?= htmlspecialchars($fase['nombre_fase']) ?>
-                    </h3>
-                 
+        <div id="ecs" class="tab-content mt-6">
+            <?php include __DIR__ . '/proyecto/gestionarEcsVista.php'; ?>
+        </div>
 
-                    <?php if (!empty($fase['elementos'])): ?>
-                        <ul class="space-y-3 ml-2">
-                            <?php foreach ($fase['elementos'] as $elemento): ?>
-                                <li>
-                                    <label class="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-all">
-                                        <input 
-                                            type="checkbox" 
-                                            name="elementos_seleccionados[]" 
-                                            value="<?= htmlspecialchars($elemento['id']) ?>"
-                                            class="accent-blue-500 w-5 h-5 transition"
-                                        >
-                                        <span class="text-base"><?= htmlspecialchars($elemento['nombre']) ?></span>
-                                    </label>
-                                </li>
+    </div> <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Editar Rol del Miembro: <span id="nombreMiembroModal"></span></h2>
+                <button onclick="cerrarModalEditarRol()" class="text-gray-600 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRolMiembro">
+                <input type="hidden" name="id_miembro_equipo" id="modal_id_miembro_equipo_rol">
+                <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($id_proyecto_actual) ?>">
+                <div class="mb-4">
+                    <label for="modal_id_rol_proyecto" class="form-label">Seleccionar nuevo rol:</label>
+                    <select name="id_rol_proyecto" id="modal_id_rol_proyecto" class="form-input mt-1 block w-full" required>
+                        <option value="">-- Seleccionar rol --</option>
+                        <?php if (!empty($roles_proyecto)): ?>
+                            <?php foreach ($roles_proyecto as $rol_item): ?>
+                                <option value="<?= $rol_item['id_rol'] ?>"><?= htmlspecialchars($rol_item['nombre_rol']) ?></option>
                             <?php endforeach; ?>
-                        </ul>
-                    <?php else: ?>
-                        <p class="italic text-gray-500 mt-2">No hay elementos de configuración para esta fase.</p>
-                    <?php endif; ?>
-                </section>
-            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="cerrarModalEditarRol()" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
-
-    <?php else: ?>
-        <p class="text-center text-gray-500 italic">No hay fases para este proyecto.</p>
-    <?php endif; ?>
-        <div class="mt-10 text-right">
-        <button 
-            type="submit" 
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
-        >
-            Agregar elementos
-        </button>
     </div>
-</div>
 
+    <div id="modalEditarActividad" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Editar Actividad: <span id="nombreActividadModal"></span></h2>
+                <button onclick="cerrarModalEditarActividad()" class="text-gray-600 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="formEditarActividad" method="POST" action="index.php?c=Proyecto&a=actualizarActividadCronograma">
+                <input type="hidden" name="id_actividad" id="modal_id_actividad">
+                <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($id_proyecto_actual) ?>">
+                <input type="hidden" name="id_cronograma" id="modal_id_cronograma" value="<?= htmlspecialchars($id_cronograma_actual) ?>">
 
-<!-- Modal Editar Rol -->
-<!-- Modal Editar Rol -->
-<div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-center justify-center px-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
-        <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-            <h2 class="text-xl font-semibold text-gray-800">
-                Editar Rol del Miembro: <span id="nombreMiembroModal" class="text-indigo-600"></span>
-            </h2>
-            <button onclick="cerrarModal()" class="text-gray-400 hover:text-gray-600 transition text-3xl font-bold leading-none">&times;</button>
+                <div class="mb-4">
+                    <label for="modal_nombre_actividad" class="form-label">Nombre de la Actividad:</label>
+                    <input type="text" name="nombre_actividad" id="modal_nombre_actividad" class="form-input" required>
+                </div>
+                <div class="mb-4">
+                    <label for="modal_descripcion_actividad" class="form-label">Descripción:</label>
+                    <textarea name="descripcion_actividad" id="modal_descripcion_actividad" rows="2" class="form-textarea"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="modal_id_fase_metodologia" class="form-label">Fase:</label>
+                        <select name="id_fase_metodologia" id="modal_id_fase_metodologia" class="form-select">
+                            <option value="">-- Ninguna --</option>
+                            <?php if (!empty($fases_metodologia)): ?>
+                                <?php foreach ($fases_metodologia as $fase_met): ?>
+                                    <option value="<?= htmlspecialchars($fase_met['id_fase_metodologia']) ?>"><?= htmlspecialchars($fase_met['nombre_fase']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="modal_id_responsable" class="form-label">Responsable:</label>
+                        <select name="id_responsable" id="modal_id_responsable" class="form-select">
+                            <option value="">-- Ninguno --</option>
+                            <?php if (!empty($miembros_equipo)): ?>
+                                <?php foreach ($miembros_equipo as $miembro): ?>
+                                    <option value="<?= htmlspecialchars($miembro['id_usuario']) ?>"><?= htmlspecialchars($miembro['nombre_completo']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="modal_fecha_inicio_planificada" class="form-label">Fecha Inicio Plan.:</label>
+                        <input type="date" name="fecha_inicio_planificada" id="modal_fecha_inicio_planificada" class="form-input">
+                    </div>
+                    <div>
+                        <label for="modal_fecha_fin_planificada" class="form-label">Fecha Fin Plan.:</label>
+                        <input type="date" name="fecha_fin_planificada" id="modal_fecha_fin_planificada" class="form-input">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="modal_fecha_entrega_real" class="form-label">Fecha Entrega Real:</label>
+                        <input type="date" name="fecha_entrega_real" id="modal_fecha_entrega_real" class="form-input">
+                    </div>
+                    <div>
+                        <label for="modal_estado_actividad" class="form-label">Estado:</label>
+                        <select name="estado_actividad" id="modal_estado_actividad" class="form-select" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Progreso">En Progreso</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Atrasada">Atrasada</option>
+                            <option value="Bloqueada">Bloqueada</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="modal_id_ecs_entregable" class="form-label">ECS Entregable Principal:</label>
+                    <select name="id_ecs_entregable" id="modal_id_ecs_entregable" class="form-select">
+                        <option value="">-- Ninguno --</option>
+                        <?php if (!empty($ecs_del_proyecto_detallados)): ?>
+                            <?php foreach ($ecs_del_proyecto_detallados as $ecs_item): ?>
+                                <option value="<?= htmlspecialchars($ecs_item['id_ecs']) ?>">
+                                    <?= htmlspecialchars($ecs_item['nombre_ecs']) ?> (ID: <?= htmlspecialchars($ecs_item['id_ecs']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                             <option value="" disabled>No hay ECS definidos/seleccionados para este proyecto.</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="cerrarModalEditarActividad()" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
-        <form id="formEditarRol" method="POST" action="index.php?c=Equipo&a=modificarRol" class="px-6 py-6">
-            <input type="hidden" name="id_miembro_equipo" id="modal_id_miembro_equipo_rol">
-            <input type="hidden" name="id_proyecto_redirect" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-            <div class="mb-5">
-                <label for="modal_id_rol_proyecto" class="block mb-2 text-sm font-medium text-gray-700">Seleccionar nuevo rol:</label>
-                <select name="id_rol_proyecto" id="modal_id_rol_proyecto" required
-                    class="w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
-                    <option value="">-- Seleccionar rol --</option>
-                    <?php if (!empty($roles)): ?>
-                        <?php foreach ($roles as $rol): ?>
-                            <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="cerrarModal()" 
-                    class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
-                    Cancelar
-                </button>
-                <button type="submit" 
-                    class="px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">
-                    Guardar Cambios
-                </button>
-            </div>
-        </form>
     </div>
-</div>
-<style>
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(-10px);}
-  to {opacity: 1; transform: translateY(0);}
-}
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease forwards;
-}
-</style>
-
 
 <script>
-    // Función para abrir el modal y rellenar datos
-    function abrirModal(id_miembro_equipo, id_rol, nombre_miembro) {
-        const modal = document.getElementById('modalEditarRol');
-        modal.classList.remove('hidden');
-
-        document.getElementById('modal_id_miembro_equipo_rol').value = id_miembro_equipo;
-        document.getElementById('modal_id_rol_proyecto').value = id_rol;
-        document.getElementById('nombreMiembroModal').textContent = nombre_miembro;
-    }
-
-    // Función para cerrar el modal
-    function cerrarModal() {
-        const modal = document.getElementById('modalEditarRol');
-        modal.classList.add('hidden');
-    }
-
-    // Cerrar modal haciendo click fuera del contenido
-    document.getElementById('modalEditarRol').addEventListener('click', function(e) {
-        if (e.target === this) {
-            cerrarModal();
-        }
-    });
-
-    // Funciones de pestañas (tab)
     function openTab(event, tabName) {
         let i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-content");
@@ -315,28 +260,139 @@
         tablinks = document.getElementsByClassName("tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].classList.remove("active");
+            if (tablinks[i] === event.currentTarget) {
+                tablinks[i].classList.add("active");
+            }
         }
         document.getElementById(tabName).style.display = "block";
         document.getElementById(tabName).classList.add("active");
-        event.currentTarget.classList.add("active");
+        
+        if (typeof projectId !== 'undefined' && projectId) {
+            localStorage.setItem('activeProjectPlanTab_' + projectId, tabName);
+        } else {
+            localStorage.setItem('activeProjectPlanTab_default', tabName);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const firstTab = document.querySelector('.tab-button');
-        if (firstTab) {
-            firstTab.click();
+        const projectIdForTab = '<?= $id_proyecto_actual ?? 'default' ?>';
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeTab = urlParams.get('tab');
+        
+        if (!activeTab) { 
+            activeTab = localStorage.getItem('activeProjectPlanTab_' + projectIdForTab) || 'general';
+        }
+
+        const tabButtonToActivate = document.querySelector(`.tab-button[data-tab-target='${activeTab}']`);
+        
+        if (tabButtonToActivate) {
+            const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+            tabButtonToActivate.dispatchEvent(clickEvent);
+        } else {
+            const firstTabButton = document.querySelector('.tab-button[data-tab-target="general"]');
+            if (firstTabButton) {
+               const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+                firstTabButton.dispatchEvent(clickEvent);
+            }
         }
     });
+
+    function abrirModalEditarRol(id_miembro_equipo, id_rol_actual, nombre_miembro) {
+        const modal = document.getElementById('modalEditarRol');
+        if (modal) {
+            modal.classList.remove('hidden');
+            const nombreMiembroModalEl = document.getElementById('nombreMiembroModal');
+            const modalIdMiembroEquipoRolEl = document.getElementById('modal_id_miembro_equipo_rol');
+            const modalIdRolProyectoEl = document.getElementById('modal_id_rol_proyecto');
+
+            if (nombreMiembroModalEl) nombreMiembroModalEl.textContent = nombre_miembro;
+            if (modalIdMiembroEquipoRolEl) modalIdMiembroEquipoRolEl.value = id_miembro_equipo;
+            if (modalIdRolProyectoEl) modalIdRolProyectoEl.value = id_rol_actual;
+        } else {
+            console.error("Modal con ID 'modalEditarRol' no encontrado.");
+        }
+    }
+
+    function cerrarModalEditarRol() {
+        const modal = document.getElementById('modalEditarRol');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+    
+    const modalEditarRolElement = document.getElementById('modalEditarRol');
+    if (modalEditarRolElement) {
+        modalEditarRolElement.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalEditarRol();
+            }
+        });
+    }
+
+    function abrirModalEditarActividad(actividad) {
+        const modal = document.getElementById('modalEditarActividad');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.getElementById('nombreActividadModal').textContent = actividad.nombre_actividad;
+            document.getElementById('modal_id_actividad').value = actividad.id_actividad;
+            document.getElementById('modal_nombre_actividad').value = actividad.nombre_actividad;
+            document.getElementById('modal_descripcion_actividad').value = actividad.descripcion || '';
+            document.getElementById('modal_id_fase_metodologia').value = actividad.id_fase_metodologia || '';
+            document.getElementById('modal_id_responsable').value = actividad.id_responsable || '';
+            document.getElementById('modal_fecha_inicio_planificada').value = actividad.fecha_inicio_planificada || '';
+            document.getElementById('modal_fecha_fin_planificada').value = actividad.fecha_fin_planificada || '';
+            document.getElementById('modal_fecha_entrega_real').value = actividad.fecha_entrega_real || '';
+            document.getElementById('modal_estado_actividad').value = actividad.estado_actividad || 'Pendiente';
+            document.getElementById('modal_id_cronograma').value = actividad.id_cronograma || '<?= htmlspecialchars($id_cronograma_actual ?? '') ?>';
+            
+            document.getElementById('modal_id_ecs_entregable').value = actividad.id_ecs_entregable || ''; 
+        } else {
+            console.error("Modal con ID 'modalEditarActividad' no encontrado.");
+        }
+    }
+
+    function cerrarModalEditarActividad() {
+        const modal = document.getElementById('modalEditarActividad');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+    const modalEditarActividadElement = document.getElementById('modalEditarActividad');
+    if(modalEditarActividadElement) {
+        modalEditarActividadElement.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalEditarActividad();
+            }
+        });
+    }
+
+    const showBtn = document.getElementById('show-custom-ecs-form-btn');
+    const hideBtn = document.getElementById('hide-custom-ecs-form-btn');
+    const formContainer = document.getElementById('custom-ecs-form-container');
+
+    if (showBtn && hideBtn && formContainer) {
+        showBtn.addEventListener('click', () => {
+            formContainer.classList.remove('hidden');
+            showBtn.classList.add('hidden');
+        });
+
+        hideBtn.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            showBtn.classList.remove('hidden');
+        });
+    }
+
+    <?php if (!empty($formErrorsECS)): ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (showBtn) {
+                showBtn.click();
+            }
+        });
+    <?php endif; ?>
+
+
 </script>
 
-<br>
-</br>
-</br>
-    <?php include __DIR__ . '/partials/footer.php';  ?>
-    
-</div>
+<?php include __DIR__ . '/partials/footer.php'; ?>
 </body>
 </html>
-
-
-

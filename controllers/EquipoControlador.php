@@ -11,17 +11,29 @@ class EquipoControlador {
 
     public function guardarEquipo() {
         $id_proyecto = $_POST['id_proyecto'] ?? null;
+        $id_equipo = $_POST['id_equipo'] ?? null;
         $nombre_equipo = $_POST['nombre_equipo'] ?? null;
 
-        if (!empty($id_proyecto) && !empty($nombre_equipo)) {
+        if (empty($id_proyecto)) {
+            echo "ID de proyecto faltante";
+            return;
+        }
+
+        if ($id_equipo === 'nuevo' && !empty($nombre_equipo)) {
+            // Crear nuevo equipo y asignarlo al proyecto
             $this->equipoModel->guardarNombreEquipo($id_proyecto, $nombre_equipo);
-            // Redirigir o retornar JSON según necesidad
-            header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=$id_proyecto");
-            exit;
+        } elseif (!empty($id_equipo)) {
+            // Asignar equipo existente al proyecto
+            $this->equipoModel->asignarEquipoExistenteAProyecto($id_proyecto, $id_equipo);
         } else {
             echo "Datos incompletos";
+            return;
         }
+
+        header("Location: index.php?c=Proyecto&a=planificar&id_proyecto=$id_proyecto");
+        exit;
     }
+
 public function asignarMiembro() {
     $id_equipo = $_POST['id_equipo'] ?? null;
     $id_usuario = $_POST['id_usuario'] ?? null;
@@ -35,7 +47,7 @@ public function asignarMiembro() {
         $proyecto = $this->proyectoModel->obtenerProyectoPorId($id_proyecto);
         $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
         $usuarios = $this->equipoModel->obtenerUsuariosDisponibles();
-        $roles = $this->equipoModel->obtenerRolesProyecto();
+        $roles_proyecto = $this->equipoModel->obtenerRolesProyecto();
         $miembros_equipo = $this->equipoModel->obtenerMiembrosEquipo($equipo['id_equipo']);
 
         $mensaje = $resultado
@@ -49,9 +61,9 @@ public function asignarMiembro() {
 }
 
     public function obtenerRoles() {
-        $roles = $this->equipoModel->obtenerRolesProyecto();
-        return ['status' => 'success', 'data' => $roles];
-        require 'views/planificarProyectosVista.php';
+        $roles_proyecto  = $this->equipoModel->obtenerRolesProyecto();
+        return ['status' => 'success', 'data' => $roles_proyecto ];
+        require 'views/proyecto/gestionarEquipo.php';
     }
 
     public function obtenerEquipoPorProyecto($id_proyecto) {
@@ -79,6 +91,7 @@ public function asignarMiembro() {
     }
     public function mostrar() {
     $idEquipo = $_GET['id_equipo'] ?? null;
+    $id_proyecto = $_POST['id_proyecto'] ?? null;
     if ($idEquipo) {
         $equipo = $this->equipoModel->obtenerEquipoPorProyecto($id_proyecto);
         $miembros = $this->equipoModel->obtenerMiembrosEquipo($idEquipo);
@@ -120,13 +133,14 @@ public function eliminarMiembro() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $idMiembro = $_POST['id_miembro'] ?? null;
         $idEquipo = $_POST['id_equipo'] ?? null;
+        $idProyecto = $_POST['id_proyecto'] ?? null;
 
         if ($idMiembro && $idEquipo) {
             $resultado = $this->equipoModel->eliminarMiembroDeEquipo($idMiembro, $idEquipo); // Método nuevo
 
             if ($resultado) {
-             
-                require_once __DIR__ . '/../view/planificarProyectoVista.php';
+                header('Location: index.php?c=Proyecto&a=planificar&id_proyecto=' . $idProyecto);
+                exit;
             } else {
                 echo "No se pudo eliminar al miembro del equipo.";
             }

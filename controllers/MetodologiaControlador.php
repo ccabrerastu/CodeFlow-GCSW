@@ -75,7 +75,7 @@ class MetodologiaControlador {
             if (!empty($formErrors)) {
                 $_SESSION['form_data'] = $_POST;
                 $_SESSION['form_errors'] = $formErrors;
-                echo "Errores de validación: " . implode(", ", $formErrors); // Simplificado
+                echo "Errores de validación: " . implode(", ", $formErrors);
                 return;
             }
 
@@ -88,10 +88,9 @@ class MetodologiaControlador {
             } else {
                 $_SESSION['status_message'] = ['type' => 'error', 'text' => 'Error al crear la metodología.'];
             }
-            header("Location: index.php?c=Metodologia&a=index"); // Redirigir a la lista
+            header("Location: index.php?c=Metodologia&a=index");
             exit;
         }
-        // Si no es POST, redirigir o mostrar error
         header("Location: index.php?c=Metodologia&a=index");
         exit;
     }

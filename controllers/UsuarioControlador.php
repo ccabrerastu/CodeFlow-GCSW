@@ -86,18 +86,17 @@ class UsuarioControlador {
                 exit;
             }
 
-            // Si no hay errores, proceder a crear el usuario
             $this->usuarioModel->setNombreCompleto($nombre_completo);
             $this->usuarioModel->setNombreUsuario($nombre_usuario);
             $this->usuarioModel->setEmail($email);
-            $this->usuarioModel->setContrasena($contrasena); // El modelo se encarga del hash
-            $this->usuarioModel->setActivo(true); // Por defecto, los nuevos usuarios están activos
+            $this->usuarioModel->setContrasena($contrasena);
+            $this->usuarioModel->setActivo(true);
 
             $nuevoUsuarioId = $this->usuarioModel->agregarUsuario();
 
             if ($nuevoUsuarioId) {
                 $_SESSION['status_message'] = ['type' => 'success', 'text' => '¡Usuario registrado exitosamente! Ahora puedes iniciar sesión.'];
-                header("Location: index.php?c=Login&a=mostrarFormularioLogin"); // Redirigir al login
+                header("Location: index.php?c=Login&a=mostrarFormularioLogin");
                 exit;
             } else {
                 $_SESSION['form_data_registro'] = $formData;
@@ -106,7 +105,6 @@ class UsuarioControlador {
                 exit;
             }
         } else {
-            // Si no es POST, redirigir al formulario de registro
             header("Location: index.php?c=Usuario&a=mostrarFormularioRegistro");
             exit;
         }

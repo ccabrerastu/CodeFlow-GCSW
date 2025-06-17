@@ -65,7 +65,7 @@ class ProyectoModel {
             return false;
         }
 
-        $estado = $this->estado_proyecto ?? 'Activo'; // Valor por defecto
+        $estado = $this->estado_proyecto ?? 'Activo';
 
         $stmt->bind_param("ssiisss",
             $this->nombre_proyecto,
@@ -76,9 +76,9 @@ class ProyectoModel {
             $this->fecha_fin_planificada,
             $estado
         );
-
+        
         if ($stmt->execute()) {
-            $new_id = $stmt->insert_id;
+            $new_id = $this->conexion->insert_id;
             $stmt->close();
             return $new_id;
         } else {
