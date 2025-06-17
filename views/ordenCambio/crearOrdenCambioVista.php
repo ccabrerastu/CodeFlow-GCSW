@@ -32,6 +32,34 @@
       </div>
 
       <div>
+        <label class="block font-medium">Inicio ejecución planificado:</label>
+        <input
+          type="date"
+          name="fecha_inicio_planificada"
+          value="<?= htmlspecialchars($formData['fecha_inicio_planificada'] ?? '') ?>"
+          class="form-input w-full"
+          required
+        />
+        <?php if (!empty($formErrors['fecha_inicio_planificada'])): ?>
+          <div class="text-red-600 text-sm"><?= htmlspecialchars($formErrors['fecha_inicio_planificada']) ?></div>
+        <?php endif; ?>
+      </div>
+
+      <div>
+        <label class="block font-medium">Fin ejecución planificado:</label>
+        <input
+          type="date"
+          name="fecha_fin_ejecucion_planificada"
+          value="<?= htmlspecialchars($formData['fecha_fin_ejecucion_planificada'] ?? '') ?>"
+          class="form-input w-full"
+          required
+        />
+        <?php if (!empty($formErrors['fecha_fin_ejecucion_planificada'])): ?>
+          <div class="text-red-600 text-sm"><?= htmlspecialchars($formErrors['fecha_fin_ejecucion_planificada']) ?></div>
+        <?php endif; ?>
+      </div>
+
+      <div>
         <label class="block font-medium">Ingeniero Responsable:</label>
         <select name="id_responsable" class="form-select w-full" required>
           <option value="">-- Seleccione --</option>
@@ -46,7 +74,6 @@
           <div class="text-red-600 text-sm"><?= htmlspecialchars($formErrors['id_responsable']) ?></div>
         <?php endif; ?>
       </div>
-
       <button type="submit" class="btn-primary">Crear Orden de Cambio</button>
       <a href="index.php?c=OrdenCambio&a=index" class="ml-4 text-gray-600 hover:underline">Cancelar</a>
     </form>
