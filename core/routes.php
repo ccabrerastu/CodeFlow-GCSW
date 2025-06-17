@@ -38,6 +38,12 @@
         if (isset($_GET['id_sc'])) {
             return $controlador->$accion((int)$_GET['id_sc']);
         }
+        if (isset($_GET['clave'])) {
+            return $controlador->$accion($_GET['clave']);
+        }
+        if (get_class($controlador) === 'ReporteControlador' && $accion === 'generarPDF') {
+            return $controlador->generarPDF();
+        }
 
         return $controlador->$accion();
     }

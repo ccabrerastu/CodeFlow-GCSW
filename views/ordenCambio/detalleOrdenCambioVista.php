@@ -27,6 +27,16 @@
     <p><strong>Creada por:</strong> <?= htmlspecialchars($orden['nombre_creador']) ?></p>
     <p><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($orden['fecha_creacion'])) ?></p>
     <p><strong>Estado:</strong> <?= htmlspecialchars($orden['estado']) ?></p>
+    <p><strong>Inicio ejecución planificado:</strong>
+        <?= !empty($orden['fecha_inicio_planificada'])
+            ? date('d/m/Y', strtotime($orden['fecha_inicio_planificada']))
+            : '—' ?>
+    </p>
+    <p><strong>Fin ejecución planificado:</strong>
+        <?= !empty($orden['fecha_fin_planificada'])
+            ? date('d/m/Y', strtotime($orden['fecha_fin_planificada']))
+            : '—' ?>
+    </p>
 
     <h2 class="mt-6 font-semibold">Descripción</h2>
     <p class="whitespace-pre-wrap"><?= nl2br(htmlspecialchars($orden['descripcion'])) ?></p>

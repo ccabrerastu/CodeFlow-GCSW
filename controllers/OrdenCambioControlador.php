@@ -31,9 +31,11 @@
             }
 
             $formData   = $_SESSION['form_data_orden']   ?? [
-                'id_solicitud'       => $id_sc,
-                'descripcion_detalle'=> '',
-                'id_responsable'     => ''
+                'id_solicitud'                 => $id_sc,
+                'descripcion_detalle'          => '',
+                'id_responsable'               => '',
+                'fecha_inicio_planificada'     => '',
+                'fecha_fin_planificada'        => ''
             ];
             $formErrors = $_SESSION['form_errors_orden'] ?? [];
             unset($_SESSION['form_data_orden'], $_SESSION['form_errors_orden']);
@@ -50,14 +52,22 @@
                 exit;
             }
 
-            $id_sc       = filter_input(INPUT_POST, 'id_solicitud',       FILTER_VALIDATE_INT);
-            $detalle     = trim($_POST['descripcion_detalle'] ?? '');
-            $resp        = filter_input(INPUT_POST, 'id_responsable',     FILTER_VALIDATE_INT);
+            $id_sc     = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
+            $detalle   = trim($_POST['descripcion_detalle'] ?? '');
+            $resp      = filter_input(INPUT_POST, 'id_responsable', FILTER_VALIDATE_INT);
+            $fini      = $_POST['fecha_inicio_planificada'] ?? '';
+            $ffin      = $_POST['fecha_fin_ejecucion_planificada'] ?? '';
 
             $formErrors = [];
-            if (!$id_sc)          $formErrors['general']             = "Solicitud inválida.";
+            if (!$id_sc)   $formErrors['general'] = "Solicitud inválida.";
             if (empty($detalle))  $formErrors['descripcion_detalle'] = "Detalle obligatorio.";
-            if (!$resp)           $formErrors['id_responsable']     = "Responsable requerido.";
+            if (!$resp)   $formErrors['id_responsable'] = "Responsable requerido.";
+            if (empty($fini))     $formErrors['fecha_inicio_planificada'] = "Fecha de inicio obligatoria.";
+            if (empty($ffin))     $formErrors['fecha_fin_ejecucion_planificada'] = "Fecha de fin obligatoria.";
+
+            if ($fini && $ffin && $fini > $ffin) {
+                $formErrors['fecha_fin_ejecucion_planificada'] = "La fecha de fin debe ser ≥ fecha de inicio.";
+            }
 
             if ($formErrors) {
                 $_SESSION['form_data_orden']   = $_POST;
@@ -66,7 +76,14 @@
                 exit;
             }
 
-            $newId = $this->model->crearOrden($id_sc, $_SESSION['id_usuario'], $detalle);
+            $newId = $this->model->crearOrden(
+                $id_sc,
+                $_SESSION['id_usuario'],
+                $detalle,
+                $fini,
+                $ffin
+            );
+
             $_SESSION['status_message'] = $newId
                 ? ['type'=>'success','text'=>"Orden #{$newId} creada exitosamente."]
                 : ['type'=>'error','text'=>'Error al crear la orden de cambio.'];

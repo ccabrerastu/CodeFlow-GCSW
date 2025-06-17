@@ -242,4 +242,55 @@ class SolicitudCambioModel {
         $stmt->close();
         return $ok;
     }
+
+    public function obtenerCountPorEstado(): array {
+        $sql = "
+          SELECT estado_sc AS estado, COUNT(*) AS total
+          FROM SolicitudesCambio
+          GROUP BY estado_sc
+        ";
+        $r = $this->db->query($sql);
+        return $r ? $r->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    public function obtenerSolicitudesFiltradas(
+        int $id_proyecto,
+        string $desde,
+        string $hasta,
+        array $estadosSC
+    ): array {
+        $params = [ $id_proyecto ];
+        $types  = "i";
+        $conds  = ["sc.id_proyecto = ?"];
+
+        if ($desde !== '') {
+            $conds[] = "sc.fecha_solicitud >= ?";
+            $params[] = $desde . ' 00:00:00';
+            $types .= "s";
+        }
+        if ($hasta !== '') {
+            $conds[] = "sc.fecha_solicitud <= ?";
+            $params[] = $hasta . ' 23:59:59';
+            $types .= "s";
+        }
+        if (count($estadosSC)) {
+            $in  = implode(",", array_fill(0, count($estadosSC), "?"));
+            $conds[] = "sc.estado_sc IN ($in)";
+            foreach ($estadosSC as $e) { $params[] = $e; $types .= "s"; }
+        }
+
+        $sql = "
+          SELECT sc.estado_sc AS estado, COUNT(*) AS total
+          FROM SolicitudesCambio sc
+          WHERE ". implode(" AND ", $conds) ."
+          GROUP BY sc.estado_sc
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $res;
+    }
 }
