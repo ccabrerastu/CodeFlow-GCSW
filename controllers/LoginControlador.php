@@ -43,6 +43,7 @@ class LoginControlador {
                 $_SESSION['id_usuario'] = $usuarioData['id_usuario'];
                 $_SESSION['nombre_usuario'] = $usuarioData['nombre_usuario'];
                 $_SESSION['nombre_completo'] = $usuarioData['nombre_completo'];
+                $_SESSION['administracion'] = $usuarioData['administracion'];
 
                 header("Location: index.php?c=Metodologia&a=index");
                 exit;

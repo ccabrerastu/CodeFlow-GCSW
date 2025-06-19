@@ -8,6 +8,7 @@ class UsuarioModel {
     private $contrasena_hash;
     private $email;
     private $activo;
+    private $administracion;
     private $conexion;
 
     public function __construct() {
@@ -40,11 +41,13 @@ class UsuarioModel {
 
     public function isActivo() { return $this->activo; }
     public function setActivo($activo) { $this->activo = (bool)$activo; }
+    public function esAdministrador() { return (bool)$this->administracion; }
+    public function setAdministracion($es_admin) { $this->administracion = (int)$es_admin; }
 
 
 
     public function verificarCredenciales($nombre_usuario, $clave_plain) {
-        $stmt = $this->conexion->prepare("SELECT id_usuario, nombre_completo, nombre_usuario, contrasena_hash, email, activo FROM Usuarios WHERE nombre_usuario = ? AND activo = TRUE");
+        $stmt = $this->conexion->prepare("SELECT id_usuario, nombre_completo, nombre_usuario, contrasena_hash, email, activo, administracion FROM Usuarios WHERE nombre_usuario = ? AND activo = TRUE");
         if (!$stmt) {
             error_log("Error en prepare verificarCredenciales: " . $this->conexion->error);
             return null;
@@ -103,7 +106,7 @@ class UsuarioModel {
 
 
     public function findByNombreUsuario($nombre_usuario) {
-        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo FROM Usuarios WHERE nombre_usuario = ?";
+        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo, administracion FROM Usuarios WHERE nombre_usuario = ?";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) { error_log("Error prepare findByNombreUsuario: ".$this->conexion->error); return null; }
         $stmt->bind_param("s", $nombre_usuario);
@@ -117,7 +120,7 @@ class UsuarioModel {
 
 
     public function findByEmail($email) {
-        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo FROM Usuarios WHERE email = ?";
+        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo, administracion FROM Usuarios WHERE email = ?";
         $stmt = $this->conexion->prepare($sql);
         if (!$stmt) { error_log("Error prepare findByEmail: ".$this->conexion->error); return null; }
         $stmt->bind_param("s", $email);
@@ -132,7 +135,7 @@ class UsuarioModel {
 
     public function obtenerTodosLosUsuarios() {
         $conn = $this->conexion;
-        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo FROM Usuarios ORDER BY nombre_completo ASC";
+        $sql = "SELECT id_usuario, nombre_completo, nombre_usuario, email, activo, administracion FROM Usuarios ORDER BY nombre_completo ASC";
         $resultado = $conn->query($sql);
         $usuarios = [];
         if ($resultado) {
@@ -144,6 +147,23 @@ class UsuarioModel {
             error_log("Error en obtenerTodosLosUsuarios: " . $conn->error);
         }
         return $usuarios;
+    }
+
+    public function obtenerUsuarioPorId(int $id_usuario): ?array
+    {
+        $sql  = "SELECT id_usuario, nombre_completo, nombre_usuario, email , administracion
+                FROM Usuarios 
+                WHERE id_usuario = ?";
+        $stmt = $this->conexion->prepare($sql);
+        if (!$stmt) {
+            error_log("UsuarioModel::obtenerUsuarioPorId prepare error: " . $this->conexion->error);
+            return null;
+        }
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $user ?: null;
     }
 
 }

@@ -52,13 +52,15 @@ $baseUrl = "/";
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
+
             </button>
+            
             <a href="#" onclick="history.back(); return false;" title="Atrás" class="p-2 rounded-md hover:bg-gray-200">
                  <img src="<?php echo $baseUrl; ?>assets/imagenes/atras.png" alt="Atrás" class="h-8 w-8" />
             </a>
         </div>
 
-        <a href="/views/DashboardVista.php" id="logo-link-header" class="flex justify-center">
+        <a href="<?php echo $baseUrl; ?>index.php?c=Metodologia&a=index" id="logo-link-header" class="flex justify-center">
              <img src="<?php echo $baseUrl; ?>assets/imagenes/logo_sgc_placeholder.png" alt="Logo SGC" class="h-12" />
         </a>
 
