@@ -84,46 +84,62 @@
         <?= nl2br(htmlspecialchars($orden['descripcion'])) ?>
     </div>
 </div>
-
 <!-- Formulario de Seguimiento -->
 <?php if (!in_array($orden['estado'], ['Terminado', 'Aprobada', 'Rechazada'])): ?>
-    <div class="mb-10">
-        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-4">
-            <i class="fas fa-tasks text-blue-500"></i> Seguimiento de Estado
-        </h2>
+    <section class="mb-12">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-sync-alt text-blue-600 text-xl"></i>
+            <h2 class="text-2xl font-extrabold text-gray-800">Actualizar Estado de la Orden</h2>
+        </div>
+
         <form action="index.php?c=OrdenCambio&a=registrarSeguimiento" method="POST"
-              class="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm space-y-5">
+              class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 shadow-md space-y-6">
+            
             <input type="hidden" name="id_orden" value="<?= $orden['id_orden'] ?>">
 
-            <div>
-                <label class="block text-blue-900 font-semibold mb-1">Nuevo Estado:</label>
-                <select name="nuevo_estado"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            <!-- Nuevo Estado -->
+            <div class="mb-4">
+                <label for="nuevo_estado" class="block text-base font-semibold text-blue-800 mb-2">
+                    <i class="fas fa-exchange-alt mr-1 text-blue-600"></i> Nuevo Estado <span class="text-red-500">*</span>
+                </label>
+                <select name="nuevo_estado" id="nuevo_estado"
+                        class="w-full px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
                         required>
-                    <option value="">-- Seleccione --</option>
-                    <option value="En Proceso" <?= ($formDataSeg['nuevo_estado'] ?? '') === 'En Proceso' ? 'selected' : '' ?>>En Proceso</option>
-                    <option value="Terminado" <?= ($formDataSeg['nuevo_estado'] ?? '') === 'Terminado' ? 'selected' : '' ?>>Terminado</option>
+                    <option value="">— Seleccione —</option>
+                    <option value="En Proceso" <?= ($formDataSeg['nuevo_estado'] ?? '') === 'En Proceso' ? 'selected' : '' ?>>
+                        🟡 En Proceso
+                    </option>
+                    <option value="Terminado" <?= ($formDataSeg['nuevo_estado'] ?? '') === 'Terminado' ? 'selected' : '' ?>>
+                        ✅ Terminado
+                    </option>
                 </select>
+
                 <?php if (!empty($formErrorsSeg['nuevo_estado'])): ?>
-                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrorsSeg['nuevo_estado']) ?></p>
+                    <p class="text-sm text-red-600 mt-2"><?= htmlspecialchars($formErrorsSeg['nuevo_estado']) ?></p>
                 <?php endif; ?>
             </div>
 
-            <div>
-                <label class="block text-blue-900 font-semibold mb-1">Comentario (opcional):</label>
-                <textarea name="comentario" rows="3"
-                          class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><?= htmlspecialchars($formDataSeg['comentario'] ?? '') ?></textarea>
+            <!-- Comentario -->
+            <div class="mb-4">
+                <label for="comentario" class="block text-base font-semibold text-blue-900 mb-2">
+                    <i class="fas fa-comment-alt text-blue-600 mr-1"></i> Comentario (opcional)
+                </label>
+                <textarea name="comentario" id="comentario" rows="4"
+                        placeholder="Agrega un detalle adicional si lo consideras necesario..."
+                        class="w-full px-4 py-2 border border-gray-300 bg-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"><?= htmlspecialchars($formDataSeg['comentario'] ?? '') ?></textarea>
             </div>
 
-            <div>
+            <!-- Botón -->
+            <div class="text-right">
                 <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-2 rounded-lg shadow">
-                    Guardar Seguimiento
+                        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg shadow transition duration-200">
+                    <i class="fas fa-save"></i> Guardar Seguimiento
                 </button>
             </div>
         </form>
-    </div>
+    </section>
 <?php endif; ?>
+
 
 <!-- Historial de Seguimiento -->
 <?php if (!empty($comentarios)): ?>
