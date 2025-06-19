@@ -103,25 +103,21 @@ unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
             </a>
         <?php endif; ?>
 
-<?php if (!empty($archivos)): ?>
-  <div class="mt-6 bg-gray-50 p-4 rounded border">
-    <h2 class="font-semibold mb-2">Archivos Adjuntos:</h2>
-    <ul class="list-disc ml-6">
-      <?php foreach ($archivos as $file):
-          $idAdj = (int) $file['id_adjunto_sc'];
-      ?>
-        <li>
-          <a 
-            href="index.php?c=SolicitudCambio&a=descargarArchivo&id=<?= $idAdj ?>" 
-            class="text-indigo-600 hover:underline"
-          >
-            <?= htmlspecialchars($file['nombre_archivo']) ?>
-          </a>
-        </li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
-<?php endif; ?>
+        <?php if (!empty($archivos)): ?>
+        <div class="mt-6 bg-gray-50 p-4 rounded border">
+            <h2 class="font-semibold mb-2">Archivos Adjuntos:</h2>
+            <ul class="list-disc ml-6">
+            <?php foreach ($archivos as $file): ?>
+                <li>
+                <a href="index.php?c=SolicitudCambio&a=descargarArchivo&id=<?= $file['id_adjunto_sc'] ?>"
+                    class="text-indigo-600 hover:underline">
+                    <?= htmlspecialchars($file['nombre_archivo']) ?>
+                </a>
+                </li>
+            <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
 
         <a href="index.php?c=SolicitudCambio&a=index"
            class="mt-6 inline-block text-blue-600 hover:underline">
