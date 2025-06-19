@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$es_admin = isset($_SESSION['administracion']) && $_SESSION['administracion'] == 1;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -16,11 +20,12 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <h1 class="text-3xl font-bold text-gray-800">
                 Fases de Metodologia <span class="text-blue-600"><?= htmlspecialchars($metodologia['nombre_metodologia'] ?? 'Metodología Desconocida') ?></span>
-            </h1>
-            <a href="index.php?c=FasesMetodologia&a=mostrarFormularioCrear&id_metodologia=<?= htmlspecialchars($metodologia['id_metodologia'] ?? '') ?>"
-               class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-all">
-                <i class="fas fa-plus mr-2"></i> Nueva Fase
-            </a>
+            </h1><?php if ($es_admin): ?>
+                <a href="index.php?c=FasesMetodologia&a=mostrarFormularioCrear&id_metodologia=<?= htmlspecialchars($metodologia['id_metodologia'] ?? '') ?>"
+                   class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-all">
+                    <i class="fas fa-plus mr-2"></i> Nueva Fase
+                </a>
+            <?php endif; ?>
         </div>
 
        <div class="mb-6">
@@ -59,10 +64,12 @@
                                         <i class="fas fa-cubes mr-1"></i> Ver ECS (<?= count($fase['elementos'] ?? []) ?>)
                                         <i class="fas fa-chevron-down ml-2 arrow-icon transition-transform"></i>
                                     </button>
+                                    <?php if ($es_admin):?>
                                     <a href="index.php?c=FasesMetodologia&a=mostrarFormularioEditar&id_fase=<?= $fase['id_fase_metodologia'] ?>"
                                        class="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition text-xs">
                                         <i class="fas fa-edit mr-1"></i> Editar
                                     </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
 
@@ -71,9 +78,11 @@
                                 <td colspan="4" class="bg-gray-50 px-6 py-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <h2 class="text-gray-800 font-medium">ECS de esta fase</h2>
+                                        <?php if ($es_admin):?>
                                         <a href="#" class="text-blue-600 hover:underline text-sm">
                                             <i class="fas fa-plus-circle mr-1"></i> Asociar nuevo ECS
                                         </a>
+                                        <?php endif; ?>
                                     </div>
 
                                     <?php if (!empty($fase['elementos'])): ?>
@@ -87,9 +96,11 @@
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">v<?= htmlspecialchars($ecs['version_actual']) ?></span>
                                                         <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium"><?= htmlspecialchars($ecs['estado_ecs']) ?></span>
+                                                        <?php if ($es_admin):?>
                                                         <button title="Quitar asociación" class="text-red-500 hover:text-red-700">
                                                             <i class="fas fa-times-circle"></i>
                                                         </button>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>

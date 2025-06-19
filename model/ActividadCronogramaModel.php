@@ -253,17 +253,24 @@ class ActividadCronogramaModel {
 
     public function obtenerActividadesPorResponsable($id_usuario) {
         if ($this->conexion === null) return [];
+
+        $this->conexion->query("SET SESSION group_concat_max_len = 1000000;");
+        
         
         $sql = "SELECT 
                     ac.*, 
                     p.nombre_proyecto,
                     c.descripcion as nombre_cronograma,
-                    fm.nombre_fase
+                    fm.nombre_fase,
+                    GROUP_CONCAT(CONCAT(ec.nombre_ecs, '|', ea.ruta_archivo) SEPARATOR '||') as entregables
                 FROM ActividadesCronograma ac
                 JOIN Cronogramas c ON ac.id_cronograma = c.id_cronograma
                 JOIN Proyectos p ON c.id_proyecto = p.id_proyecto
                 LEFT JOIN FasesMetodologia fm ON ac.id_fase_metodologia = fm.id_fase_metodologia
+                LEFT JOIN EntregablesActividad ea ON ac.id_actividad = ea.id_actividad
+                LEFT JOIN ElementosConfiguracion ec ON ea.id_ecs = ec.id_ecs
                 WHERE ac.id_responsable = ?
+                GROUP BY ac.id_actividad
                 ORDER BY p.nombre_proyecto ASC, ac.fecha_inicio_planificada ASC";
 
         $stmt = $this->conexion->prepare($sql);

@@ -43,6 +43,57 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
             </div>
 
             <div>
+                <label for="prioridad" class="form-label">Prioridad:</label>
+                <select name="prioridad" id="prioridad" class="form-select w-full border p-2 rounded" required>
+                    <option value="">-- Seleccione prioridad --</option>
+                    <?php foreach (['ALTA','MEDIA','BAJA'] as $p): ?>
+                        <option value="<?= $p ?>"
+                            <?= (isset($formData['prioridad']) && $formData['prioridad'] === $p) ? 'selected' : '' ?>>
+                            <?= ucfirst(strtolower($p)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!empty($formErrors['prioridad'])): ?>
+                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['prioridad']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <label for="tipo_cambio" class="form-label">Tipo de Cambio:</label>
+                <select name="tipo_cambio" id="tipo_cambio" class="form-select w-full border p-2 rounded" required>
+                    <option value="">-- Seleccionar tipo --</option>
+                    <?php foreach(['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'] as $tc): ?>
+                        <option value="<?= $tc ?>"
+                            <?= (isset($formData['tipo_cambio']) && $formData['tipo_cambio']===$tc) ? 'selected':'' ?>>
+                            <?= ucfirst(strtolower(str_replace('_',' ',$tc))) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (!empty($formErrors['tipo_cambio'])): ?>
+                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['tipo_cambio']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div>
+                <label for="impacto_estimado" class="form-label">Impacto estimado:</label>
+                <input type="text"
+                       id="impacto_estimado"
+                       name="impacto_estimado"
+                       readonly
+                       class="w-full border p-2 rounded bg-gray-100"
+                       value="<?= htmlspecialchars($formData['impacto_estimado'] ?? '') ?>">
+            </div>
+
+            <div>
+                <label for="justificacion" class="form-label">Justificación:</label>
+                <textarea name="justificacion" id="justificacion" rows="3"
+                          class="form-textarea w-full border p-2 rounded"><?= htmlspecialchars($formData['justificacion'] ?? '') ?></textarea>
+                <?php if (!empty($formErrors['justificacion'])): ?>
+                    <p class="text-red-600 text-sm mt-1"><?= htmlspecialchars($formErrors['justificacion']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div>
                 <label for="titulo" class="block font-bold mb-1">Título:</label>
                 <input type="text" name="titulo" id="titulo" class="w-full border p-2 rounded"
                        value="<?= htmlspecialchars($formData['titulo'] ?? '') ?>" required>
@@ -57,19 +108,55 @@ $tituloPagina  = $esEditar ? 'Editar Solicitud de Cambio' : 'Nueva Solicitud de 
                           class="w-full border p-2 rounded" required><?= htmlspecialchars($formData['descripcion'] ?? '') ?></textarea>
             </div>
 
+            <div>
+                <label class="form-label">Adjuntar justificantes:</label>
+                <input type="file" name="archivos[]" multiple class="form-input w-full border p-2 rounded" />
+            </div>
+
             <div class="flex items-center space-x-4">
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
                     <?= $esEditar ? 'Actualizar' : 'Crear' ?>
                 </button>
                 <a href="index.php?c=SolicitudCambio&a=index" class="text-gray-600 hover:underline">Volver a la lista</a>
             </div>
-            <div>
-                <label class="form-label">Adjuntar justificantes:</label>
-                <input type="file" name="archivos[]" multiple class="form-input" />
-            </div>
         </form>
     </div>
 
     <?php include __DIR__ . '/../partials/footer.php'; ?>
+
+    <script>
+    ;(function(){
+        const selPrioridad = document.getElementById('prioridad');
+        const selTipo      = document.getElementById('tipo_cambio');
+        const outImpacto   = document.getElementById('impacto_estimado');
+
+        const pesoPrioridad = { ALTA: 5, MEDIA: 3, BAJA: 1 };
+        const pesoTipo      = { NUEVA_FUNCIONALIDAD: 4, MEJORA: 3, CORRECCION: 2 };
+
+        function calcularImpacto() {
+            const p = selPrioridad.value;
+            const t = selTipo.value;
+            if (!pesoPrioridad[p] || !pesoTipo[t]) {
+                outImpacto.value = '';
+                return;
+            }
+            const suma = pesoPrioridad[p] + pesoTipo[t];
+            const max  = 5 + 4; 
+            const pct  = Math.round(suma / max * 100);
+
+            let label;
+            if (pct <= 20)      label = 'Bajo';
+            else if (pct <= 50) label = 'Moderado';
+            else if (pct <= 80) label = 'Alto';
+            else                label = 'Muy Alto';
+
+            outImpacto.value = `${label} (${pct}%)`;
+        }
+
+        selPrioridad.addEventListener('change', calcularImpacto);
+        selTipo.addEventListener('change', calcularImpacto);
+        calcularImpacto();
+    })();
+    </script>
 </body>
 </html>

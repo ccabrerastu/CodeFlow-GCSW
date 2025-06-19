@@ -16,7 +16,9 @@
         </div>
 
         <?php if (!empty($status)): ?>
-            <div class="mb-4 p-3 rounded <?= $status['type']==='success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+            <div class="mb-4 p-3 rounded <?= $status['type']==='success'
+                     ? 'bg-green-100 text-green-800'
+                     : 'bg-red-100 text-red-800' ?>">
                 <?= htmlspecialchars($status['text']) ?>
             </div>
         <?php endif; ?>
@@ -30,6 +32,8 @@
                     <th class="p-2">Solicitante</th>
                     <th class="p-2">Fecha</th>
                     <th class="p-2">Estado</th>
+                    <th class="p-2">Prioridad</th>
+                    <th class="p-2">Tipo</th>
                     <th class="p-2">Acciones</th>
                 </tr>
             </thead>
@@ -43,6 +47,8 @@
                             <td class="p-2"><?= htmlspecialchars($sol['nombre_completo']) ?></td>
                             <td class="p-2"><?= date('d/m/Y', strtotime($sol['fecha_creacion'])) ?></td>
                             <td class="p-2"><?= htmlspecialchars($sol['estado']) ?></td>
+                            <td class="p-2"><?= htmlspecialchars($sol['prioridad']) ?></td>
+                            <td class="p-2"><?= htmlspecialchars($sol['tipo_cambio']) ?></td>
                             <td class="p-2 space-x-2">
                                 <a href="index.php?c=SolicitudCambio&a=detalle&id_solicitud=<?= $sol['id_solicitud'] ?>"
                                    class="text-blue-600 hover:underline text-sm">Ver</a>
@@ -56,7 +62,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7" class="p-4 text-center text-gray-500">
+                        <td colspan="9" class="p-4 text-center text-gray-500">
                             No hay solicitudes registradas.
                         </td>
                     </tr>
