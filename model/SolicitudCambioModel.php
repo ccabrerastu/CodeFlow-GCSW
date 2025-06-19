@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config/database.php';
 
 class SolicitudCambioModel {
     private $db;
+    private $impacto_est;
+    public function setImpactoEstimado(string $impacto){ $this->impacto_est = $impacto; }
+    public function getImpactoEstimado(): ?string { return $this->impacto_est; }
 
     public function __construct() {
         try {
@@ -13,25 +16,45 @@ class SolicitudCambioModel {
         }
     }
    
+    private function calcularImpacto(string $prioridad, string $tipo_cambio): array {
+        $pesoPrioridad = ['ALTA' => 5, 'MEDIA' => 3, 'BAJA' => 1];
+        $pesoTipo      = ['CORRECCION' => 2, 'MEJORA' => 3, 'NUEVA_FUNCIONALIDAD' => 4];
+
+        $suma        = ($pesoPrioridad[$prioridad] ?? 0) + ($pesoTipo[$tipo_cambio] ?? 0);
+        $max         = max($pesoPrioridad) + max($pesoTipo);
+        $nivel       = (int) ceil($suma / $max * 5);
+        $porcentaje  = (int) round($suma / $max * 100);
+
+        return ['nivel' => $nivel, 'porcentaje' => $porcentaje];
+    }
+
     public function crearSolicitud($id_proyecto, $id_solicitante, $prioridad, $tipo_cambio, $justificacion, $titulo, $descripcion) {
+        $imp = $this->calcularImpacto($prioridad, $tipo_cambio);
+        $nivel      = $imp['nivel'];
+        $porcentaje = $imp['porcentaje'];
+
         $sql = "INSERT INTO SolicitudesCambio 
-                    (id_proyecto, id_solicitante, titulo, descripcion_detallada, justificacion, prioridad, tipo_cambio, fecha_solicitud, estado_sc)
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 'Registrada')";
+                    (id_proyecto, id_solicitante, titulo, descripcion_detallada, justificacion, prioridad, tipo_cambio, impacto, impacto_est, fecha_solicitud, estado_sc)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'Registrada')";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
             error_log("SolicitudCambioModel::crearSolicitud prepare error: " . $this->db->error);
             return false;
         }
+
         $stmt->bind_param(
-            "iisssss",
+            "iisssssii",
             $id_proyecto,
             $id_solicitante,
             $titulo,
             $descripcion,
             $justificacion,
             $prioridad,
-            $tipo_cambio
+            $tipo_cambio,
+            $nivel,
+            $porcentaje
         );
+
         if ($stmt->execute()) {
             $newId = $stmt->insert_id;
             $stmt->close();
@@ -118,6 +141,8 @@ class SolicitudCambioModel {
                     sc.justificacion,
                     sc.prioridad,
                     sc.tipo_cambio,
+                    sc.impacto,
+                    sc.impacto_est,
                     sc.fecha_solicitud         AS fecha_creacion,
                     sc.estado_sc               AS estado,
                     sc.analisis_impacto,
@@ -151,26 +176,23 @@ class SolicitudCambioModel {
 
     public function obtenerSolicitudPorId($id_solicitud) {
         $sql = "SELECT 
-                    sc.id_sc                   AS id_solicitud,
-                    sc.codigo_sc               AS codigo_sc,
+                    sc.id_sc       AS id_solicitud,
                     sc.id_proyecto,
                     p.nombre_proyecto,
                     sc.id_solicitante,
-                    u.nombre_completo          AS nombre_completo,
                     sc.titulo,
-                    sc.descripcion_detallada   AS descripcion,
+                    sc.descripcion_detallada AS descripcion,
                     sc.justificacion,
                     sc.prioridad,
                     sc.tipo_cambio,
-                    sc.fecha_solicitud         AS fecha_creacion,
-                    sc.estado_sc               AS estado,
-                    sc.analisis_impacto,
-                    sc.decision_final,
-                    sc.fecha_decision_final,
-                    sc.fecha_ultima_modificacion
+                    sc.impacto,
+                    sc.impacto_est,
+                    sc.fecha_solicitud      AS fecha_creacion,
+                    sc.estado_sc            AS estado,
+                    u.nombre_completo       AS nombre_completo
                 FROM SolicitudesCambio sc
-                JOIN Usuarios   u ON sc.id_solicitante = u.id_usuario
-                JOIN Proyectos  p ON sc.id_proyecto   = p.id_proyecto
+                JOIN Usuarios u   ON sc.id_solicitante = u.id_usuario
+                JOIN Proyectos p  ON sc.id_proyecto   = p.id_proyecto
                 WHERE sc.id_sc = ?";
         $stmt = $this->db->prepare($sql);
         if (!$stmt) return null;
@@ -182,18 +204,41 @@ class SolicitudCambioModel {
     }
 
     public function actualizarSolicitud($id_solicitud, $prioridad, $tipo_cambio, $justificacion, $titulo, $descripcion) {
+        $imp = $this->calcularImpacto($prioridad, $tipo_cambio);
+        $nivel      = $imp['nivel'];
+        $porcentaje = $imp['porcentaje'];
+
         $sql = "UPDATE SolicitudesCambio
-                SET prioridad         = ?,
-                    tipo_cambio       = ?,
-                    justificacion     = ?,
-                    titulo            = ?,
-                    descripcion_detallada = ?
+                SET prioridad             = ?,
+                    tipo_cambio           = ?,
+                    justificacion         = ?,
+                    titulo                = ?,
+                    descripcion_detallada = ?,
+                    impacto               = ?,
+                    impacto_est           = ?
                 WHERE id_sc = ?";
         $stmt = $this->db->prepare($sql);
-        if (!$stmt) return false;
-        $stmt->bind_param("ssssi i", $prioridad, $tipo_cambio, $justificacion, $titulo, $descripcion, $id_solicitud);
+        if (!$stmt) {
+            error_log("SolicitudCambioModel::actualizarSolicitud prepare error: " . $this->db->error);
+            return false;
+        }
+
+        $stmt->bind_param(
+            "sssssiii",
+            $prioridad,
+            $tipo_cambio,
+            $justificacion,
+            $titulo,
+            $descripcion,
+            $nivel,
+            $porcentaje,
+            $id_solicitud
+        );
+
         $ok = $stmt->execute();
-        if (!$ok) error_log("SolicitudCambioModel::actualizarSolicitud error: " . $stmt->error);
+        if (!$ok) {
+            error_log("SolicitudCambioModel::actualizarSolicitud execute error: " . $stmt->error);
+        }
         $stmt->close();
         return $ok;
     }
