@@ -98,7 +98,7 @@ class OrdenCambioModel {
                 FROM OrdenesCambio oc
                 JOIN SolicitudesCambio sc ON oc.id_sc_origen = sc.id_sc
                 JOIN Usuarios u           ON oc.id_responsable_implementacion = u.id_usuario
-                ORDER BY oc.fecha_generacion DESC";
+                ORDER BY oc.fecha_generacion ASC";
         $r = $this->db->query($sql);
         return $r ? $r->fetch_all(MYSQLI_ASSOC) : [];
     }

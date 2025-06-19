@@ -20,20 +20,28 @@ class SolicitudCambioControlador {
         require __DIR__ . '/../views/solicitudCambio/listarSolicitudesVista.php';
     }
 
+
     public function mostrarFormularioCrear() {
         $formData   = $_SESSION['form_data_solicitud']   ?? [
-            'id_proyecto'  => '',
-            'prioridad'    => '',
-            'tipo_cambio'  => '',
-            'justificacion'=> '',
-            'titulo'       => '',
-            'descripcion'  => ''
+            'id_proyecto'   => '',
+            'prioridad'     => '',
+            'tipo_cambio'   => '',
+            'justificacion' => '',
+            'titulo'        => '',
+            'descripcion'   => ''
         ];
-        $formErrors = $_SESSION['form_errors_solicitud'] ?? [];
         unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
 
-        $proyectos = $this->proyectoModel->obtenerTodosLosProyectos();
+        if (!empty($formData['prioridad']) && !empty($formData['tipo_cambio'])) {
+            $imp = $this->model->calcularImpacto($formData['prioridad'], $formData['tipo_cambio']);
+            $formData['impacto']     = $imp['nivel'];
+            $formData['impacto_est'] = $imp['porcentaje'];
+        } else {
+            $formData['impacto']     = '';
+            $formData['impacto_est'] = '';
+        }
 
+        $proyectos = $this->proyectoModel->obtenerTodosLosProyectos();
         require __DIR__ . '/../views/solicitudCambio/crearEditarSolicitudVista.php';
     }
 
@@ -43,30 +51,20 @@ class SolicitudCambioControlador {
             exit;
         }
 
-        $id_proyecto    = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
-        $id_solicitante = $_SESSION['id_usuario'] ?? null;
-        $prioridad      = $_POST['prioridad']     ?? '';
-        $tipo_cambio    = $_POST['tipo_cambio']   ?? '';
-        $justificacion  = trim($_POST['justificacion'] ?? '');
-        $titulo         = trim($_POST['titulo']        ?? '');
-        $descripcion    = trim($_POST['descripcion']   ?? '');
+        $id_proyecto   = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
+        $id_solicitante= $_SESSION['id_usuario'] ?? null;
+        $prioridad     = $_POST['prioridad']     ?? '';
+        $tipo_cambio   = $_POST['tipo_cambio']   ?? '';
+        $justificacion = trim($_POST['justificacion'] ?? '');
+        $titulo        = trim($_POST['titulo']        ?? '');
+        $descripcion   = trim($_POST['descripcion']   ?? '');
 
         $formErrors = [];
-        if (!$id_proyecto) {
-            $formErrors['id_proyecto'] = "Debe seleccionar un proyecto.";
-        }
-        if (!in_array($prioridad, ['ALTA','MEDIA','BAJA'])) {
-            $formErrors['prioridad'] = "Debe seleccionar una prioridad válida.";
-        }
-        if (!in_array($tipo_cambio, ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'])) {
-            $formErrors['tipo_cambio'] = "Debe seleccionar un tipo de cambio válido.";
-        }
-        if (empty($justificacion)) {
-            $formErrors['justificacion'] = "La justificación es obligatoria.";
-        }
-        if (empty($titulo)) {
-            $formErrors['titulo'] = "El título es obligatorio.";
-        }
+        if (!$id_proyecto)                                                      $formErrors['id_proyecto']   = "Debe seleccionar un proyecto.";
+        if (!in_array($prioridad,     ['ALTA','MEDIA','BAJA'], true))           $formErrors['prioridad']     = "Seleccione una prioridad válida.";
+        if (!in_array($tipo_cambio,   ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'], true)) $formErrors['tipo_cambio'] = "Seleccione un tipo válido.";
+        if (empty($justificacion))                                              $formErrors['justificacion'] = "La justificación es obligatoria.";
+        if (empty($titulo))                                                     $formErrors['titulo']        = "El título es obligatorio.";
 
         if ($formErrors) {
             $_SESSION['form_data_solicitud']   = $_POST;
@@ -84,25 +82,6 @@ class SolicitudCambioControlador {
             $titulo,
             $descripcion
         );
-
-        if ($newId && !empty($_FILES['archivos'])) {
-            foreach ($_FILES['archivos']['error'] as $i => $error) {
-                if ($error === UPLOAD_ERR_OK) {
-                    $tmp  = $_FILES['archivos']['tmp_name'][$i];
-                    $name = basename($_FILES['archivos']['name'][$i]);
-                    $dest = __DIR__ . "/../public/uploads/sc_$newId/$name";
-                    if (!is_dir(dirname($dest))) mkdir(dirname($dest), 0755, true);
-                    if (move_uploaded_file($tmp, $dest)) {
-                        $this->model->guardarArchivo(
-                            $newId,
-                            $name,
-                            $_FILES['archivos']['type'][$i],
-                            "/uploads/sc_$newId/$name"
-                        );
-                    }
-                }
-            }
-        }
 
         $_SESSION['status_message'] = $newId
             ? ['type'=>'success','text'=>'Solicitud creada exitosamente.']
@@ -131,13 +110,10 @@ class SolicitudCambioControlador {
             header("Location: index.php?c=SolicitudCambio&a=index");
             exit;
         }
-
         $formData   = $_SESSION['form_data_solicitud']   ?? $sol;
-        $formErrors = $_SESSION['form_errors_solicitud'] ?? [];
         unset($_SESSION['form_data_solicitud'], $_SESSION['form_errors_solicitud']);
 
         $proyectos = $this->proyectoModel->obtenerTodosLosProyectos();
-
         require __DIR__ . '/../views/solicitudCambio/crearEditarSolicitudVista.php';
     }
 
@@ -148,34 +124,22 @@ class SolicitudCambioControlador {
         }
 
         $id_solicitud  = filter_input(INPUT_POST, 'id_solicitud', FILTER_VALIDATE_INT);
-        $id_proyecto   = filter_input(INPUT_POST, 'id_proyecto', FILTER_VALIDATE_INT);
+        $id_proyecto   = filter_input(INPUT_POST, 'id_proyecto',  FILTER_VALIDATE_INT);
         $prioridad     = $_POST['prioridad']     ?? '';
         $tipo_cambio   = $_POST['tipo_cambio']   ?? '';
         $justificacion = trim($_POST['justificacion'] ?? '');
-        $titulo        = trim($_POST['titulo'] ?? '');
-        $descripcion   = trim($_POST['descripcion'] ?? '');
+        $titulo        = trim($_POST['titulo']       ?? '');
+        $descripcion   = trim($_POST['descripcion']  ?? '');
 
         $formErrors = [];
-        if (!$id_solicitud) {
-            $formErrors['general'] = "ID inválido.";
-        }
-        if (!$id_proyecto) {
-            $formErrors['id_proyecto'] = "Debe seleccionar un proyecto.";
-        }
-        if (!in_array($prioridad, ['ALTA','MEDIA','BAJA'])) {
-            $formErrors['prioridad'] = "Debe seleccionar una prioridad válida.";
-        }
-        if (!in_array($tipo_cambio, ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'])) {
-            $formErrors['tipo_cambio'] = "Debe seleccionar un tipo de cambio válido.";
-        }
-        if (empty($justificacion)) {
-            $formErrors['justificacion'] = "La justificación es obligatoria.";
-        }
-        if (empty($titulo)) {
-            $formErrors['titulo'] = "El título es obligatorio.";
-        }
+        if (!$id_solicitud)                                                     $formErrors['general']        = "ID inválido.";
+        if (!$id_proyecto)                                                      $formErrors['id_proyecto']    = "Debe seleccionar un proyecto.";
+        if (!in_array($prioridad,   ['ALTA','MEDIA','BAJA'], true))             $formErrors['prioridad']      = "Seleccione una prioridad válida.";
+        if (!in_array($tipo_cambio, ['CORRECCION','MEJORA','NUEVA_FUNCIONALIDAD'], true)) $formErrors['tipo_cambio'] = "Seleccione un tipo válido.";
+        if (empty($justificacion))                                              $formErrors['justificacion']  = "La justificación es obligatoria.";
+        if (empty($titulo))                                                     $formErrors['titulo']         = "El título es obligatorio.";
 
-        if (!empty($formErrors)) {
+        if ($formErrors) {
             $_SESSION['form_data_solicitud']   = $_POST;
             $_SESSION['form_errors_solicitud'] = $formErrors;
             header("Location: index.php?c=SolicitudCambio&a=mostrarFormularioEditar&id_solicitud={$id_solicitud}");
@@ -274,24 +238,24 @@ class SolicitudCambioControlador {
         exit;
     }
 
-public function descargarArchivo()
-{
-    $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-    if (!$id) {
-        die("Adjunto inválido.");
-    }
-    $file = $this->model->obtenerArchivoPorId($id);
-    if (!$file) {
-        die("Archivo no encontrado.");
-    }
-    $ruta = $_SERVER['DOCUMENT_ROOT'] . $file['ruta_archivo'];
-    if (!is_readable($ruta)) {
-        die("No se puede leer el archivo.");
-    }
+    public function descargarArchivo()
+    {
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        if (!$id) {
+            die("Adjunto inválido.");
+        }
+        $file = $this->model->obtenerArchivoPorId($id);
+        if (!$file) {
+            die("Archivo no encontrado.");
+        }
+        $ruta = $_SERVER['DOCUMENT_ROOT'] . $file['ruta_archivo'];
+        if (!is_readable($ruta)) {
+            die("No se puede leer el archivo.");
+        }
 
-    header('Content-Type: ' . $file['tipo_archivo']);
-    header('Content-Disposition: attachment; filename="' . basename($file['nombre_archivo']) . '"');
-    readfile($ruta);
-    exit;
-}
+        header('Content-Type: ' . $file['tipo_archivo']);
+        header('Content-Disposition: attachment; filename="' . basename($file['nombre_archivo']) . '"');
+        readfile($ruta);
+        exit;
+    }
 }
