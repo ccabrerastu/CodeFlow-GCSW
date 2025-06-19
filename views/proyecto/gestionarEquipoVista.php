@@ -1,56 +1,60 @@
-<h2 class="section-title">Equipo del Proyecto</h2>
-<?php if (empty($equipo['nombre_equipo'])): ?>
-    <form action="index.php?c=Equipo&a=guardarEquipo" method="POST" class="mb-6" id="formSeleccionEquipo">
+<div class="bg-white shadow-lg rounded-2xl p-6 mb-10 border border-gray-200">
+    <h2 class="text-2xl font-bold text-gray-800 mb-5">Equipo del Proyecto</h2>
+
+    <?php if (empty($equipo['nombre_equipo'])): ?>
+        <form action="index.php?c=Equipo&a=guardarEquipo" method="POST" id="formSeleccionEquipo" class="space-y-5">
+            <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Equipo Existente o Crear Nuevo:</label>
+                <select name="id_equipo" id="selectEquipo" onchange="mostrarFormularioNuevoEquipo(this.value)"
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <option value="">-- Seleccionar equipo --</option>
+                    <?php foreach ($equipos_existentes as $eq): ?>
+                        <option value="<?= $eq['id_equipo'] ?>"><?= htmlspecialchars($eq['nombre_equipo']) ?></option>
+                    <?php endforeach; ?>
+                    <option value="nuevo">➕ Crear nuevo equipo</option>
+                </select>
+            </div>
+
+            <div id="formNuevoEquipo" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Nuevo Equipo:</label>
+                <input type="text" name="nombre_equipo"
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <button type="submit"
+                class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+                <i class="fas fa-save mr-2"></i> Guardar Equipo
+            </button>
+        </form>
+    <?php else: ?>
+        <div class="mb-4">
+            <p class="text-sm text-gray-600">Nombre del Equipo:</p>
+            <p class="text-xl font-semibold text-blue-700"><?= htmlspecialchars($equipo['nombre_equipo']) ?></p>
+        </div>
+    <?php endif; ?>
+</div>
+
+<!-- Asignar miembros -->
+<div class="bg-white shadow-lg rounded-2xl p-6 mb-10 border border-gray-200">
+    <h3 class="text-xl font-bold text-gray-800 mb-5">Miembros del Equipo</h3>
+
+    <?php if (isset($mensaje)): ?>
+        <div class="<?= $mensaje['tipo'] === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?> border border-gray-300 px-4 py-3 rounded-lg mb-5">
+            <strong><?= ucfirst($mensaje['tipo']) ?>:</strong> <?= $mensaje['texto'] ?>
+        </div>
+    <?php endif; ?>
+
+    <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="space-y-5">
+        <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
         <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
 
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Seleccionar Equipo Existente o Crear Nuevo:</label>
-            <select name="id_equipo" id="selectEquipo" onchange="mostrarFormularioNuevoEquipo(this.value)" 
-                class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
-                <option value="">-- Seleccionar equipo --</option>
-                <?php foreach ($equipos_existentes as $eq): ?>
-                    <option value="<?= $eq['id_equipo'] ?>"><?= htmlspecialchars($eq['nombre_equipo']) ?></option>
-                <?php endforeach; ?>
-                <option value="nuevo">➕ Crear nuevo equipo</option>
-            </select>
-        </div>
-
-        <!-- Contenedor del formulario para crear nuevo equipo -->
-        <div id="formNuevoEquipo" class="hidden">
-            <label class="block text-sm font-medium text-gray-700">Nombre del Nuevo Equipo:</label>
-            <input type="text" name="nombre_equipo" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-4">
-            <i class="fas fa-save mr-1"></i> Guardar Equipo
-        </button>
-    </form>
-<?php else: ?>
-    <!-- Sección ya existente para mostrar equipo asignado -->
-    <div class="mb-4">
-        <p class="text-sm font-medium text-gray-700">Nombre del Equipo:</p>
-        <p class="mt-1 text-lg font-semibold text-blue-600"><?= htmlspecialchars($equipo['nombre_equipo']) ?></p>
-    </div>
-<?php endif; ?>
-
-
-    <!-- Asignar miembros al equipo -->
-    <h3 class="text-lg font-semibold text-gray-700 mb-2">Miembros del Equipo</h3>
-    <?php if (isset($mensaje)): ?>
-    <div class="<?= $mensaje['tipo'] === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' ?> border px-4 py-3 rounded mb-4">
-        <strong><?= ucfirst($mensaje['tipo']) ?>:</strong> <?= $mensaje['texto'] ?>
-    </div>
-<?php endif; ?>
-
-    <form action="index.php?c=Equipo&a=asignarMiembro" method="POST" class="mb-6">
-        <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo'] ?? '') ?>">
-    <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Seleccionar Miembro:</label>
-
-                <select name="id_usuario" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Miembro:</label>
+                <select name="id_usuario"
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
                     <option value="">-- Seleccionar usuario --</option>
                     <?php foreach ($usuarios as $usuario): ?>
                         <option value="<?= $usuario['id_usuario'] ?>"><?= htmlspecialchars($usuario['nombre_completo']) ?></option>
@@ -58,8 +62,9 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Rol en el Proyecto:</label>
-                <select name="id_rol_proyecto" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rol en el Proyecto:</label>
+                <select name="id_rol_proyecto"
+                    class="w-full border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500" required>
                     <option value="">-- Seleccionar rol --</option>
                     <?php foreach ($roles_proyecto as $rol): ?>
                         <option value="<?= $rol['id_rol'] ?>"><?= htmlspecialchars($rol['nombre_rol']) ?></option>
@@ -67,53 +72,64 @@
                 </select>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-4">
-            <i class="fas fa-user-plus mr-1"></i> Asignar Miembro
+
+        <button type="submit"
+            class="inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+            <i class="fas fa-user-plus mr-2"></i> Asignar Miembro
         </button>
     </form>
-<?php if (!empty($miembros_equipo)): ?>
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Miembros Asignados</h3>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-            <thead class="bg-gray-100 border-b border-gray-300">
-                <tr>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Nombre Completo</th>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Rol</th>
-                    <th class="text-left px-4 py-2 font-medium text-gray-700">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($miembros_equipo as $miembro): ?>
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
-                        <td class="px-4 py-2 font-semibold text-blue-600"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
-                        <td class="px-4 py-2 space-x-2">
-                        <form method="post" action="index.php?c=Equipo&a=modificarRol" class="inline">
-                            <input type="hidden" name="id_miembro" value="<?= isset($miembro['id_usuario']) ? htmlspecialchars($miembro['id_usuario']) : '' ?>">
-                            <button type="button" 
-                            onclick="abrirModalEditarRol    ('<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>', '<?= isset($miembro['id_rol']) ? htmlspecialchars($miembro['id_rol']) : '' ?>')"
-                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                            ✏️ Modificar Rol
-                            </button>
+</div>
 
-                        </form>
-                        <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
-                            <input type="hidden" name="id_miembro" value="<?= htmlspecialchars($miembro['id_usuario']) ?>">
-                            <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($$equipo['id_equipo']) ?>">
-                            <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                🗑️ Eliminar
-                            </button>
-                        </form>
-                        </td>
+<!-- Tabla de miembros -->
+<?php if (!empty($miembros_equipo)): ?>
+    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200">
+        <h3 class="text-xl font-bold text-gray-800 mb-5">Miembros Asignados</h3>
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100 text-gray-700 text-sm">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Nombre</th>
+                        <th class="px-4 py-2 text-left">Rol</th>
+                        <th class="px-4 py-2 text-left">Acciones</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php foreach ($miembros_equipo as $miembro): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2"><?= htmlspecialchars($miembro['nombre_completo']) ?></td>
+                            <td class="px-4 py-2 text-indigo-600 font-medium"><?= htmlspecialchars($miembro['nombre_rol']) ?></td>
+                            <td class="px-4 py-2 space-x-2">
+                                <button type="button"
+                                    onclick="abrirModalEditarRol(
+                                        '<?= htmlspecialchars($miembro['id_usuario'] ?? '') ?>',
+                                        '<?= htmlspecialchars($miembro['id_rol'] ?? '') ?>'
+                                    )"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition">
+                                    ✏️ Modificar
+                                </button>
+
+                                <form method="post" action="index.php?c=Equipo&a=eliminarMiembro" class="inline"
+                                    onsubmit="return confirm('¿Estás seguro de eliminar este miembro del equipo?');">
+                                    <input type="hidden" name="id_miembro" value="<?= htmlspecialchars($miembro['id_usuario']) ?>">
+                                    <input type="hidden" name="id_equipo" value="<?= htmlspecialchars($equipo['id_equipo']) ?>">
+                                    <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($proyecto['id_proyecto']) ?>">
+                                    <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition">
+                                        🗑️ Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 <?php else: ?>
     <p class="text-gray-500 italic">No hay miembros asignados aún.</p>
 <?php endif; ?>
+<!-- Modal sigue igual, con estilos ya apropiados -->
+
 
 <div id="modalEditarRol" class="fixed inset-0 z-50 hidden bg-black bg-opacity-60 flex items-center justify-center px-4">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
@@ -164,12 +180,5 @@ function mostrarFormularioNuevoEquipo(valor) {
         inputNombre.removeAttribute('required');
     }
 }
-
-
-
-
-
-
-
 
 </script>

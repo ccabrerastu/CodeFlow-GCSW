@@ -105,4 +105,3 @@ $baseUrl = "/";
             console.error("Error JS: Faltan elementos (hamburger-btn, sidebar, header, content-wrapper). Verifica IDs.");
         }
     </script>
-    
